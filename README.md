@@ -5,14 +5,16 @@
 
 
 init env:
-install docker
+install docker & docker-compose
 docker pull alpine/git
 docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git clone https://github.com/A-HSien/Tradingbot.git
-
-
-update source if needed:
 cd Tradingbot
 docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git pull
+
+
+additional commands:
+
+build and check web locally:
 cd tradingbot_web
 docker build -t tradingbot_web .
 docker run -d -p 3000:3000 tradingbot_web
