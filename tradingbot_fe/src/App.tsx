@@ -1,9 +1,25 @@
 import { useEffect } from 'react';
+import Header from './layout/Header';
+import { classnames } from 'src/styles/classnames';
+import {
+  BrowserRouter as Router
+} from "react-router-dom";
+import AppRoutes from './common/AppRoutes';
+import Footer from './layout/Footer';
+import { Provider } from 'mobx-react';
+import stores from './stores';
 
 
-function App() {
+const appStyles = classnames(
+  'bg-white', 'dark:bg-gray-700',
+  'text-black', 'dark:text-white',
+  'min-h-screen'
+);
+
+const App = () => {
 
   useEffect(() => {
+    document.documentElement.classList.add('dark');
     const fetchData = async () => {
       const data = await fetch('/account/all');
       console.log(data);
@@ -11,13 +27,16 @@ function App() {
     fetchData();
   }, []);
 
-
   return (
-    <>
-        <h3>OpenAPI spec: <a href="http://35.194.167.78/openapi.json">/openapi.json</a></h3>
-        <h3>API Explorer: <a href="http://35.194.167.78/explorer">/explorer</a></h3>
-
-    </>
+    <div className={appStyles}>
+      <Provider {...stores}>
+        <Router>
+          <Header />
+          <AppRoutes />
+          <Footer />
+        </Router>
+      </Provider>
+    </div>
   );
 }
 
