@@ -11,7 +11,9 @@ const styles = {
         'min-w-full'
     ),
     tableCell: createClass(
-        'py-3', 'px-2', 'border', 'border-gray-600'
+        'py-3', 'px-2', 
+        'border', 'border-gray-600',
+        'text-center'
     ),
 };
 
