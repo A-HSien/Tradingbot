@@ -1,0 +1,16 @@
+{
+  "ids": {
+    "User": 2,
+    "UserCredentials": 2
+  },
+  "models": {
+    "User": {
+      "23431f74-ffe5-46c9-b14d-31abaf4100fd": "{\"id\":\"23431f74-ffe5-46c9-b14d-31abaf4100fd\",\"username\":\"username\",\"email\":\"email@email.com\"}",
+      "f26edf53-7437-47ec-a6dc-0ec030a53f7e": "{\"id\":\"f26edf53-7437-47ec-a6dc-0ec030a53f7e\",\"email\":\"hsiaohsien0325@gmail.com\",\"verified_email\":true,\"name\":\"張效賢\",\"given_name\":\"效賢\",\"family_name\":\"張\",\"picture\":\"https://lh3.googleusercontent.com/a/AATXAJyfiRtRlP0uLnnUX9xgcuQQ6Hn8DksGlBl4Zi_J=s96-c\",\"locale\":\"zh-TW\",\"activated\":false,\"submitted\":false}"
+    },
+    "UserCredentials": {
+      "9169dda6-f4a8-41fb-9aea-fa42c375279a": "{\"id\":\"9169dda6-f4a8-41fb-9aea-fa42c375279a\",\"password\":\"$2a$10$Keh7A2WbKs0PXdoFCi4XTepH0ccow3IPWXcyr0PKwuf5jXQGfmk5q\",\"userId\":\"23431f74-ffe5-46c9-b14d-31abaf4100fd\"}",
+      "24db5fec-bf42-45aa-887c-d49e61832cd8": "{\"id\":\"24db5fec-bf42-45aa-887c-d49e61832cd8\",\"password\":\"$2a$10$EhXpK1ZMAQGdMAJ6G1xsxuHyqeMTcTxdPmB/FPCdzjaGj97UNuzhW\",\"userId\":\"f26edf53-7437-47ec-a6dc-0ec030a53f7e\"}"
+    }
+  }
+}

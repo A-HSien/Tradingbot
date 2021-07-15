@@ -10,6 +10,10 @@ module.exports = {
     },
   },
   webpack: {
+    configure: (webpackConfig, { paths }) => { 
+        paths.appBuild = webpackConfig.output.path = path.resolve('../tradingbot_web/public');
+        return webpackConfig;
+      },
     alias: {
       // these should match tsconfig.paths.json
       "src": path.resolve(__dirname, "src/"),

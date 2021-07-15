@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import Header from './layout/Header';
 import { classnames } from 'src/styles/classnames';
 import {
-  BrowserRouter as Router
+  HashRouter as Router
 } from "react-router-dom";
 import AppRoutes from './common/AppRoutes';
 import Footer from './layout/Footer';
@@ -20,11 +20,10 @@ const App = () => {
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
-    const fetchData = async () => {
+    (async () => {
       const data = await fetch('/account/all');
       console.log(data);
-    };
-    fetchData();
+    })();
   }, []);
 
   return (

@@ -1,4 +1,5 @@
 import { observer } from "mobx-react";
+import { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 import { getLinkPath, linkMap } from "src/common/AppRoutes";
 import { AuthStatus, authStore } from "src/stores/AuthStore";
@@ -13,16 +14,22 @@ const styles = {
 
 const Login = () => {
 
-    const login = () => {
-        authStore.setAuthStatus(AuthStatus.Authenticated);
-    };
-    
+    const [authUrl, setAuthUrl] = useState('');
+
+    useEffect(() => {
+        fetch('/auth/url')
+            .then(resp => resp.text())
+            .then(url => {
+                setAuthUrl(url);
+            });
+    }, []);
+
     if (authStore.authStatus === AuthStatus.Authenticated)
         return <Redirect push to={getLinkPath(linkMap.Register)} />;
 
     return (
         <div className={styles.root}>
-            <button className={buttonStyle} onClick={login}>登入</button>
+            <a className={buttonStyle} href={authUrl}>登入</a>
         </div >
     );
 };
