@@ -10,16 +10,20 @@ import { inject } from '@loopback/core';
 import { repository } from '@loopback/repository';
 import {
   get, post, param,
-  RestBindings, Request, Response, requestBody
+  RestBindings, Response
 } from '@loopback/rest';
 import { SecurityBindings, securityId, UserProfile } from '@loopback/security';
 import { genSalt, hash } from 'bcryptjs';
 import _ from 'lodash';
 import { GOOGLE_REDIRECT_URL } from '../config';
-import { getGoogleAuthURL, getTokens, getUser, GoogleUser } from '../utilities/google.auth';
+import { getGoogleAuthURL, getUser, GoogleUser } from '../utilities/google.auth';
 
-const MaxAge = 60000 // 10 mins
+const MaxAge = 600000 // 100 mins
 
+type AppUser = User & {
+  activated?: boolean,
+  submitted?: boolean,
+};
 
 export class AuthController {
   constructor(
@@ -44,11 +48,10 @@ export class AuthController {
   ) {
 
     const googleUser = await getUser(code);
-
-    const appUser = await this.findAppUser(googleUser);
-    console.log('appUser', appUser);
-
-
+    let appUser = await this.userRepository.findOne({
+      where: { email: googleUser.email }
+    }) as AppUser;
+    console.log('app user login:', appUser);
     if (!appUser) {
       const password = await hash(googleUser.id, await genSalt());
       const newUser = {
@@ -56,30 +59,35 @@ export class AuthController {
         activated: false,
         submitted: false,
       }
-      console.log('create new user', newUser);
-      const savedUser = await this.userRepository.create(newUser);
-      console.log('saved user', savedUser);
-      await this.userRepository.userCredentials(savedUser.id).create({ password });
-      await this.setAuthToken(googleUser, response);
-      response.redirect('/#/Register/');
-
-    } else {
-
-      await this.setAuthToken(googleUser, response);
-      response.redirect('/#/Account/');
+      appUser = await this.userRepository.create(newUser);
+      console.log('add new user:', appUser);
+      await this.userRepository.userCredentials(appUser.id).create({ password });
     }
 
+    await this.setAuthToken(googleUser, response);
 
-
+    if (!appUser.submitted) response.redirect('/#/Register/');
+    else response.redirect('/#/Accounts/');
   };
 
 
   @authenticate('jwt')
   @post('auth/register')
   async register(
+    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
     @inject(RestBindings.Http.RESPONSE) response: Response,
 
   ) {
+    console.log('register uesr id:',currentUserProfile[securityId]);
+
+    const user = await this.userRepository.findOne({
+      where: { email: currentUserProfile.email }
+    }) as AppUser;
+    if (!user) response.redirect('/#/Login/');
+
+    user.submitted = true;
+    await this.userRepository.update(user);
+    console.log('user registered:', user);
     return true;
   };
 
@@ -93,30 +101,24 @@ export class AuthController {
       email: googleUser.email,
       password: googleUser.id
     });
-    const userProfile = this.userService.convertToUserProfile(user);
-    const token = await this.jwtService.generateToken(userProfile);
-    response.cookie('auth-token', token, { maxAge: MaxAge });
+    response.cookie(
+      'auth-token',
+      await this.getAuthToken(user),
+      {
+        maxAge: MaxAge
+      }
+    );
   };
 
-
-
-  private async findAppUser(
-    googleUser: GoogleUser
+  private async getAuthToken(
+    user: AppUser,
 
   ) {
-    const user = await this.userService.userRepository.findOne({
-      where: { email: googleUser.email }
-    });
-    return user;
+    const userProfile = this.userService.convertToUserProfile(user);
+    const token = await this.jwtService.generateToken(userProfile);
+    console.log('gen token:', token);
+    return token;
   };
 
 
-  @authenticate('jwt')
-  @get('/whoAmI')
-  async whoAmI(
-    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
-
-  ): Promise<string> {
-    return currentUserProfile[securityId];
-  };
 }

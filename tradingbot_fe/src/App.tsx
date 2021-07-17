@@ -5,14 +5,16 @@ import {
   HashRouter as Router
 } from "react-router-dom";
 import AppRoutes from './common/AppRoutes';
-import Footer from './layout/Footer';
+// import Footer from './layout/Footer';
 import { Provider } from 'mobx-react';
 import stores from './stores';
+import './common/AxiosInterceptors';
+import baseStyles from './styles';
 
 
 const appStyles = classnames(
-  'bg-white', 'dark:bg-gray-700',
-  'text-black', 'dark:text-white',
+  baseStyles.background,
+  baseStyles.textColor,
   'min-h-screen'
 );
 
@@ -20,10 +22,6 @@ const App = () => {
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
-    (async () => {
-      const data = await fetch('/account/all');
-      console.log(data);
-    })();
   }, []);
 
   return (
@@ -32,7 +30,7 @@ const App = () => {
         <Router>
           <Header />
           <AppRoutes />
-          <Footer />
+          {/* <Footer /> */}
         </Router>
       </Provider>
     </div>

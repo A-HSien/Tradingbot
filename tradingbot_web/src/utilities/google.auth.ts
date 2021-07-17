@@ -34,7 +34,6 @@ export const getTokens = (code: string):
     id_token: string;
   }> => {
 
-  console.info('getTokens code:', code)
   const values = {
     code,
     client_id: GOOGLE_CLIENT_ID,

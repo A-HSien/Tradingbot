@@ -1,14 +1,14 @@
 import { observer } from "mobx-react";
 import { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
-import { getLinkPath, linkMap } from "src/common/AppRoutes";
+import { getLinkPath, linkMap } from "src/common/Manu";
+import config from "src/config";
 import { AuthStatus, authStore } from "src/stores/AuthStore";
-import { createClass, buttonStyle } from "src/styles";
+import baseStyles, { createClass } from "src/styles";
 
 const styles = {
     root: createClass(
-        'm-16', 'p-16', 'border', 'rounded',
-        'bg-gray-700', 'text-gray-900'
+        'm-16', 'p-16',
     )
 };
 
@@ -17,11 +17,13 @@ const Login = () => {
     const [authUrl, setAuthUrl] = useState('');
 
     useEffect(() => {
-        fetch('/auth/url')
-            .then(resp => resp.text())
-            .then(url => {
-                setAuthUrl(url);
-            });
+        if (config.isDev) setAuthUrl('/#/Register');
+        else
+            fetch('/auth/url')
+                .then(resp => resp.text())
+                .then(url => {
+                    setAuthUrl(url);
+                });
     }, []);
 
     if (authStore.authStatus === AuthStatus.Authenticated)
@@ -29,7 +31,7 @@ const Login = () => {
 
     return (
         <div className={styles.root}>
-            <a className={buttonStyle} href={authUrl}>登入</a>
+            <a className={baseStyles.buttonStyle} href={authUrl}>登入</a>
         </div >
     );
 };

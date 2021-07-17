@@ -1,6 +1,6 @@
 import { createClass } from "src/styles";
 import { Link } from "react-router-dom";
-import { getLinkPath, menus } from "../common/AppRoutes";
+import { getLinkPath, menus } from "../common/Manu";
 import { AuthStatus, authStore } from "src/stores/AuthStore";
 import { observer } from "mobx-react";
 

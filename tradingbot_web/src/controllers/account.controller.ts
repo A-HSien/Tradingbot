@@ -1,3 +1,4 @@
+import { authenticate } from '@loopback/authentication';
 import { inject } from '@loopback/core';
 import {
   Request,
@@ -7,47 +8,55 @@ import {
   requestBody,
 } from '@loopback/rest';
 import Binance from 'binance-api-node';
-import { Account, accounts } from '../models/Account';
+import { Account, AccountSecrets, mockAccounts } from '../models/Account';
 
 
 
+@authenticate('jwt')
 export class AccountController {
 
 
   constructor(
-    @inject(RestBindings.Http.REQUEST) private req: Request
   ) { };
 
-  @get('/account/all')
+
+  @get('/accounts/all')
   async all() {
     const infos = await Promise.all(
-      accounts
-        .map(account => {
-          const client = Binance(account);
-          return client.accountInfo();
-        })
-        .map(task =>
-          task.catch(err => {
-            console.error(err);
-            return { error: err.toString() };
-          })
-        )
+      mockAccounts.map(account => this.getAccountInfo(account))
     );
     return infos;
   };
 
-  @post('/account/add')
-  add(
+
+  @post('/accounts/save')
+  async save(
     @requestBody() account: Account,
   ) {
-    console.log(account);
+    if (!account.id) {
+      const accInfo = await this.getAccountInfo(account);
+      if (accInfo.error) throw Error(accInfo.error);
+    }
+
+
   };
 
 
-  @post('/account/update')
-  update(
-    @requestBody() account: Account,
-  ) {
-    console.log(account);
-  };
+  private getAccountInfo(account: Account) {
+
+    const client = Binance({
+      apiKey: account.apiKey,
+      apiSecret: account.apiSecret
+    });
+    return client.accountInfo()
+      .then(info => {
+        account.balances = info.balances;
+        return account;
+      })
+      .catch(err => {
+        console.error('getAccountInfo error:', err);
+        account.error = err.toString();
+        return account;
+      });
+  }
 }
