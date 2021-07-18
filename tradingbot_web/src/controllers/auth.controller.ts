@@ -2,7 +2,6 @@ import { authenticate, TokenService } from '@loopback/authentication';
 import {
   MyUserService,
   TokenServiceBindings,
-  User,
   UserRepository,
   UserServiceBindings,
 } from '@loopback/authentication-jwt';
@@ -16,14 +15,11 @@ import { SecurityBindings, securityId, UserProfile } from '@loopback/security';
 import { genSalt, hash } from 'bcryptjs';
 import _ from 'lodash';
 import { GOOGLE_REDIRECT_URL } from '../config';
-import { getGoogleAuthURL, getUser, GoogleUser } from '../utilities/google.auth';
+import { AppUser } from '../domains/AppUser';
+import { getGoogleAuthURL, getUser, GoogleUser } from '../services/GoogleAuthSvc';
 
 const MaxAge = 600000 // 100 mins
 
-type AppUser = User & {
-  activated?: boolean,
-  submitted?: boolean,
-};
 
 export class AuthController {
   constructor(
@@ -74,8 +70,7 @@ export class AuthController {
   @authenticate('jwt')
   @post('auth/register')
   async register(
-    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
-    @inject(RestBindings.Http.RESPONSE) response: Response,
+    @inject(SecurityBindings.USER) currentUserProfile: UserProfile
 
   ) {
     console.log('register uesr id:',currentUserProfile[securityId]);
@@ -83,7 +78,7 @@ export class AuthController {
     const user = await this.userRepository.findOne({
       where: { email: currentUserProfile.email }
     }) as AppUser;
-    if (!user) response.redirect('/#/Login/');
+    if (!user) throw new Error('user not found');
 
     user.submitted = true;
     await this.userRepository.update(user);

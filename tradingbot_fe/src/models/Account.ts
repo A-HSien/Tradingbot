@@ -17,7 +17,7 @@ export type Account = {
 
 export type EditingAccount = Account & {
     apiKey?: string,
-    secretKey?: string,
+    apiSecret?: string,
 };
 
 

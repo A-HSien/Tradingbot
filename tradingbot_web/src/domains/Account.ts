@@ -1,18 +1,25 @@
-import { AssetBalance } from "binance-api-node";
 
 
 export type AccountSecrets = {
-    apiKey: string;
-    apiSecret: string;
+    apiKey: string,
+    apiSecret: string,
 };
 
+export type Balance = {
+    asset: string,
+    free: number,
+    locked: number,
+}
+
 export interface Account extends AccountSecrets {
-    id: string;
-    name: string;
-    disabled?: boolean;
+    id?: string,
+    ownerId: string,
+    name: string,
+    disabled?: boolean,
     quota: number,
-    balances?: AssetBalance[],
-    error?: string
+    balances?: Balance[],
+    balancesLastUpdateTime?: Date,
+    error?: string,
 }
 
 

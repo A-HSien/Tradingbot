@@ -18,7 +18,7 @@ axios.interceptors.response.use(response => {
 
         switch (error.response.status) {
             case 401:
-                window.location.href = '/#/Login';
+                window.location.href = '/';
                 break
         }
     }

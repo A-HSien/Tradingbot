@@ -32,7 +32,7 @@ const newAccount: EditingAccount = {
     id: '',
     name: '',
     apiKey: '',
-    secretKey: '',
+    apiSecret: '',
     quota: 0,
     disabled: false,
 };
@@ -67,8 +67,8 @@ const AccountEditor = () => {
             if (!account.apiKey)
                 errors.push('請輸入 api Key');
 
-            if (!account.secretKey)
-                errors.push('請輸入 secret Key');
+            if (!account.apiSecret)
+                errors.push('請輸入 api Secret');
 
             setAccount({ ...account, error: errors.join('\n') });
         }
@@ -95,10 +95,10 @@ const AccountEditor = () => {
                     onChange={onChange}
                 />
 
-                <label>Secret key</label>
+                <label>API Secret</label>
                 <input className={styles.input}
-                    name="secretKey"
-                    type="text" value={account.secretKey}
+                    name="apiSecret"
+                    type="text" value={account.apiSecret}
                     onChange={onChange}
                 />
             </>
@@ -113,7 +113,7 @@ const AccountEditor = () => {
 
         <label>停用</label>
         <input className={styles.checkbox}
-            name="disable"
+            name="disabled"
             type="checkbox" checked={account.disabled}
             onChange={onChange}
         />

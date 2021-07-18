@@ -1,14 +1,13 @@
 import { authenticate } from '@loopback/authentication';
 import { inject } from '@loopback/core';
 import {
-  Request,
-  RestBindings,
-  get,
-  post,
+  get, post,
   requestBody,
 } from '@loopback/rest';
-import Binance from 'binance-api-node';
-import { Account, AccountSecrets, mockAccounts } from '../models/Account';
+import { SecurityBindings, securityId, UserProfile } from '@loopback/security';
+import { Account, mockAccounts } from '../domains/Account';
+import AccountRepo from '../repositories/AccountRepo';
+import { updateAccountInfo } from '../services/BinanceSvc';
 
 
 
@@ -21,9 +20,18 @@ export class AccountController {
 
 
   @get('/accounts/all')
-  async all() {
+  async all(
+    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
+
+  ) {
+    const userId = currentUserProfile[securityId];
+
+    const accounts: Account[] = await AccountRepo.where({
+      'ownerId': userId
+    });
+
     const infos = await Promise.all(
-      mockAccounts.map(account => this.getAccountInfo(account))
+      accounts.map(account => updateAccountInfo(account))
     );
     return infos;
   };
@@ -31,32 +39,34 @@ export class AccountController {
 
   @post('/accounts/save')
   async save(
+    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
     @requestBody() account: Account,
+
   ) {
-    if (!account.id) {
-      const accInfo = await this.getAccountInfo(account);
-      if (accInfo.error) throw Error(accInfo.error);
+    console.log('/accounts/save', account);
+    account.ownerId = currentUserProfile[securityId];
+
+    if (account.id) {
+
+      const before: Account = await AccountRepo.findById(account.id);
+      if (!before) account.id = '';
+      else {
+        account = {
+          ...account,
+          apiKey: before.apiKey,
+          apiSecret: before.apiSecret,
+        }
+      }
     }
 
+    account = await updateAccountInfo(account);
+    if (account.error) throw Error(account.error);
 
+    !account.id ?
+      await AccountRepo.create(account) :
+      await AccountRepo.updateOne(account);
   };
 
 
-  private getAccountInfo(account: Account) {
 
-    const client = Binance({
-      apiKey: account.apiKey,
-      apiSecret: account.apiSecret
-    });
-    return client.accountInfo()
-      .then(info => {
-        account.balances = info.balances;
-        return account;
-      })
-      .catch(err => {
-        console.error('getAccountInfo error:', err);
-        account.error = err.toString();
-        return account;
-      });
-  }
-}
+};

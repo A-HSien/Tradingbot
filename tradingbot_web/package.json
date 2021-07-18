@@ -59,6 +59,7 @@
     "@loopback/service-proxy": "^3.2.1",
     "axios": "^0.21.1",
     "binance-api-node": "^0.11.5",
+    "mongoose": "^5.13.3",
     "querystring": "^0.2.1",
     "tslib": "^2.0.0"
   },
