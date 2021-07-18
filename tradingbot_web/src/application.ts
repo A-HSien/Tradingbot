@@ -39,7 +39,7 @@ export class TradingbotWebApplication extends BootMixin(
       controllers: {
         // Customize ControllerBooter Conventions here
         dirs: ['controllers'],
-        extensions: ['.controller.js'],
+        extensions: ['Controller.js'],
         nested: true,
       },
     };
