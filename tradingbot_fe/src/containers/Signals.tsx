@@ -7,7 +7,9 @@ import baseStyles, { createClass } from "src/styles";
 const styles = {
     token: createClass(
         'w-full', 'break-all',
-        'rounded', 'bg-gray-700',
+        'border', 'rounded-xl',
+        'bg-gray-600',
+        'p-2', 'mb-3'
     ),
     table: baseStyles.table,
     tableCell: createClass(
@@ -22,29 +24,26 @@ const Signals = () => {
     const [fields, setFields] = useState([] as string[]);
     const [token, setToken] = useState('');
 
-    const loadData = () => {
-        axios.get<any[]>('/signal/history')
-            .then(r => r.data)
-            .then(history => {
-                setHistory(history);
-                const fieldSet = new Set<string>();
-                history.forEach(data => {
-                    Object.keys(data).forEach(key => {
-                        if (!key.startsWith('_'))
-                            fieldSet.add(key);
-                    });
-                });
-                setFields(Array.from(fieldSet));
+    const loadData = async () => {
+        const history = await axios.get<any[]>('/signal/history')
+            .then(r => r.data);
+        setHistory(history);
+        const fieldSet = new Set<string>();
+        history.forEach(data => {
+            Object.keys(data).forEach(key => {
+                if (!key.startsWith('_'))
+                    fieldSet.add(key);
             });
+        });
+        setFields(Array.from(fieldSet));
     };
 
     useEffect(() => {
-        
+
         loadData();
 
         axios.get<string>('/signal/getToken').then(r => {
             setToken(r.data);
-            return r.data;
         });
 
     }, []);
