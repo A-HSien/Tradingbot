@@ -36,7 +36,7 @@ export class JWTAuthenticationComponent implements Component {
       TokenServiceConstants.TOKEN_SECRET_VALUE,
     ),
     Binding.bind(TokenServiceBindings.TOKEN_EXPIRES_IN).to(
-      TokenServiceConstants.TOKEN_EXPIRES_IN_VALUE,
+      TokenServiceConstants.TOKEN_EXPIRES_IN_VALUE.toString(),
     ),
     Binding.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService),
 
