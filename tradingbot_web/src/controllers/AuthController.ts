@@ -2,6 +2,7 @@ import { authenticate, TokenService } from '@loopback/authentication';
 import {
   MyUserService,
   TokenServiceBindings,
+  TokenServiceConstants,
   UserRepository,
   UserServiceBindings,
 } from '../auth';
@@ -9,9 +10,9 @@ import { inject } from '@loopback/core';
 import { repository } from '@loopback/repository';
 import {
   get, post, param,
-  RestBindings, Response, requestBody
+  RestBindings, Response
 } from '@loopback/rest';
-import { SecurityBindings, securityId, UserProfile } from '@loopback/security';
+import { SecurityBindings, UserProfile } from '@loopback/security';
 import { genSalt, hash } from 'bcryptjs';
 import _ from 'lodash';
 import { GOOGLE_REDIRECT_URL } from '../config';
@@ -19,7 +20,6 @@ import { AppUser } from '../domains/AppUser';
 import { getGoogleAuthURL, getUser, GoogleUser } from '../common/GoogleAuth';
 import { logger } from '../common/Logger';
 
-const MaxAge = 600000 // 100 mins
 
 
 export class AuthController {
@@ -96,7 +96,7 @@ export class AuthController {
       'auth-token',
       await this.getAuthToken(user),
       {
-        maxAge: MaxAge
+        maxAge: TokenServiceConstants.TOKEN_EXPIRES_IN_VALUE
       }
     );
   };

@@ -4,4 +4,5 @@ export const GOOGLE_CLIENT_ID =
 export const GOOGLE_CLIENT_SECRET =
   process.env.GOOGLE_CLIENT_SECRET || "4YpsWVhOF8qyM4w0_7H7iTX-";
 export const GOOGLE_REDIRECT_URL = "auth/google";
-export const SERVER_ROOT_URI = "http://localhost:3000";
+export const SERVER_ROOT_URI =
+  process.env.SERVER_ROOT_URI || "http://localhost:3000";
