@@ -1,5 +1,5 @@
 import {BootMixin} from '@loopback/boot';
-import {ApplicationConfig} from '@loopback/core';
+import {ApplicationConfig, Binding} from '@loopback/core';
 import {
   RestExplorerBindings,
   RestExplorerComponent,
@@ -10,7 +10,7 @@ import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
 import {AuthenticationComponent} from '@loopback/authentication';
-import {JWTAuthenticationComponent, UserServiceBindings} from '@loopback/authentication-jwt';
+import {JWTAuthenticationComponent, UserServiceBindings} from './auth';
 import {DbDataSource} from './datasources';
 
 export {ApplicationConfig};

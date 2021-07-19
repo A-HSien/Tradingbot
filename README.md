@@ -41,9 +41,16 @@ db.createUser({
     ]
 });
 db.auth('admin', 'password')
+
+use test
 db.createUser({
     user:'dbUser',pwd:'password',
     roles:[{role:'readWrite',db:'test'}]
 });
 docker stop mymongo
 docker run --name mymongo -v $(pwd)/data:/data/db -d -p 27017:27017 --rm mongo --auth
+
+
+db.auth('dbUser', 'password')
+db.getCollectionNames()
+db.<collection>.drop()

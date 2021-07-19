@@ -30,6 +30,20 @@ const buttonStyle = createClass(
 );
 
 
+const table = createClass(
+    'table-auto', 'rounded',
+    'border-collapse', 'border', 'border-gray-800',
+    'w-full'
+);
+
+const tableCell = createClass(
+    'py-3', 'px-2',
+    'border', 'border-gray-600',
+    'h-10',
+    'text-center'
+);
+
+
 const styles = {
     background,
     textColor,
@@ -37,5 +51,6 @@ const styles = {
     border,
     borderGray,
     buttonStyle,
+    table, tableCell,
 };
 export default styles;

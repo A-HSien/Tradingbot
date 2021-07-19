@@ -1,5 +1,5 @@
 import { ApplicationConfig, TradingbotWebApplication } from './application';
-import './repositories';
+import './repositories/ConnectDB';
 
 export * from './application';
 

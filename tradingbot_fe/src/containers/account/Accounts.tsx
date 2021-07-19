@@ -7,26 +7,14 @@ import { newAccountId } from "./AccountEditor";
 
 
 const styles = {
-    root: createClass(
-        baseStyles.pageEdge
-    ),
     actions: createClass(
         'flex', 'justify-end'
     ),
     action: createClass(
         baseStyles.buttonStyle, 'w-28',
     ),
-    table: createClass(
-        'table-auto', 'rounded',
-        'border-collapse', 'border', 'border-gray-800',
-        'min-w-full'
-    ),
-    tableCell: createClass(
-        'py-3', 'px-2',
-        'border', 'border-gray-600',
-        'h-10',
-        'text-center'
-    ),
+    table: baseStyles.table,
+    tableCell: baseStyles.tableCell,
     balancesCell: createClass(
         'h-full', 'overflow-auto',
         'text-left'
@@ -47,7 +35,7 @@ const Accounts = () => {
     }, []);
 
     return (
-        <div className={styles.root}>
+        <div className={baseStyles.pageEdge}>
             <div className={styles.actions}>
                 <Link className={styles.action} to={`/Account/${newAccountId}`}>新增帳號</Link>
             </div>

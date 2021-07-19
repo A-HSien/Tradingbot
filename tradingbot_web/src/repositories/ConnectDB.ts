@@ -7,7 +7,7 @@ import AppUserRepo from './AppUserRepo';
 
 const connectDB = () =>
     connect(
-        'mongodb://dbUser:password@localhost:27017/test?authSource=admin',
+        'mongodb://dbUser:password@localhost:27017/test',
         {
             useNewUrlParser: true,
             useUnifiedTopology: true

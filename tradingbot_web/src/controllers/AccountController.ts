@@ -5,9 +5,9 @@ import {
   requestBody,
 } from '@loopback/rest';
 import { SecurityBindings, securityId, UserProfile } from '@loopback/security';
-import { Account, mockAccounts } from '../domains/Account';
+import { Account } from '../domains/Account';
 import AccountRepo from '../repositories/AccountRepo';
-import { updateAccountInfo } from '../services/BinanceSvc';
+import { updateAccountInfo } from '../common/Binance';
 
 
 

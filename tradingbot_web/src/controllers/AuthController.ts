@@ -4,19 +4,19 @@ import {
   TokenServiceBindings,
   UserRepository,
   UserServiceBindings,
-} from '@loopback/authentication-jwt';
+} from '../auth';
 import { inject } from '@loopback/core';
 import { repository } from '@loopback/repository';
 import {
   get, post, param,
-  RestBindings, Response
+  RestBindings, Response, requestBody
 } from '@loopback/rest';
 import { SecurityBindings, securityId, UserProfile } from '@loopback/security';
 import { genSalt, hash } from 'bcryptjs';
 import _ from 'lodash';
 import { GOOGLE_REDIRECT_URL } from '../config';
 import { AppUser } from '../domains/AppUser';
-import { getGoogleAuthURL, getUser, GoogleUser } from '../services/GoogleAuthSvc';
+import { getGoogleAuthURL, getUser, GoogleUser } from '../common/GoogleAuth';
 
 const MaxAge = 600000 // 100 mins
 
@@ -25,7 +25,6 @@ export class AuthController {
   constructor(
     @inject(TokenServiceBindings.TOKEN_SERVICE) private jwtService: TokenService,
     @inject(UserServiceBindings.USER_SERVICE) private userService: MyUserService,
-    @inject(SecurityBindings.USER, { optional: true }) private user: UserProfile,
     @repository(UserRepository) protected userRepository: UserRepository,
   ) { };
 
@@ -70,14 +69,10 @@ export class AuthController {
   @authenticate('jwt')
   @post('auth/register')
   async register(
-    @inject(SecurityBindings.USER) currentUserProfile: UserProfile
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
 
   ) {
-    console.log('register uesr id:',currentUserProfile[securityId]);
-
-    const user = await this.userRepository.findOne({
-      where: { email: currentUserProfile.email }
-    }) as AppUser;
+    const user = await this.userRepository.findById(currentUser.id) as AppUser;
     if (!user) throw new Error('user not found');
 
     user.submitted = true;

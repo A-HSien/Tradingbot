@@ -6,7 +6,7 @@
   "models": {
     "User": {
       "23431f74-ffe5-46c9-b14d-31abaf4100fd": "{\"id\":\"23431f74-ffe5-46c9-b14d-31abaf4100fd\",\"username\":\"username\",\"email\":\"email@email.com\",\"submitted\":true}",
-      "f26edf53-7437-47ec-a6dc-0ec030a53f7e": "{\"id\":\"f26edf53-7437-47ec-a6dc-0ec030a53f7e\",\"email\":\"hsiaohsien0325@gmail.com\",\"verified_email\":true,\"name\":\"張效賢\",\"given_name\":\"效賢\",\"family_name\":\"張\",\"picture\":\"https://lh3.googleusercontent.com/a/AATXAJyfiRtRlP0uLnnUX9xgcuQQ6Hn8DksGlBl4Zi_J=s96-c\",\"locale\":\"zh-TW\",\"activated\":false,\"submitted\":false}",
+      "f26edf53-7437-47ec-a6dc-0ec030a53f7e": "{\"id\":\"f26edf53-7437-47ec-a6dc-0ec030a53f7e\",\"email\":\"hsiaohsien0325@gmail.com\",\"verified_email\":true,\"name\":\"張效賢\",\"given_name\":\"效賢\",\"family_name\":\"張\",\"picture\":\"https://lh3.googleusercontent.com/a/AATXAJyfiRtRlP0uLnnUX9xgcuQQ6Hn8DksGlBl4Zi_J=s96-c\",\"locale\":\"zh-TW\",\"activated\":false,\"submitted\":true}",
       "6c491d9d-9cfc-44a3-aa3f-a63c85ab497b": "{\"id\":\"6c491d9d-9cfc-44a3-aa3f-a63c85ab497b\",\"email\":\"ahsien.chang.tw@ffn.com\",\"verified_email\":true,\"name\":\"Ahsien Chang\",\"given_name\":\"Ahsien\",\"family_name\":\"Chang\",\"picture\":\"https://lh3.googleusercontent.com/a-/AOh14GhCzRXpO6xhvlGYO4lsmdYgg4ajxvu8IUIFNEIu=s96-c\",\"locale\":\"zh-TW\",\"hd\":\"ffn.com\",\"activated\":false,\"submitted\":false}"
     },
     "UserCredentials": {
