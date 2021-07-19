@@ -1,4 +1,5 @@
 import { ApplicationConfig, TradingbotWebApplication } from './application';
+import { logger } from './common/Logger';
 import './repositories/ConnectDB';
 
 export * from './application';
@@ -9,8 +10,8 @@ export async function main(options: ApplicationConfig = {}) {
   await app.start();
 
   const url = app.restServer.url;
-  console.log(`Server is running at ${url}`);
-  console.log(`Try ${url}/ping`);
+  logger.debug(`Server is running at ${url}`);
+  logger.debug(`Try ${url}/ping`);
 
 
   return app;
@@ -35,7 +36,7 @@ if (require.main === module) {
     },
   };
   main(config).catch(err => {
-    console.error('Cannot start the application.', err);
+    logger.error('Cannot start the application.', err);
     process.exit(1);
   });
 }

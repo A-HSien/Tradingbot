@@ -1,5 +1,6 @@
 import Binance from 'binance-api-node';
 import { Account } from '../domains/Account';
+import { logger } from './Logger';
 
 
 export const updateAccountInfo = (account: Account) => {
@@ -22,7 +23,7 @@ export const updateAccountInfo = (account: Account) => {
             return account;
         })
         .catch(err => {
-            console.error('getAccountInfo error:', err);
+            logger.error('getAccountInfo error:', err);
             account.error = err.toString();
             return account;
         });

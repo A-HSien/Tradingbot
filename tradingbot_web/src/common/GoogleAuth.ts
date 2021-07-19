@@ -4,6 +4,7 @@ import {
 } from '../config';
 import querystring from "querystring";
 import axios from 'axios';
+import { logger } from './Logger';
 
 const url = "https://oauth2.googleapis.com/token";
 
@@ -50,7 +51,7 @@ export const getTokens = (code: string):
     })
     .then((res) => res.data)
     .catch((error) => {
-      console.error(`Failed to fetch auth tokens`);
+      logger.error(`Failed to fetch auth tokens`);
       throw new Error(error.message);
     });
 };
@@ -81,7 +82,7 @@ export const getUser = async (code: string):
     )
     .then((res) => res.data)
     .catch((error) => {
-      console.error(`Failed to fetch user`);
+      logger.error(`Failed to fetch user`);
       throw new Error(error.message);
     });
 };

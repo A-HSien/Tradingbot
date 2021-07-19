@@ -64,7 +64,9 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.13.3",
     "querystring": "^0.2.1",
-    "tslib": "^2.0.0"
+    "tslib": "^2.0.0",
+    "winston": "^3.3.3",
+    "winston-daily-rotate-file": "^4.5.5"
   },
   "devDependencies": {
     "@loopback/build": "^6.4.1",

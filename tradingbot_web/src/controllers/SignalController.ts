@@ -6,6 +6,7 @@ import SignalRepo from "../repositories/SignalRepo";
 import _ from "lodash";
 import { authenticate } from "@loopback/authentication";
 import { SecurityBindings, securityId, UserProfile } from '@loopback/security';
+import { logger } from "../common/Logger";
 
 
 
@@ -42,9 +43,9 @@ export class SignalController {
     },
 
   ) {
-    console.log('signal/trading payload:', data);
+    logger.debug('signal/trading payload:', data);
     const tokenData = await this.tokenSvc.decodedToken(data.token);
-    console.log('signal/trading tokenData:', tokenData);
+    logger.debug('signal/trading tokenData:', tokenData);
     ['userId'].forEach(field => {
       if (!tokenData[field])
         throw new HttpErrors.Unauthorized(

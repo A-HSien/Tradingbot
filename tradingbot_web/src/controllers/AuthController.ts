@@ -17,6 +17,7 @@ import _ from 'lodash';
 import { GOOGLE_REDIRECT_URL } from '../config';
 import { AppUser } from '../domains/AppUser';
 import { getGoogleAuthURL, getUser, GoogleUser } from '../common/GoogleAuth';
+import { logger } from '../common/Logger';
 
 const MaxAge = 600000 // 100 mins
 
@@ -46,7 +47,7 @@ export class AuthController {
     let appUser = await this.userRepository.findOne({
       where: { email: googleUser.email }
     }) as AppUser;
-    console.log('app user login:', appUser);
+    logger.debug('app user login:', appUser);
     if (!appUser) {
       const password = await hash(googleUser.id, await genSalt());
       const newUser = {
@@ -55,7 +56,7 @@ export class AuthController {
         submitted: false,
       }
       appUser = await this.userRepository.create(newUser);
-      console.log('add new user:', appUser);
+      logger.debug('add new user:', appUser);
       await this.userRepository.userCredentials(appUser.id).create({ password });
     }
 
@@ -77,7 +78,7 @@ export class AuthController {
 
     user.submitted = true;
     await this.userRepository.update(user);
-    console.log('user registered:', user);
+    logger.debug('user registered:', user);
     return true;
   };
 
@@ -106,7 +107,7 @@ export class AuthController {
   ) {
     const userProfile = this.userService.convertToUserProfile(user);
     const token = await this.jwtService.generateToken(userProfile);
-    console.log('gen token:', token);
+    logger.debug('gen token:', token);
     return token;
   };
 

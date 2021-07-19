@@ -8,6 +8,7 @@ import { SecurityBindings, securityId, UserProfile } from '@loopback/security';
 import { Account } from '../domains/Account';
 import AccountRepo from '../repositories/AccountRepo';
 import { updateAccountInfo } from '../common/Binance';
+import { logger } from '../common/Logger';
 
 
 
@@ -43,7 +44,7 @@ export class AccountController {
     @requestBody() account: Account,
 
   ) {
-    console.log('/accounts/save', account);
+    logger.debug('/accounts/save', account);
     account.ownerId = currentUserProfile[securityId];
 
     if (account.id) {
