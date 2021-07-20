@@ -12,6 +12,8 @@ services:
     nginx:
         image: nginx
         restart: always
+        depends_on:
+            - web
         ports:
             - "80:80"
             - "443:443"

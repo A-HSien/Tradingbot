@@ -9,13 +9,22 @@ docker pull alpine/git
 docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git clone https://github.com/A-HSien/Tradingbot.git
 cd Tradingbot
 docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git pull
+chmod +x init-letsencrypt.sh
 sudo ./init-letsencrypt.sh
 
 
 ## Server update
 
+only web:
 docker image rm tradingbot_web
 docker-compose up -d
+
+all:
+docker-compose down
+docker image prune -a -f
+sudo rm -rf data/certbot
+git pull
+sudo ./init-letsencrypt.sh
 
 
 ### Additional commands
@@ -25,9 +34,6 @@ cd tradingbot_web
 docker build -t tradingbot_web .
 docker run -d -p 3000:3000 tradingbot_web
 curl localhost:3000
-
-Delete all images:
-docker image prune -a -f
 
 
 Check db is running:
