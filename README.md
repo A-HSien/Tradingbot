@@ -10,7 +10,8 @@ docker pull alpine/git
 docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git clone https://github.com/A-HSien/Tradingbot.git
 cd Tradingbot
 docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git pull
-docker-compose up -d
+sudo ./init-letsencrypt.sh
+or docker-compose up -d if ssl was inited
 
 
 ### Additional commands

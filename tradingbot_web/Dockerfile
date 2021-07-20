@@ -23,7 +23,7 @@ RUN npm run build
 
 # Bind to all network interfaces so that it can be mapped to the host OS
 ENV HOST=0.0.0.0 PORT=3000
-ENV SERVER_ROOT_URI=http://tradingbot.ahsien.rocks
+ENV SERVER_ROOT_URI=https://tradingbot.ahsien.rocks
 
 EXPOSE ${PORT}
 CMD [ "node", "." ]
