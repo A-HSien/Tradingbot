@@ -9,7 +9,7 @@ import AppUserRepo from './AppUserRepo';
 
 const connectDB = () => {
     const conn = `mongodb://${DB_USERNAME}:${DB_PASSWORD}@localhost:27017/${DB_NAME}`;
-    logger.debug('db connect:', conn);
+    logger.info('db connect: ' + conn);
     return connect(
         conn,
         {
