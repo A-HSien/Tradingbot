@@ -26,6 +26,8 @@ services:
         restart: always
         depends_on:
             - db
+        links:
+            - db
         environment:
             - DB_USERNAME=dbuser
             - DB_PASSWORD=dbpassword
