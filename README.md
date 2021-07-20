@@ -31,7 +31,7 @@ docker exec mymongo mongo --eval "print(version())"
 
 Create user:
 docker stop mymongo
-docker run --name mymongo -v $(pwd)/data:/data/db -d -p 27017:27017 --rm mongo
+docker run --name mymongo -v $(pwd)/data/db:/data/db -d -p 27017:27017 --rm mongo
 docker exec -it mymongo mongo admin
 db.createUser({ 
     user:'admin',pwd:'password',
@@ -48,7 +48,7 @@ db.createUser({
     roles:[{role:'readWrite',db:'test'}]
 });
 docker stop mymongo
-docker run --name mymongo -v $(pwd)/data:/data/db -d -p 27017:27017 --rm mongo --auth
+docker run --name mymongo -v $(pwd)/data/db:/data/db -d -p 27017:27017 --rm mongo --auth
 
 
 db.auth('dbUser', 'password')
