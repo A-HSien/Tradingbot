@@ -7,14 +7,17 @@ import AppUserRepo from './AppUserRepo';
 
 
 
-const connectDB = () =>
+const connectDB = () => {
+    const conn = `mongodb://${DB_USERNAME}:${DB_PASSWORD}@localhost:27017/${DB_NAME}`;
+    logger.debug('db connect:', conn);
     connect(
-        `mongodb://${DB_USERNAME}:${DB_PASSWORD}@localhost:27017/${DB_NAME}`,
+        conn,
         {
             useNewUrlParser: true,
             useUnifiedTopology: true
         }
     );
+};
 
 
 const AppUserRepoTest = async () => {
@@ -26,8 +29,8 @@ const AppUserRepoTest = async () => {
     await AppUserRepo.create(data);
     const record = await AppUserRepo
         .findOne({ 'email': data.email });
-        logger.debug('AppUserRepoTest: saved record', record);
-        logger.debug('AppUserRepoTest: saved record id', record.id);
+    logger.debug('AppUserRepoTest: saved record', record);
+    logger.debug('AppUserRepoTest: saved record id', record.id);
     await AppUserRepo.deleteMany({ 'email': data.email });
 };
 
@@ -48,8 +51,8 @@ const AccountRepoTest = async () => {
     await AccountRepo.create(mockAccount);
     const record = await AccountRepo
         .findOne({ 'name': mockAccount.name });
-        logger.debug('AccountRepoTest: saved record', record);
-        logger.debug('AccountRepoTest: saved record id', record.id);
+    logger.debug('AccountRepoTest: saved record', record);
+    logger.debug('AccountRepoTest: saved record id', record.id);
     await AccountRepo.deleteMany({ 'email': mockAccount.name });
 };
 
@@ -62,5 +65,5 @@ const runDBTest = async () => {
 
 connectDB()
     .then(() => logger.debug('db connected'))
-   // .then(() => runDBTest)
+    // .then(() => runDBTest)
     .catch(err => logger.error(err));
