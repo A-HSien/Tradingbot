@@ -6,3 +6,10 @@ export const GOOGLE_CLIENT_SECRET =
 export const GOOGLE_REDIRECT_URL = "auth/google";
 export const SERVER_ROOT_URI =
   process.env.SERVER_ROOT_URI || "http://localhost:3000";
+
+export const DB_USERNAME =
+  process.env.DB_USERNAME || "dbuser";
+export const DB_PASSWORD =
+  process.env.DB_PASSWORD || "dbpassword";
+export const DB_NAME =
+  process.env.DB_NAME || "tradingbot_db";

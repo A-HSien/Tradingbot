@@ -24,6 +24,11 @@ services:
         restart: always
         depends_on:
             - db
+        environment:
+            - DB_USERNAME=dbuser
+            - DB_PASSWORD=dbpassword
+            - DB_NAME=tradingbot_db
+            - SERVER_ROOT_URI=https://tradingbot.ahsien.rocks
         build:
             context: ./tradingbot_web
         ports:
@@ -31,6 +36,10 @@ services:
     db:
         image: mongo
         restart: always
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=dbuser
+            - MONGO_INITDB_ROOT_PASSWORD=dbpassword
+            - MONGO_INITDB_DATABASE=tradingbot_db
         ports:
             - 27017:27017
         volumes:

@@ -1,8 +1,7 @@
 # Tradingbot
 
 
-## Server setup
-
+## Server init
 
 Init env:
 install docker & docker-compose
@@ -11,7 +10,12 @@ docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git clone https://git
 cd Tradingbot
 docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git pull
 sudo ./init-letsencrypt.sh
-or docker-compose up -d if ssl was inited
+
+
+## Server update
+
+docker image rm tradingbot_web
+docker-compose up -d
 
 
 ### Additional commands
@@ -43,10 +47,10 @@ db.createUser({
 });
 db.auth('admin', 'password')
 
-use test
+use tradingbot_db
 db.createUser({
-    user:'dbUser',pwd:'password',
-    roles:[{role:'readWrite',db:'test'}]
+    user:'dbuser',pwd:'dbpassword',
+    roles:[{role:'readWrite',db:'tradingbot_db'}]
 });
 docker stop mymongo
 docker run --name mymongo -v $(pwd)/data/db:/data/db -d -p 27017:27017 --rm mongo --auth

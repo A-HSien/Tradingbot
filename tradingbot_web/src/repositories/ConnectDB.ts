@@ -1,5 +1,6 @@
 import { connect } from 'mongoose';
 import { logger } from '../common/Logger';
+import { DB_NAME, DB_PASSWORD, DB_USERNAME } from '../config';
 import { Account } from '../domains/Account';
 import AccountRepo from './AccountRepo';
 import AppUserRepo from './AppUserRepo';
@@ -8,7 +9,7 @@ import AppUserRepo from './AppUserRepo';
 
 const connectDB = () =>
     connect(
-        'mongodb://dbUser:password@localhost:27017/test',
+        `mongodb://${DB_USERNAME}:${DB_PASSWORD}@localhost:27017/${DB_NAME}`,
         {
             useNewUrlParser: true,
             useUnifiedTopology: true
