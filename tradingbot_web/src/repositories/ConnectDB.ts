@@ -65,5 +65,5 @@ const runDBTest = async () => {
 
 connectDB()
     .then(() => logger.debug('db connected'))
-    // .then(() => runDBTest)
+    .then(() => runDBTest)
     .catch(err => logger.error(err));
