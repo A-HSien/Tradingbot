@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Redirect, useParams } from "react-router-dom";
+import { getLinkPath, linkMap } from "src/common/Manu";
 import { accountStore } from "src/stores/AccountStore";
 import baseStyles, { createClass } from "src/styles";
 import { EditingAccount } from "../../models/Account";
@@ -41,10 +42,16 @@ const AccountEditor = () => {
 
     const { id } = useParams<{ id: string }>();
     const [account, setAccount] = useState({ ...newAccount });
+    const [shouldGoBack, setShouldGoBack] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
-        const account = accountStore.accounts.find(acc => acc.id === id) || newAccount;
-        setAccount({ ...account });
+        const account = id === newAccountId ?
+            newAccount :
+            accountStore.accounts.find(acc => acc.id === id);
+
+        if (!account) setShouldGoBack(true);
+        else setAccount({ ...account });
     }, [id]);
 
 
@@ -72,9 +79,18 @@ const AccountEditor = () => {
 
             setAccount({ ...account, error: errors.join('\n') });
         }
-        if (errors.length>0) return;
-        accountStore.save(account);
+        if (errors.length > 0) return;
+        accountStore.save(account)
+            .then(() => {
+                setShouldGoBack(true);
+            }).catch(() => {
+                setError('儲存失敗, 請檢查您的 api Key 或 api Secret');
+            });
     };
+
+
+    if (shouldGoBack)
+        return <Redirect push to={getLinkPath(linkMap.Accounts)} />;
 
 
     return <div className={styles.root}>
@@ -118,7 +134,7 @@ const AccountEditor = () => {
             onChange={onChange}
         />
 
-        <pre className={styles.error} >{account.error}</pre>
+        <pre className={styles.error} >{error || account.error}</pre>
 
         <button className={styles.button} onClick={save}>儲存</button>
     </div>;

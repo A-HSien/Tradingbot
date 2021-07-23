@@ -17,7 +17,7 @@ const Login = () => {
     const [authUrl, setAuthUrl] = useState('');
 
     useEffect(() => {
-        if (config.isDev) setAuthUrl('/#/Register');
+        if (config.isDev) setAuthUrl('/');
         else
             fetch('/auth/url')
                 .then(resp => resp.text())
