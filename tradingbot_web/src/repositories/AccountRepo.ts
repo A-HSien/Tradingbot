@@ -22,4 +22,4 @@ const schema = new Schema<Account>({
 });
 mapIdField(schema);
 
-export default model('Account', schema);
+export default model<Account>('Account', schema);

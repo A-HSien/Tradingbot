@@ -1,6 +1,6 @@
-import { User } from "../auth";
+import { IUser } from "../auth";
 
-export type AppUser = User & {
+export type AppUser = IUser & {
     activated?: boolean,
     submitted?: boolean,
     encryptkey?: string,

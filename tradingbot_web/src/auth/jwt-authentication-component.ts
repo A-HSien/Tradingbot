@@ -3,7 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {registerAuthenticationStrategy} from '@loopback/authentication';
+import { registerAuthenticationStrategy } from '@loopback/authentication';
 import {
   Application,
   Binding,
@@ -13,21 +13,14 @@ import {
   inject,
 } from '@loopback/core';
 import {
-  RefreshTokenConstants,
-  RefreshTokenServiceBindings,
   TokenServiceBindings,
   TokenServiceConstants,
-  UserServiceBindings,
+  AuthServiceBindings,
 } from './keys';
-import {
-  RefreshTokenRepository,
-  UserCredentialsRepository,
-  UserRepository,
-} from './repositories';
-import {MyUserService, RefreshtokenService} from './services';
-import {JWTAuthenticationStrategy} from './services/jwt.auth.strategy';
-import {JWTService} from './services/jwt.service';
-import {SecuritySpecEnhancer} from './services/security.spec.enhancer';
+import { JWTAuthenticationStrategy } from './services/jwt.auth.strategy';
+import { JWTService } from './services/jwt.service';
+import { SecuritySpecEnhancer } from './services/security.spec.enhancer';
+import { AuthService } from './services/AuthService';
 
 export class JWTAuthenticationComponent implements Component {
   bindings: Binding[] = [
@@ -41,31 +34,11 @@ export class JWTAuthenticationComponent implements Component {
     Binding.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService),
 
     // user bindings
-    Binding.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService),
-    Binding.bind(UserServiceBindings.USER_REPOSITORY).toClass(UserRepository),
-    Binding.bind(UserServiceBindings.USER_CREDENTIALS_REPOSITORY).toClass(
-      UserCredentialsRepository,
-    ),
+    Binding.bind(AuthServiceBindings.AUTH_SERVICE).toClass(AuthService),
     createBindingFromClass(SecuritySpecEnhancer),
-    ///refresh bindings
-    Binding.bind(RefreshTokenServiceBindings.REFRESH_TOKEN_SERVICE).toClass(
-      RefreshtokenService,
-    ),
 
-    //  Refresh token bindings
-    Binding.bind(RefreshTokenServiceBindings.REFRESH_SECRET).to(
-      RefreshTokenConstants.REFRESH_SECRET_VALUE,
-    ),
-    Binding.bind(RefreshTokenServiceBindings.REFRESH_EXPIRES_IN).to(
-      RefreshTokenConstants.REFRESH_EXPIRES_IN_VALUE,
-    ),
-    Binding.bind(RefreshTokenServiceBindings.REFRESH_ISSUER).to(
-      RefreshTokenConstants.REFRESH_ISSUER_VALUE,
-    ),
-    //refresh token repository binding
-    Binding.bind(RefreshTokenServiceBindings.REFRESH_REPOSITORY).toClass(
-      RefreshTokenRepository,
-    ),
+
+
   ];
   constructor(@inject(CoreBindings.APPLICATION_INSTANCE) app: Application) {
     registerAuthenticationStrategy(app, JWTAuthenticationStrategy);

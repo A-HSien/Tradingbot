@@ -3,19 +3,18 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {AuthenticationStrategy, TokenService} from '@loopback/authentication';
-import {inject} from '@loopback/core';
-import {HttpErrors, Request} from '@loopback/rest';
-import {UserProfile} from '@loopback/security';
-import {TokenServiceBindings} from '../keys';
+import { AuthenticationStrategy, TokenService } from '@loopback/authentication';
+import { inject } from '@loopback/core';
+import { HttpErrors, Request } from '@loopback/rest';
+import { UserProfile } from '@loopback/security';
+import { TokenServiceBindings } from '../keys';
 
 export class JWTAuthenticationStrategy implements AuthenticationStrategy {
   name = 'jwt';
 
   constructor(
-    @inject(TokenServiceBindings.TOKEN_SERVICE)
-    public tokenService: TokenService,
-  ) {}
+    @inject(TokenServiceBindings.TOKEN_SERVICE) public tokenService: TokenService,
+  ) { }
 
   async authenticate(request: Request): Promise<UserProfile | undefined> {
     const token: string = this.extractCredentials(request);

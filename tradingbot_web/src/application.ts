@@ -10,7 +10,7 @@ import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
 import {AuthenticationComponent} from '@loopback/authentication';
-import {JWTAuthenticationComponent, UserServiceBindings} from './auth';
+import {JWTAuthenticationComponent, AuthServiceBindings} from './auth';
 import {DbDataSource} from './datasources';
 
 export {ApplicationConfig};
@@ -46,6 +46,5 @@ export class TradingbotWebApplication extends BootMixin(
 
     this.component(AuthenticationComponent);
     this.component(JWTAuthenticationComponent);
-    this.dataSource(DbDataSource, UserServiceBindings.DATASOURCE_NAME);
   }
 }

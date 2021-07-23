@@ -1,13 +1,10 @@
 import { authenticate, TokenService } from '@loopback/authentication';
 import {
-  MyUserService,
   TokenServiceBindings,
   TokenServiceConstants,
-  UserRepository,
-  UserServiceBindings,
+  AuthServiceBindings,
 } from '../auth';
 import { inject } from '@loopback/core';
-import { repository } from '@loopback/repository';
 import {
   get, post, param,
   RestBindings, Response
@@ -19,14 +16,15 @@ import { GOOGLE_REDIRECT_URL } from '../config';
 import { AppUser } from '../domains/AppUser';
 import { getGoogleAuthURL, getUser, GoogleUser } from '../common/GoogleAuth';
 import { logger } from '../common/Logger';
+import { AuthService } from '../auth/services/AuthService';
+import AppUserRepo from '../repositories/AppUserRepo';
 
 
 
 export class AuthController {
   constructor(
     @inject(TokenServiceBindings.TOKEN_SERVICE) private jwtService: TokenService,
-    @inject(UserServiceBindings.USER_SERVICE) private userService: MyUserService,
-    @repository(UserRepository) protected userRepository: UserRepository,
+    @inject(AuthServiceBindings.AUTH_SERVICE) private authService: AuthService,
   ) { };
 
 
@@ -44,20 +42,20 @@ export class AuthController {
   ) {
 
     const googleUser = await getUser(code);
-    let appUser = await this.userRepository.findOne({
-      where: { email: googleUser.email }
-    }) as AppUser;
+    let appUser = await AppUserRepo.findOne({
+      email: googleUser.email
+    });
     logger.debug('app user login:', appUser);
     if (!appUser) {
       const password = await hash(googleUser.id, await genSalt());
-      const newUser = {
+      const newUser: AppUser = {
         ..._.omit(googleUser, 'id'),
+        passwordHash: password,
         activated: false,
         submitted: false,
       }
-      appUser = await this.userRepository.create(newUser);
+      appUser = await AppUserRepo.create(newUser);
       logger.debug('add new user:', appUser);
-      await this.userRepository.userCredentials(appUser.id).create({ password });
     }
 
     await this.setAuthToken(googleUser, response);
@@ -73,11 +71,11 @@ export class AuthController {
     @inject(SecurityBindings.USER) currentUser: UserProfile,
 
   ) {
-    const user = await this.userRepository.findById(currentUser.id) as AppUser;
+    const user = await AppUserRepo.findById(currentUser.id);
     if (!user) throw new Error('user not found');
 
     user.submitted = true;
-    await this.userRepository.update(user);
+    await AppUserRepo.updateOne({ _id: user.id }, user);
     logger.debug('user registered:', user);
     return true;
   };
@@ -88,7 +86,7 @@ export class AuthController {
     response: Response
 
   ) {
-    const user = await this.userService.verifyCredentials({
+    const user = await this.authService.verifyCredentials({
       email: googleUser.email,
       password: googleUser.id
     });
@@ -105,7 +103,7 @@ export class AuthController {
     user: AppUser,
 
   ) {
-    const userProfile = this.userService.convertToUserProfile(user);
+    const userProfile = this.authService.convertToUserProfile(user);
     const token = await this.jwtService.generateToken(userProfile);
     logger.debug('gen token:', token);
     return token;

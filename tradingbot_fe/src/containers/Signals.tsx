@@ -1,6 +1,7 @@
 
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import baseStyles, { createClass } from "src/styles";
 
 
@@ -54,11 +55,19 @@ const Signals = () => {
         <div className={styles.token}>
             {token}
         </div>
+        <Link to="">訊號設定說明</Link>
         訊號紀錄:
         <table className={styles.table}>
             <thead>
                 <tr>
                     {
+                        fields.length === 0 &&
+                        <th className={styles.tableCell}>
+                            無任何紀錄
+                        </th>
+                    }
+                    {
+                        fields.length > 0 &&
                         fields.map((field, i) =>
                             <th key={i}
                                 className={styles.tableCell}>

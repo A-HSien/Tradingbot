@@ -29,9 +29,7 @@ services:
         links:
             - db
         environment:
-            - DB_USERNAME=dbuser
-            - DB_PASSWORD=dbpassword
-            - DB_NAME=tradingbot_db
+            - DB_CONNECTION_STRING=dbuser:dbpassword@db:27017/tradingbot_db
             - SERVER_ROOT_URI=https://tradingbot.ahsien.rocks
         build:
             context: ./tradingbot_web
@@ -41,9 +39,8 @@ services:
         image: mongo
         restart: always
         environment:
-            - MONGO_INITDB_ROOT_USERNAME=dbuser
-            - MONGO_INITDB_ROOT_PASSWORD=dbpassword
-            - MONGO_INITDB_DATABASE=tradingbot_db
+            - MONGO_INITDB_ROOT_USERNAME=adminuser
+            - MONGO_INITDB_ROOT_PASSWORD=adminpassword
         ports:
             - 27017:27017
         volumes:

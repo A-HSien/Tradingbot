@@ -1,14 +1,15 @@
 import { connect } from 'mongoose';
 import { logger } from '../common/Logger';
-import { DB_NAME, DB_PASSWORD, DB_USERNAME } from '../config';
+import { DB_CONNECTION_STRING } from '../config';
 import { Account } from '../domains/Account';
+import { AppUser } from '../domains/AppUser';
 import AccountRepo from './AccountRepo';
 import AppUserRepo from './AppUserRepo';
 
 
 
 const connectDB = () => {
-    const conn = `mongodb://${DB_USERNAME}:${DB_PASSWORD}@db:27017/${DB_NAME}`;
+    const conn = `mongodb://${DB_CONNECTION_STRING}`;
     logger.info('db connect: ' + conn);
     return connect(
         conn,
@@ -21,8 +22,9 @@ const connectDB = () => {
 
 
 const AppUserRepoTest = async () => {
-    const data = {
+    const data: AppUser = {
         email: 'test@test.com',
+        passwordHash: 'xxxxxxxxxxx',
         activated: false,
         submitted: true,
     };
@@ -30,8 +32,8 @@ const AppUserRepoTest = async () => {
     const record = await AppUserRepo
         .findOne({ 'email': data.email });
     logger.debug('AppUserRepoTest: saved record', record);
-    logger.debug('AppUserRepoTest: saved record id', record.id);
-    await AppUserRepo.deleteMany({ 'email': data.email });
+    logger.debug('AppUserRepoTest: saved record id', record?.id);
+    await AppUserRepo.deleteMany({ email: data.email });
 };
 
 const AccountRepoTest = async () => {
@@ -50,10 +52,10 @@ const AccountRepoTest = async () => {
     };
     await AccountRepo.create(mockAccount);
     const record = await AccountRepo
-        .findOne({ 'name': mockAccount.name });
+        .findOne({ name: mockAccount.name });
     logger.debug('AccountRepoTest: saved record', record);
-    logger.debug('AccountRepoTest: saved record id', record.id);
-    await AccountRepo.deleteMany({ 'email': mockAccount.name });
+    logger.debug('AccountRepoTest: saved record id', record?.id);
+    await AccountRepo.deleteMany({ name: mockAccount.name });
 };
 
 
@@ -65,5 +67,5 @@ const runDBTest = async () => {
 
 connectDB()
     .then(() => logger.debug('db connected'))
-    .then(() => runDBTest)
+    // .then(() => runDBTest)
     .catch(err => logger.error(err));

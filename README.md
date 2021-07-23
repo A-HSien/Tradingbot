@@ -42,16 +42,16 @@ docker exec mymongo mongo --eval "print(version())"
 
 Create user:
 docker stop mymongo
-docker run --name mymongo -v $(pwd)/data/db:/data/db -d -p 27017:27017 --rm mongo
+docker run --name mymongo -v $(pwd)/data/db:/data/db -d -p 27017:27017 mongo
 docker exec -it mymongo mongo admin
 db.createUser({ 
-    user:'admin',pwd:'password',
+    user:'adminuser',pwd:'adminpassword',
     roles:[
         {role:'userAdminAnyDatabase', db: 'admin'},
         "readWriteAnyDatabase"
     ]
 });
-db.auth('admin', 'password')
+db.auth('adminuser', 'adminpassword')
 
 use tradingbot_db
 db.createUser({
@@ -59,9 +59,11 @@ db.createUser({
     roles:[{role:'readWrite',db:'tradingbot_db'}]
 });
 db.auth('dbuser', 'dbpassword')
+
+exit
 docker stop mymongo
-docker run --name mymongo -v $(pwd)/data/db:/data/db -d -p 27017:27017 --rm mongo --auth
+docker run --name mymongo -v $(pwd)/data/db:/data/db -d -p 27017:27017 mongo --auth
 
-
+other commands:
 db.getCollectionNames()
 db.<collection>.drop()

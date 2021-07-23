@@ -7,9 +7,5 @@ export const GOOGLE_REDIRECT_URL = "auth/google";
 export const SERVER_ROOT_URI =
   process.env.SERVER_ROOT_URI || "http://localhost:3000";
 
-export const DB_USERNAME =
-  process.env.DB_USERNAME || "dbuser";
-export const DB_PASSWORD =
-  process.env.DB_PASSWORD || "dbpassword";
-export const DB_NAME =
-  process.env.DB_NAME || "tradingbot_db";
+export const DB_CONNECTION_STRING =
+  process.env.DB_CONNECTION_STRING || "dbuser:dbpassword@127.0.0.1:27017/tradingbot_db";

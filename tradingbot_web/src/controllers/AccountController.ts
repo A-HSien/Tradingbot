@@ -49,7 +49,7 @@ export class AccountController {
 
     if (account.id) {
 
-      const before: Account = await AccountRepo.findById(account.id);
+      const before = await AccountRepo.findById(account.id);
       if (!before) account.id = '';
       else {
         account = {
