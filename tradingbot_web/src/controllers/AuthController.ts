@@ -15,7 +15,6 @@ import _ from 'lodash';
 import { GOOGLE_REDIRECT_URL } from '../config';
 import { AppUser } from '../domains/AppUser';
 import { getGoogleAuthURL, getUser, GoogleUser } from '../common/GoogleAuth';
-import { logger } from '../common/Logger';
 import { AuthService } from '../auth/services/AuthService';
 import AppUserRepo from '../repositories/AppUserRepo';
 
@@ -45,7 +44,7 @@ export class AuthController {
     let appUser = await AppUserRepo.findOne({
       email: googleUser.email
     });
-    logger.debug('app user login:', appUser);
+    console.log('app user login:', appUser);
     if (!appUser) {
       const password = await hash(googleUser.id, await genSalt());
       const newUser: AppUser = {
@@ -55,7 +54,7 @@ export class AuthController {
         submitted: false,
       }
       appUser = await AppUserRepo.create(newUser);
-      logger.debug('add new user:', appUser);
+      console.log('add new user:', appUser);
     }
 
     await this.setAuthToken(googleUser, response);
@@ -76,7 +75,7 @@ export class AuthController {
 
     user.submitted = true;
     await AppUserRepo.updateOne({ _id: user.id }, user);
-    logger.debug('user registered:', user);
+    console.log('user registered:', user);
     return true;
   };
 
@@ -104,9 +103,7 @@ export class AuthController {
 
   ) {
     const userProfile = this.authService.convertToUserProfile(user);
-    const token = await this.jwtService.generateToken(userProfile);
-    logger.debug('gen token:', token);
-    return token;
+    return this.jwtService.generateToken(userProfile);
   };
 
 

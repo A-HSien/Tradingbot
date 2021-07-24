@@ -5,19 +5,14 @@ import {
   requestBody,
 } from '@loopback/rest';
 import { SecurityBindings, securityId, UserProfile } from '@loopback/security';
+import { updateAccountInfo } from '../common/binanceApi/AccountSnapshot';
 import { Account } from '../domains/Account';
 import AccountRepo from '../repositories/AccountRepo';
-import { updateAccountInfo } from '../common/Binance';
-import { logger } from '../common/Logger';
 
 
 
 @authenticate('jwt')
 export class AccountController {
-
-
-  constructor(
-  ) { };
 
 
   @get('/accounts/all')
@@ -26,11 +21,9 @@ export class AccountController {
 
   ) {
     const userId = currentUserProfile[securityId];
-
     const accounts: Account[] = await AccountRepo.where({
       'ownerId': userId
     });
-
     const infos = await Promise.all(
       accounts.map(account => updateAccountInfo(account))
     );
@@ -44,7 +37,6 @@ export class AccountController {
     @requestBody() account: Account,
 
   ) {
-    logger.debug('/accounts/save', account);
     account.ownerId = currentUserProfile[securityId];
 
     if (account.id) {

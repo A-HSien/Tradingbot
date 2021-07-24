@@ -1,5 +1,4 @@
 import { connect } from 'mongoose';
-import { logger } from '../common/Logger';
 import { DB_CONNECTION_STRING } from '../config';
 import { Account } from '../domains/Account';
 import { AppUser } from '../domains/AppUser';
@@ -10,7 +9,7 @@ import AppUserRepo from './AppUserRepo';
 
 const connectDB = () => {
     const conn = `mongodb://${DB_CONNECTION_STRING}`;
-    logger.info('db connect: ' + conn);
+    console.info('db connect:', conn);
     return connect(
         conn,
         {
@@ -31,8 +30,8 @@ const AppUserRepoTest = async () => {
     await AppUserRepo.create(data);
     const record = await AppUserRepo
         .findOne({ 'email': data.email });
-    logger.debug('AppUserRepoTest: saved record', record);
-    logger.debug('AppUserRepoTest: saved record id', record?.id);
+    console.log('AppUserRepoTest: saved record', record);
+    console.log('AppUserRepoTest: saved record id', record?.id);
     await AppUserRepo.deleteMany({ email: data.email });
 };
 
@@ -53,8 +52,8 @@ const AccountRepoTest = async () => {
     await AccountRepo.create(mockAccount);
     const record = await AccountRepo
         .findOne({ name: mockAccount.name });
-    logger.debug('AccountRepoTest: saved record', record);
-    logger.debug('AccountRepoTest: saved record id', record?.id);
+    console.log('AccountRepoTest: saved record', record);
+    console.log('AccountRepoTest: saved record id', record?.id);
     await AccountRepo.deleteMany({ name: mockAccount.name });
 };
 
@@ -66,6 +65,6 @@ const runDBTest = async () => {
 };
 
 connectDB()
-    .then(() => logger.debug('db connected'))
+    .then(() => console.log('db connected'))
     // .then(() => runDBTest)
-    .catch(err => logger.error(err));
+    .catch(err => console.error('db connect failed:', err));

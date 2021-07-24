@@ -5,8 +5,7 @@ import { JWTService } from "../auth";
 import SignalRepo from "../repositories/SignalRepo";
 import _ from "lodash";
 import { authenticate } from "@loopback/authentication";
-import { SecurityBindings, securityId, UserProfile } from '@loopback/security';
-import { logger } from "../common/Logger";
+import { SecurityBindings, UserProfile } from '@loopback/security';
 
 
 
@@ -43,9 +42,9 @@ export class SignalController {
     },
 
   ) {
-    logger.debug('signal/trading payload:', data);
+    console.log('signal/trading payload:', data);
     const tokenData = await this.tokenSvc.decodedToken(data.token);
-    logger.debug('signal/trading tokenData:', tokenData);
+    console.log('signal/trading tokenData:', tokenData);
     ['userId'].forEach(field => {
       if (!tokenData[field])
         throw new HttpErrors.Unauthorized(
@@ -54,7 +53,7 @@ export class SignalController {
     });
 
     const signal = {
-      ...data,
+      ..._.omit(data, 'token'),
       userId: tokenData.userId,
       time: new Date(),
     };

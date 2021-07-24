@@ -3,7 +3,8 @@ import AccountEditor from "src/containers/account/AccountEditor";
 import Accounts from "src/containers/account/Accounts";
 import Login from "src/containers/Login";
 import Register from "src/containers/Register";
-import Signals from "src/containers/Signals";
+import SignalManual from "src/containers/signal/SignalManual";
+import Signals from "src/containers/signal/Signals";
 import { AuthStatus } from "src/stores/AuthStore";
 
 export type LinkProps = RouteProps & {
@@ -12,7 +13,9 @@ export type LinkProps = RouteProps & {
 };
 
 export const linkMap: Record<
-    'Login' | 'Register' | 'Accounts' | 'Account' | 'Signals',
+    'Login' | 'Register' |
+    'Accounts' | 'Account' |
+    'Signals' | 'SignalManual',
     LinkProps
 > = {
     Login: {
@@ -42,7 +45,13 @@ export const linkMap: Record<
         lable: '訊號紀錄',
         component: Signals,
         protectionLevel: AuthStatus.Authorized,
-    }
+    },
+    SignalManual: {
+        path: "/SignalManual",
+        lable: '訊號設定說明',
+        component: SignalManual,
+        protectionLevel: AuthStatus.Authorized,
+    },
 };
 
 export const getLinkPath = (link: RouteProps) =>
@@ -50,5 +59,5 @@ export const getLinkPath = (link: RouteProps) =>
 
 
 export const menus = [
-    linkMap.Accounts, linkMap.Signals
+    linkMap.Accounts, linkMap.Signals, linkMap.SignalManual
 ];

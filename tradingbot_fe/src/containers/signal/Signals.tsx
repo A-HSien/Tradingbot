@@ -1,17 +1,11 @@
 
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import baseStyles, { createClass } from "src/styles";
+import { codeBlockStyle } from "./SignalManual";
 
 
 const styles = {
-    token: createClass(
-        'w-full', 'break-all',
-        'border', 'rounded-xl',
-        'bg-gray-600',
-        'p-2', 'mb-3'
-    ),
     table: baseStyles.table,
     tableCell: createClass(
         baseStyles.tableCell,
@@ -31,10 +25,7 @@ const Signals = () => {
         setHistory(history);
         const fieldSet = new Set<string>();
         history.forEach(data => {
-            Object.keys(data).forEach(key => {
-                if (!key.startsWith('_'))
-                    fieldSet.add(key);
-            });
+            Object.keys(data).forEach(key => fieldSet.add);
         });
         setFields(Array.from(fieldSet));
     };
@@ -42,20 +33,17 @@ const Signals = () => {
     useEffect(() => {
 
         loadData();
-
-        axios.get<string>('/signal/getToken').then(r => {
-            setToken(r.data);
-        });
+        axios.get<string>('/signal/getToken')
+            .then(r => setToken(r.data));
 
     }, []);
 
 
     return <div className={baseStyles.pageEdge}>
         token:
-        <div className={styles.token}>
+        <div className={codeBlockStyle}>
             {token}
         </div>
-        <Link to="">訊號設定說明</Link>
         訊號紀錄:
         <table className={styles.table}>
             <thead>
