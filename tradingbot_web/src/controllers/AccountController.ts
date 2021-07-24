@@ -1,10 +1,8 @@
 import { authenticate } from '@loopback/authentication';
 import { inject } from '@loopback/core';
-import {
-  get, post,
-  requestBody,
-} from '@loopback/rest';
+import { get, post, requestBody } from '@loopback/rest';
 import { SecurityBindings, securityId, UserProfile } from '@loopback/security';
+import _ from 'lodash';
 import { updateAccountInfo } from '../common/binanceApi/AccountSnapshot';
 import { Account } from '../domains/Account';
 import AccountRepo from '../repositories/AccountRepo';
@@ -21,13 +19,17 @@ export class AccountController {
 
   ) {
     const userId = currentUserProfile[securityId];
-    const accounts: Account[] = await AccountRepo.where({
-      'ownerId': userId
-    });
+    const accounts: Account[] = await AccountRepo.where(
+      { ownerId: userId }
+    );
     const infos = await Promise.all(
       accounts.map(account => updateAccountInfo(account))
     );
-    return infos;
+    return infos.map(info => {
+      info.apiKey = 'apiKey';
+      info.apiSecret = 'apiSecret';
+      return info;
+    });
   };
 
 
