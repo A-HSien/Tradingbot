@@ -9,9 +9,9 @@ export type Balance = {
     asset: string,
     free: number,
     locked: number,
-}
+};
 
-export interface Account extends AccountSecrets {
+export type Account = AccountSecrets & {
     id?: string,
     ownerId: string,
     name: string,
@@ -20,7 +20,7 @@ export interface Account extends AccountSecrets {
     balances?: Balance[],
     balancesLastUpdateTime?: Date,
     error?: string,
-}
+};
 
 
 

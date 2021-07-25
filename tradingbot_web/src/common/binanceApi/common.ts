@@ -10,8 +10,3 @@ export const createSignature = (secret: string, content = '') => {
    hmac.update(content);
    return hmac.digest('hex');
 }
-
-/** 發送端可能為訊號源 => 不回拋錯誤訊息 */
-export const errorHandler = (err: Error) => {
-   console.error('Binance api error', err);
-};

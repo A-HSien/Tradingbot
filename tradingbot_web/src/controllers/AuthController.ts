@@ -39,7 +39,6 @@ export class AuthController {
     @inject(RestBindings.Http.RESPONSE) response: Response,
 
   ) {
-
     const googleUser = await getUser(code);
     let appUser = await AppUserRepo.findOne({
       email: googleUser.email
@@ -98,6 +97,7 @@ export class AuthController {
     );
   };
 
+  
   private async getAuthToken(
     user: AppUser,
 

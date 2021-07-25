@@ -5,7 +5,6 @@ import { linkMap, getLinkPath } from "src/common/Manu";
 import baseStyles, { createClass } from "src/styles";
 import { useMemo, useState } from "react";
 import axios from 'axios';
-import config from "src/config";
 
 const styles = {
     root: createClass(
@@ -19,12 +18,10 @@ const Register = () => {
     const [registered, setRegistered] = useState(false);
 
     const register = () => {
-        if (config.isDev) setRegistered(true);
-        else
-            axios.post('/auth/register')
-                .then(() => {
-                    setRegistered(true);
-                });
+        axios.post('/auth/register')
+            .then(() => {
+                setRegistered(true);
+            });
     };
 
     if (!token)

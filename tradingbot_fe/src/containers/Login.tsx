@@ -2,7 +2,6 @@ import { observer } from "mobx-react";
 import { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 import { getLinkPath, linkMap } from "src/common/Manu";
-import config from "src/config";
 import { AuthStatus, authStore } from "src/stores/AuthStore";
 import baseStyles, { createClass } from "src/styles";
 
@@ -17,13 +16,11 @@ const Login = () => {
     const [authUrl, setAuthUrl] = useState('');
 
     useEffect(() => {
-        if (config.isDev) setAuthUrl('/');
-        else
-            fetch('/auth/url')
-                .then(resp => resp.text())
-                .then(url => {
-                    setAuthUrl(url);
-                });
+        fetch('/auth/url')
+            .then(resp => resp.text())
+            .then(url => {
+                setAuthUrl(url);
+            });
     }, []);
 
     if (authStore.authStatus === AuthStatus.Authenticated)

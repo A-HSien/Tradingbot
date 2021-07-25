@@ -17,7 +17,7 @@ sudo ./init-letsencrypt.sh
 
 only web:
 docker image rm tradingbot_web
-docker-compose up -d
+docker-compose up -dgit
 
 all:
 docker-compose down

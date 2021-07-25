@@ -1,6 +1,6 @@
 import { createClass } from "src/styles";
-import { Link } from "react-router-dom";
-import { getLinkPath, menus } from "../common/Manu";
+import { Link, Redirect } from "react-router-dom";
+import { getLinkPath, linkMap, menus } from "../common/Manu";
 import { AuthStatus, authStore } from "src/stores/AuthStore";
 import { observer } from "mobx-react";
 
@@ -17,7 +17,7 @@ const styles = {
         'font-bold'
     ),
     menu: createClass(
-        'pl-6', //'text-gray-200'
+        'pl-6', 'text-gray-200',
     ),
 };
 
@@ -25,7 +25,8 @@ const styles = {
 const Component = () => {
 
     const logout = () => {
-        authStore.setAuthStatus(undefined);
+        authStore.logout();
+        window.location.reload();
     };
 
     return (
@@ -46,7 +47,7 @@ const Component = () => {
             </div>
             {
                 authStore.authStatus === AuthStatus.Authorized &&
-                <button onClick={logout}>logout</button>
+                <a onClick={logout}>logout</a>
             }
         </div>
     )

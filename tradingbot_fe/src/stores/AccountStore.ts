@@ -11,7 +11,7 @@ export class AccountStore {
     };
 
     loadAccounts = async () => {
-        const accounts = await axios.get<Account[]>('/accounts/all').then(r => r.data);
+        const accounts = await axios.get<Account[]>('/account/all').then(r => r.data);
         accounts.forEach(acc => {
             acc.balances = (acc.balances || [])
                 .map(ba => {
@@ -26,7 +26,7 @@ export class AccountStore {
     };
 
     save = async (account: EditingAccount) => {
-        return await axios.post('/accounts/save', account).then(r => r.data);
+        return await axios.post('/account/save', account).then(r => r.data);
     };
 };
 

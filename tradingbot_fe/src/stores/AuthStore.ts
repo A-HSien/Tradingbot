@@ -11,12 +11,13 @@ export class AuthStore {
 
 
         const token = Cookies.get('auth-token');
-        this.setAuthStatus(token ? AuthStatus.Authorized : undefined);
+        this.authStatus =token ? AuthStatus.Authorized : undefined;
 
     };
 
-    setAuthStatus = (status: AuthStatus | undefined) => {
-        this.authStatus = status;
+    logout = () => {
+        Cookies.remove('auth-token');
+        this.authStatus = undefined;
     };
 };
 

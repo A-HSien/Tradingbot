@@ -1,5 +1,6 @@
 import { generatePath, RouteProps } from "react-router-dom";
 import AccountEditor from "src/containers/account/AccountEditor";
+import AccountRecord from "src/containers/account/AccountRecord";
 import Accounts from "src/containers/account/Accounts";
 import Login from "src/containers/Login";
 import Register from "src/containers/Register";
@@ -14,7 +15,7 @@ export type LinkProps = RouteProps & {
 
 export const linkMap: Record<
     'Login' | 'Register' |
-    'Accounts' | 'Account' |
+    'Accounts' | 'Account' | 'AccountRecord'|
     'Signals' | 'SignalManual',
     LinkProps
 > = {
@@ -38,6 +39,12 @@ export const linkMap: Record<
         path: "/Account/:id",
         lable: '編輯幣安帳戶',
         component: AccountEditor,
+        protectionLevel: AuthStatus.Authorized,
+    },
+    AccountRecord: {
+        path: "/AccountRecord/:name",
+        lable: '帳戶操作紀錄',
+        component: AccountRecord,
         protectionLevel: AuthStatus.Authorized,
     },
     Signals: {

@@ -1,8 +1,14 @@
-import { model, Schema } from "mongoose";
-import { mapIdField } from "./utilities";
+import { model, Schema, SchemaDefinition } from "mongoose";
+import { Signal } from "../domains/Signal";
+import { Expires, mapIdField } from "./utilities";
 
-var schema = new Schema({
+
+const def: SchemaDefinition<Signal> = {
+    action: { type: String, required: true },
     userId: { type: String, required: true },
-}, { strict: false });
+    createdAt: { type: Date, expires: Expires, default: Date.now },
+};
+var schema = new Schema(def, { strict: false });
 mapIdField(schema);
-export default model('Signal', schema);
+
+export default model<Signal>('Signal', schema);

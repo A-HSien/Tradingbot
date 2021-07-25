@@ -1,9 +1,9 @@
 import axios from "axios";
 import { Account } from "../../domains/Account";
-import { baseUrl, createSignature, errorHandler } from "./common";
+import { baseUrl, createSignature } from "./common";
 
 
-const accountSnapshot = {
+const response = {
    "code": 200, // 200表示返回正确，否则即为错误码
    "msg": "", // 与错误码对应的报错信息
    "snapshotVos": [
@@ -28,12 +28,12 @@ const accountSnapshot = {
       }
    ]
 };
-type AccountSnapshot = typeof accountSnapshot;
+type AccountSnapshot = typeof response;
 
+const api = '/sapi/v1/accountSnapshot';
 
 export const updateAccountInfo = async (account: Account) => {
 
-   const api = '/sapi/v1/accountSnapshot';
    const params = new URLSearchParams({
       type: 'SPOT',
       timestamp: Date.now().toString()
@@ -49,7 +49,7 @@ export const updateAccountInfo = async (account: Account) => {
       params
    })
       .then(resp => resp.data)
-      .catch(errorHandler);
+      .catch(err => console.error('Binance api error', err.response.data));
 
    if (!data) {
       account.error = '查詢失敗';
@@ -79,4 +79,4 @@ export const updateAccountInfo = async (account: Account) => {
    });
 
    return account;
-}
+};

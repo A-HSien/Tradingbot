@@ -36,7 +36,7 @@ const Accounts = () => {
             return <>{account.error}</>
         if (!account.balances || account.balances.length === 0)
             return <>無資產</>
-            
+
         return (
             <pre className={styles.balancesCell}>
                 {
@@ -58,6 +58,7 @@ const Accounts = () => {
             <table className={styles.table}>
                 <thead>
                     <tr>
+                        <th className={styles.tableCell}></th>
                         <th className={styles.tableCell}>名稱</th>
                         <th className={styles.tableCell}>資產 (free/locked)</th>
                         <th className={styles.tableCell}>單筆投資額</th>
@@ -68,12 +69,15 @@ const Accounts = () => {
                 <tbody>
                     {accountStore.accounts.map((account, i) => (
                         <tr key={i}>
+                            <td className={styles.tableCell}>
+                                <Link className={baseStyles.buttonStyle} to={`/Account/${account.id}`}>編輯</Link>
+                            </td>
                             <td className={styles.tableCell}>{account.name}</td>
                             <td className={styles.tableCell}>{getAssetInfo(account)}</td>
                             <td className={styles.tableCell}>{account.quota}</td>
                             <td className={styles.tableCell}>{account.disabled ? 'Y' : ''}</td>
                             <td className={styles.tableCell}>
-                                <Link className={baseStyles.buttonStyle} to={`/Account/${account.id}`}>編輯</Link>
+                                <Link className={baseStyles.buttonStyle} to={`/AccountRecord/${account.name}`}>操作記錄</Link>
                             </td>
 
 

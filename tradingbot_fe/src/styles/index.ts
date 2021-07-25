@@ -44,6 +44,15 @@ const tableCell = createClass(
 );
 
 
+export const codeBlockStyle = createClass(
+    'w-full',
+    'rounded',
+    'bg-gray-600',
+    'p-2', 'mb-3',
+    'text-left',
+);
+
+
 const styles = {
     background,
     textColor,
@@ -52,5 +61,6 @@ const styles = {
     borderGray,
     buttonStyle,
     table, tableCell,
+    codeBlockStyle
 };
 export default styles;

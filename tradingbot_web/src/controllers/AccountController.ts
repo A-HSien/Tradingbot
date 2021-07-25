@@ -1,11 +1,13 @@
 import { authenticate } from '@loopback/authentication';
 import { inject } from '@loopback/core';
-import { get, post, requestBody } from '@loopback/rest';
+import { get, param, post, requestBody } from '@loopback/rest';
 import { SecurityBindings, securityId, UserProfile } from '@loopback/security';
 import _ from 'lodash';
 import { updateAccountInfo } from '../common/binanceApi/AccountSnapshot';
 import { Account } from '../domains/Account';
+import { ActionRecord } from '../domains/Action';
 import AccountRepo from '../repositories/AccountRepo';
+import ActionRecordRepo from '../repositories/ActionRecordRepo';
 
 
 
@@ -13,7 +15,7 @@ import AccountRepo from '../repositories/AccountRepo';
 export class AccountController {
 
 
-  @get('/accounts/all')
+  @get('/account/all')
   async all(
     @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
 
@@ -25,6 +27,7 @@ export class AccountController {
     const infos = await Promise.all(
       accounts.map(account => updateAccountInfo(account))
     );
+
     return infos.map(info => {
       info.apiKey = 'apiKey';
       info.apiSecret = 'apiSecret';
@@ -33,7 +36,7 @@ export class AccountController {
   };
 
 
-  @post('/accounts/save')
+  @post('/account/save')
   async save(
     @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
     @requestBody() account: Account,
@@ -60,6 +63,27 @@ export class AccountController {
     !account.id ?
       await AccountRepo.create(account) :
       await AccountRepo.updateOne(account);
+  };
+
+
+  @get('/account/records')
+  async getRecords(
+    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
+    @param.query.string('name') name: string,
+
+  ) {
+    const userId = currentUserProfile[securityId];
+
+    const queryAccount: Partial<Account> = {
+      ownerId: userId, name
+    };
+    const account = await AccountRepo.findOne(queryAccount);
+    if (!account) throw new Error('account not found');
+
+    const query: Partial<ActionRecord> = {
+      userId, accountId: account.id!
+    };
+    return ActionRecordRepo.where(query);
   };
 
 

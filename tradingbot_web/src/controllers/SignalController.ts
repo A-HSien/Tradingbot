@@ -6,6 +6,12 @@ import SignalRepo from "../repositories/SignalRepo";
 import _ from "lodash";
 import { authenticate } from "@loopback/authentication";
 import { SecurityBindings, UserProfile } from '@loopback/security';
+import { actions, ActionKey } from "../common/binanceApi";
+import AccountRepo from "../repositories/AccountRepo";
+import { Account } from "../domains/Account";
+import ActionRecordRepo from "../repositories/ActionRecordRepo";
+import { ActionRecord } from "../domains/Action";
+import { Signal } from "../domains/Signal";
 
 
 
@@ -26,6 +32,7 @@ export class SignalController {
     return data;
   };
 
+
   @authenticate('jwt')
   @get('signal/getToken')
   async getToken(
@@ -35,16 +42,20 @@ export class SignalController {
     return this.tokenSvc.generateTokenForSignal(currentUser.id);
   };
 
+
   @post('signal/trading')
   async trading(
     @requestBody() data: {
-      token: string
+      token: string,
+      action: ActionKey,
     },
 
   ) {
     console.log('signal/trading payload:', data);
     const tokenData = await this.tokenSvc.decodedToken(data.token);
     console.log('signal/trading tokenData:', tokenData);
+
+    // validation
     ['userId'].forEach(field => {
       if (!tokenData[field])
         throw new HttpErrors.Unauthorized(
@@ -52,13 +63,29 @@ export class SignalController {
         );
     });
 
-    const signal = {
+    const signal:Signal = {
       ..._.omit(data, 'token'),
-      userId: tokenData.userId,
-      time: new Date(),
+      userId: tokenData.userId
     };
-
     await SignalRepo.create(signal);
-    return true;
+
+    
+    const task = actions[signal.action];
+    if (!task) return;
+
+    const query: Partial<Account> = { ownerId: signal.userId, disabled: false };
+    const accounts = await AccountRepo.where(query);
+    const results = await Promise.all(
+      accounts.map(acc => task(acc).then(result => {
+        ActionRecordRepo.create(result);
+        return result;
+      }))
+    );
+    console.log('action results:', results);
+    const query2: Partial<ActionRecord> = {
+      userId: signal.userId
+    };
+    const rec = ActionRecordRepo.where(query2);
+    console.log('action rec:', rec);
   };
 };
