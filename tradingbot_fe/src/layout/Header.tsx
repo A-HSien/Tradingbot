@@ -1,6 +1,6 @@
 import { createClass } from "src/styles";
-import { Link, Redirect } from "react-router-dom";
-import { getLinkPath, linkMap, menus } from "../common/Manu";
+import { Link } from "react-router-dom";
+import { getLinkPath, menus } from "../common/Manu";
 import { AuthStatus, authStore } from "src/stores/AuthStore";
 import { observer } from "mobx-react";
 
@@ -47,7 +47,7 @@ const Component = () => {
             </div>
             {
                 authStore.authStatus === AuthStatus.Authorized &&
-                <a onClick={logout}>logout</a>
+                <a onClick={logout} href="/">logout</a>
             }
         </div>
     )

@@ -12,6 +12,7 @@ import { Account } from "../domains/Account";
 import ActionRecordRepo from "../repositories/ActionRecordRepo";
 import { ActionRecord } from "../domains/Action";
 import { Signal } from "../domains/Signal";
+import console from "console";
 
 
 
@@ -43,6 +44,19 @@ export class SignalController {
   };
 
 
+  @get('signal/actions')
+  getActionList() {
+    return Object.keys(actions).map(key => {
+      const action = actions[key as ActionKey];
+      const model = {
+        ...action,
+        action: key,
+      };
+      return model;
+    });
+  };
+
+
   @post('signal/trading')
   async trading(
     @requestBody() data: {
@@ -63,20 +77,25 @@ export class SignalController {
         );
     });
 
-    const signal:Signal = {
+    
+    const signal: Signal = {
       ..._.omit(data, 'token'),
       userId: tokenData.userId
     };
+    const action = actions[signal.action];
+    if (!action) {
+      const error = 'action not found';
+      signal.error = error;
+      console.warn(error, signal);
+    }
     await SignalRepo.create(signal);
+    if (!action) return;
 
-    
-    const task = actions[signal.action];
-    if (!task) return;
 
     const query: Partial<Account> = { ownerId: signal.userId, disabled: false };
     const accounts = await AccountRepo.where(query);
     const results = await Promise.all(
-      accounts.map(acc => task(acc).then(result => {
+      accounts.map(acc => action.action(acc, signal).then(result => {
         ActionRecordRepo.create(result);
         return result;
       }))
