@@ -67,3 +67,6 @@ docker run --name mymongo -v $(pwd)/data/db:/data/db -d -p 27017:27017 --rm mong
 other commands:
 db.getCollectionNames()
 db.<collection>.drop()
+
+check web logs:
+docker container logs tradingbot_web_1

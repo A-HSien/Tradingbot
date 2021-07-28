@@ -121,7 +121,7 @@ export class SignalController {
     accounts.forEach(async acc => {
 
       const updated = await updateAccount(acc);
-      AccountRepo.updateOne({'_id':updated.id }, updated);
+      await AccountRepo.updateOne({'_id':updated.id }, updated);
     });
   };
 };

@@ -36,8 +36,8 @@ export class AccountController {
         )
           return Promise.resolve(account);
         else
-          return updateAccount(account).then(updated => {
-            AccountRepo.updateOne({ '_id': updated.id }, updated);
+          return updateAccount(account).then(async updated => {
+            await AccountRepo.updateOne({ '_id': updated.id }, updated);
             return updated;
           })
       })
