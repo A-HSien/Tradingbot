@@ -24,8 +24,9 @@ const futureNewOrder: Action = async (actionKey, account, signal) => {
         const targetIsBuy = (signal.side as string).toUpperCase() === 'BUY';
         const stop = Number(prev) * -1; // 平倉
         const targetNu = Number(signal.quantity) * (targetIsBuy ? 1 : -1);
-        signal.site = targetNu > 0 ? 'BUY' : 'SELL';
-        signal.quantity = Math.abs(targetNu);
+        const toTrade = stop + targetNu
+        signal.site = toTrade > 0 ? 'BUY' : 'SELL';
+        signal.quantity = Math.abs(toTrade);
     }
 
     const precision = infos[signal.symbol].quantityPrecision;

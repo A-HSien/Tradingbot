@@ -20,9 +20,9 @@ const orderSample = {
     action: 'FOrderTest',
     token: '[Your Token]',
 
-    symbol: 'DOGEUSDT',
+    symbol: 'ETHUSDT',
     side: 'BUY',
-    quantity: '5.1',
+    quantity: '6',
 };
 
 const SignalManual = () => {

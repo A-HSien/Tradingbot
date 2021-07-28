@@ -68,5 +68,6 @@ other commands:
 db.getCollectionNames()
 db.<collection>.drop()
 
-check web logs:
+check live:
 docker container logs tradingbot_web_1
+docker exec -it mymongo mongo admin
