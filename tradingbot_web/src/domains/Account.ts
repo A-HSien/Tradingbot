@@ -1,3 +1,4 @@
+import { accountInfoResp } from "../common/binanceApi/FutureAccountBalance";
 
 
 export type AccountSecrets = {
@@ -5,10 +6,15 @@ export type AccountSecrets = {
     apiSecret: string,
 };
 
-export type Balance = {
-    asset: string,
-    free: number,
-    locked: number,
+
+
+
+type Position = typeof accountInfoResp.positions[0];
+
+
+export type Balances = {
+    availableBalance: string,
+    positions: Position[],
 };
 
 export type Account = AccountSecrets & {
@@ -17,7 +23,7 @@ export type Account = AccountSecrets & {
     name: string,
     disabled?: boolean,
     quota: number,
-    balances?: Balance[],
+    balances?: Balances,
     balancesLastUpdateTime?: Date,
     error?: string,
 };

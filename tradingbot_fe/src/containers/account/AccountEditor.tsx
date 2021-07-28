@@ -44,6 +44,7 @@ const AccountEditor = () => {
     const [account, setAccount] = useState({ ...newAccount });
     const [shouldGoBack, setShouldGoBack] = useState(false);
     const [error, setError] = useState('');
+    const [proccessing, setProccessing] = useState(false);
 
     useEffect(() => {
         const account = id === newAccountId ?
@@ -80,11 +81,18 @@ const AccountEditor = () => {
             setAccount({ ...account, error: errors.join('\n') });
         }
         if (errors.length > 0) return;
+
+        setProccessing(true);
         accountStore.save(account)
-            .then(() => {
-                setShouldGoBack(true);
+            .then(err => {
+                if (err) {
+                    setError(err);
+                    setProccessing(false);
+                }
+                else setShouldGoBack(true);
             }).catch(() => {
                 setError('儲存失敗, 請檢查您的 api Key 或 api Secret');
+                setProccessing(false);
             });
     };
 
@@ -136,7 +144,7 @@ const AccountEditor = () => {
 
         <pre className={styles.error} >{error || account.error}</pre>
 
-        <button className={styles.button} onClick={save}>儲存</button>
+        <button className={styles.button} onClick={save} disabled={proccessing}>儲存</button>
     </div>;
 };
 

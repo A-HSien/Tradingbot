@@ -6,13 +6,14 @@ import SignalRepo from "../repositories/SignalRepo";
 import _ from "lodash";
 import { authenticate } from "@loopback/authentication";
 import { SecurityBindings, UserProfile } from '@loopback/security';
-import { actions, ActionKey } from "../common/binanceApi";
+import { actions, ActionKey } from "../common/binanceApi/Actions";
 import AccountRepo from "../repositories/AccountRepo";
 import { Account } from "../domains/Account";
 import ActionRecordRepo from "../repositories/ActionRecordRepo";
 import { ActionRecord } from "../domains/Action";
 import { Signal } from "../domains/Signal";
-import console from "console";
+import { getFuturePrice } from "../common/binanceApi/FuturePrice";
+import { updateAccount } from "../common/binanceApi/AccountSnapshot";
 
 
 
@@ -59,10 +60,7 @@ export class SignalController {
 
   @post('signal/trading')
   async trading(
-    @requestBody() data: {
-      token: string,
-      action: ActionKey,
-    },
+    @requestBody() data: Signal
 
   ) {
     console.log('signal/trading payload:', data);
@@ -77,34 +75,53 @@ export class SignalController {
         );
     });
 
-    
+
     const signal: Signal = {
-      ..._.omit(data, 'token'),
-      userId: tokenData.userId
+      ...(_.omit(data, 'token') as Signal),
+      userId: tokenData.userId,
     };
-    const action = actions[signal.action];
+    const actionKey = signal.action;
+    const action = actions[actionKey];
     if (!action) {
       const error = 'action not found';
       signal.error = error;
       console.warn(error, signal);
+      await SignalRepo.create(signal);
     }
-    await SignalRepo.create(signal);
     if (!action) return;
+
+
 
 
     const query: Partial<Account> = { ownerId: signal.userId, disabled: false };
     const accounts = await AccountRepo.where(query);
+
+
+    const price = await getFuturePrice(signal.symbol);
+    if (!price || !price.price) {
+      console.error("get price error", signal);
+      await SignalRepo.create(signal);
+      return;
+    }
+    console.log('price', price);
+    signal.currentPrice = Number(price.price);
+    signal.quantity = Number(signal.quantity) / Number(signal.currentPrice);
+    await SignalRepo.create(signal);
+
+
     const results = await Promise.all(
-      accounts.map(acc => action.action(acc, signal).then(result => {
-        ActionRecordRepo.create(result);
-        return result;
-      }))
+      accounts.map(acc => action.action(actionKey, acc, signal)
+        .then(result => {
+          ActionRecordRepo.create(result);
+          return result;
+        }))
     );
     console.log('action results:', results);
-    const query2: Partial<ActionRecord> = {
-      userId: signal.userId
-    };
-    const rec = ActionRecordRepo.where(query2);
-    console.log('action rec:', rec);
+
+    accounts.forEach(async acc => {
+
+      const updated = await updateAccount(acc);
+      AccountRepo.updateOne({'_id':updated.id }, updated);
+    });
   };
 };

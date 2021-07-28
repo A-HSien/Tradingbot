@@ -1,4 +1,5 @@
 import { connect } from 'mongoose';
+import { accountInfoResp } from '../common/binanceApi/FutureAccountBalance';
 import { DB_CONNECTION_STRING } from '../config';
 import { Account } from '../domains/Account';
 import { AppUser } from '../domains/AppUser';
@@ -43,10 +44,10 @@ const AccountRepoTest = async () => {
         apiSecret: 'apiSecretapiSecretapiSecret',
         disabled: true,
         quota: 987,
-        balances: [
-            { asset: 'asset/test', free: 888, locked: 666 },
-            { asset: 'test/asset', free: 666, locked: 888 },
-        ],
+        balances: {
+            availableBalance: (999).toString(),
+            positions: accountInfoResp.positions
+        },
         balancesLastUpdateTime: new Date(),
     };
     await AccountRepo.create(mockAccount);

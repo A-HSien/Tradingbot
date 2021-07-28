@@ -12,7 +12,7 @@ import { TokenServiceBindings } from '../keys';
 
 const jwt = require('jsonwebtoken');
 const signAsync = promisify(jwt.sign);
-const verifyAsync = promisify(jwt.verify);
+const verifyAsync: (...args: any[]) => Promise<Record<string, string>> = promisify(jwt.verify);
 
 export class JWTService implements TokenService {
   constructor(
@@ -80,16 +80,14 @@ export class JWTService implements TokenService {
       );
     }
 
-    let decodedToken: any;
     try {
-      decodedToken = await verifyAsync(token, this.jwtSecret);
+      return await verifyAsync(token, this.jwtSecret);
 
     } catch (error) {
       throw new HttpErrors.Unauthorized(
         `Error verifying token : ${error.message}`,
       );
     }
-    return decodedToken;
   };
 
   async generateTokenForSignal(userId: string): Promise<string> {

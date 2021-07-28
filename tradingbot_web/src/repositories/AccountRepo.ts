@@ -1,14 +1,14 @@
-import { Schema, model } from 'mongoose';
-import { Account, Balance } from '../domains/Account';
+import { Schema, model, SchemaDefinition } from 'mongoose';
+import { Account, Balances } from '../domains/Account';
 import { mapIdField } from './utilities';
 
 
-const balanceSchema = new Schema<Balance>({
-    asset: { type: String, required: true },
-    free: { type: Number, required: true },
-    locked: { type: Number, required: true },
-});
-mapIdField(balanceSchema);
+const balancesDef: SchemaDefinition<Balances> = {
+    availableBalance: { type: String, required: true },
+    positions: [Object],
+};
+const balancesSchema = new Schema<Balances>(balancesDef);
+mapIdField(balancesSchema);
 
 const schema = new Schema<Account>({
     apiKey: { type: String, required: true },
@@ -17,8 +17,9 @@ const schema = new Schema<Account>({
     name: { type: String },
     disabled: { type: Boolean },
     quota: { type: Number },
-    balances: [balanceSchema],
+    balances: balancesSchema,
     balancesLastUpdateTime: { type: Date },
+    error: { type: String },
 });
 mapIdField(schema);
 

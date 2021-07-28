@@ -1,4 +1,4 @@
-import { ActionKey } from "../common/binanceApi";
+import { ActionKey } from "../common/binanceApi/Actions";
 import { Account } from "./Account";
 import { Signal } from "./Signal";
 
@@ -14,4 +14,8 @@ export type ActionRecord = {
 };
 
 
-export type Action = (account: Account,signal: Signal) => Promise<ActionRecord>
+export type Action = (
+    actionKey: ActionKey,
+    account: Account,
+    signal: Signal
+) => Promise<ActionRecord>

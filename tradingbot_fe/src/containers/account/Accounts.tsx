@@ -17,8 +17,7 @@ const styles = {
     table: baseStyles.table,
     tableCell: baseStyles.tableCell,
     balancesCell: createClass(
-        'h-full', 'overflow-auto',
-        'text-left'
+        'overflow-auto',
     ),
 };
 
@@ -34,18 +33,19 @@ const Accounts = () => {
     const getAssetInfo = useCallback((account: Account) => {
         if (account.error)
             return <>{account.error}</>
-        if (!account.balances || account.balances.length === 0)
+        if (!account.balances)
             return <>無資產</>
 
-        return (
-            <pre className={styles.balancesCell}>
-                {
-                    (account.balances || [])
-                        .map(b => `${b.asset}: ${b.free} / ${b.locked}`)
-                        .join('\n')
-                }
-            </pre>
-        );
+        return <div className={styles.balancesCell}>
+            可用資產(USDT):
+            {account.balances.availableBalance} <br />
+            持倉:
+            {
+                (account.balances?.positions || [])
+                    .map(b => `${b.symbol}: ${b.positionAmt}`)
+                    .join(' ; ') || '無倉位紀錄'
+            }
+        </div>;
     }, []);
 
     return (

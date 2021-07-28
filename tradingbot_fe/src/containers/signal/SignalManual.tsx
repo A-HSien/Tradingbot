@@ -17,13 +17,12 @@ const styles = {
 
 const tradingApi = '/signal/trading';
 const orderSample = {
-    action: 'OrderTest',
+    action: 'FOrderTest',
     token: '[Your Token]',
 
-    symbol: 'LTCBTC',
+    symbol: 'DOGEUSDT',
     side: 'BUY',
-    type: 'MARKET',
-    quantity: '100',
+    quantity: '5.1',
 };
 
 const SignalManual = () => {

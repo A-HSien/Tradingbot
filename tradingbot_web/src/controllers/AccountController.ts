@@ -3,7 +3,7 @@ import { inject } from '@loopback/core';
 import { get, param, post, requestBody } from '@loopback/rest';
 import { SecurityBindings, securityId, UserProfile } from '@loopback/security';
 import _ from 'lodash';
-import { updateAccountInfo } from '../common/binanceApi/AccountSnapshot';
+import { checkAndUpdateAccount, updateAccount } from '../common/binanceApi/AccountSnapshot';
 import { Account } from '../domains/Account';
 import { ActionRecord } from '../domains/Action';
 import AccountRepo from '../repositories/AccountRepo';
@@ -24,8 +24,23 @@ export class AccountController {
     const accounts: Account[] = await AccountRepo.where(
       { ownerId: userId }
     );
+    const days = 3 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
     const infos = await Promise.all(
-      accounts.map(account => updateAccountInfo(account))
+      accounts.map(account => {
+        if (account.disabled ||
+          (
+            account.balancesLastUpdateTime &&
+            ((now - account.balancesLastUpdateTime!.valueOf()) < days)
+          )
+        )
+          return Promise.resolve(account);
+        else
+          return updateAccount(account).then(updated => {
+            AccountRepo.updateOne({ '_id': updated.id }, updated);
+            return updated;
+          })
+      })
     );
 
     return infos.map(info => {
@@ -57,12 +72,14 @@ export class AccountController {
       }
     }
 
-    account = await updateAccountInfo(account);
-    if (account.error) throw Error(account.error);
+    account = await checkAndUpdateAccount(account);
+    if (account.error && !account.disabled) return account.error;
 
     !account.id ?
       await AccountRepo.create(account) :
-      await AccountRepo.updateOne(account);
+      await AccountRepo.updateOne({ '_id': account.id }, account);
+
+    return '';
   };
 
 
