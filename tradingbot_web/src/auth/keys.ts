@@ -8,10 +8,6 @@ import { BindingKey } from '@loopback/core';
 import { AuthService } from './services/AuthService';
 
 
-export namespace TokenServiceConstants {
-  export const TOKEN_SECRET_VALUE = 'tradingbot_s3cr3t';
-  export const TOKEN_EXPIRES_IN_VALUE = (60 * 60 * 1000);
-}
 
 export namespace TokenServiceBindings {
   export const TOKEN_SECRET = BindingKey.create<string>(

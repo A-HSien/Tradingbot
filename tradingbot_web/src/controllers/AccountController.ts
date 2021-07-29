@@ -37,9 +37,9 @@ export class AccountController {
           return Promise.resolve(account);
         else
           return updateAccount(account).then(async updated => {
-            await AccountRepo.updateOne({ '_id': updated.id }, updated);
+            await AccountRepo.updateOne({ '_id': updated.id }, updated).exec();
             return updated;
-          })
+          });
       })
     );
 
@@ -77,7 +77,7 @@ export class AccountController {
 
     !account.id ?
       await AccountRepo.create(account) :
-      await AccountRepo.updateOne({ '_id': account.id }, account);
+      await AccountRepo.updateOne({ '_id': account.id }, account).exec();
 
     return '';
   };
@@ -100,7 +100,7 @@ export class AccountController {
     const query: Partial<ActionRecord> = {
       userId, accountId: account.id!
     };
-    return ActionRecordRepo.where(query);
+    return (await ActionRecordRepo.where(query)).reverse();
   };
 
 

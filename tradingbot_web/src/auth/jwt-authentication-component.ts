@@ -14,7 +14,6 @@ import {
 } from '@loopback/core';
 import {
   TokenServiceBindings,
-  TokenServiceConstants,
   AuthServiceBindings,
 } from './keys';
 import { JWTAuthenticationStrategy } from './services/jwt.auth.strategy';
@@ -22,14 +21,20 @@ import { JWTService } from './services/jwt.service';
 import { SecuritySpecEnhancer } from './services/security.spec.enhancer';
 import { AuthService } from './services/AuthService';
 
+
+export const TOKEN_SECRET_VALUE = 'tradingbot_s3cr3t';
+export const TOKEN_EXPIRES_IN_VALUE = (60 * 60 * 1000);
+
+
+
 export class JWTAuthenticationComponent implements Component {
   bindings: Binding[] = [
     // token bindings
     Binding.bind(TokenServiceBindings.TOKEN_SECRET).to(
-      TokenServiceConstants.TOKEN_SECRET_VALUE,
+      TOKEN_SECRET_VALUE,
     ),
     Binding.bind(TokenServiceBindings.TOKEN_EXPIRES_IN).to(
-      TokenServiceConstants.TOKEN_EXPIRES_IN_VALUE.toString(),
+      TOKEN_EXPIRES_IN_VALUE.toString(),
     ),
     Binding.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService),
 

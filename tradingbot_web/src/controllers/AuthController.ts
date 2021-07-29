@@ -1,8 +1,8 @@
 import { authenticate, TokenService } from '@loopback/authentication';
 import {
   TokenServiceBindings,
-  TokenServiceConstants,
   AuthServiceBindings,
+  TOKEN_EXPIRES_IN_VALUE,
 } from '../auth';
 import { inject } from '@loopback/core';
 import {
@@ -92,7 +92,7 @@ export class AuthController {
       'auth-token',
       await this.getAuthToken(user),
       {
-        maxAge: TokenServiceConstants.TOKEN_EXPIRES_IN_VALUE
+        maxAge: TOKEN_EXPIRES_IN_VALUE
       }
     );
   };

@@ -31,7 +31,7 @@ export class SignalController {
 
   ) {
     const data = await SignalRepo.where({ userId: currentUser.id });
-    return data;
+    return data.reverse();
   };
 
 
@@ -121,7 +121,7 @@ export class SignalController {
     accounts.forEach(async acc => {
 
       const updated = await updateAccount(acc);
-      await AccountRepo.updateOne({'_id':updated.id }, updated);
+      await AccountRepo.updateOne({'_id':updated.id }, updated).exec();
     });
   };
 };
