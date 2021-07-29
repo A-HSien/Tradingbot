@@ -69,5 +69,8 @@ db.getCollectionNames()
 db.<collection>.drop()
 
 check live:
-docker container logs tradingbot_web_1
-docker exec -it mymongo mongo admin
+docker container logs tradingbot_web_1 >& myFile.log
+docker exec -it tradingbot_db_1 mongo admin
+db.auth('adminuser', 'adminpassword')
+use tradingbot_db
+db.getCollectionNames()

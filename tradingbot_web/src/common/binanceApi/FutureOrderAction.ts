@@ -15,8 +15,9 @@ const tradingParams: Record<string, string> = {
 };
 const keys = Object.keys(tradingParams);
 
-const futureNewOrder: Action = async (actionKey, account, signal) => {
+const futureNewOrder: Action = async (actionKey, account, originalSignal) => {
 
+    const signal = { ...originalSignal };
     const prev = account.balances?.positions?.find(pos => pos.symbol === signal.symbol)?.positionAmt;
     signal.prevQuantity = prev;
     signal.targetQuantity = signal.quantity;
