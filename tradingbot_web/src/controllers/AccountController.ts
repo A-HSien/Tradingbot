@@ -24,14 +24,14 @@ export class AccountController {
     const accounts: Account[] = await AccountRepo.where(
       { ownerId: userId }
     );
-    const days = 3 * 24 * 60 * 60 * 1000;
+    const expireTime = 3 * 60 * 1000; // 3 mins
     const now = Date.now();
     const infos = await Promise.all(
       accounts.map(account => {
         if (account.disabled ||
           (
             account.balancesLastUpdateTime &&
-            ((now - account.balancesLastUpdateTime!.valueOf()) < days)
+            ((now - account.balancesLastUpdateTime!.valueOf()) < expireTime)
           )
         )
           return Promise.resolve(account);

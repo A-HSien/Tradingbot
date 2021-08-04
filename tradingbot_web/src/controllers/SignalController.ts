@@ -91,12 +91,6 @@ export class SignalController {
     if (!action) return;
 
 
-
-
-    const query: Partial<Account> = { ownerId: signal.userId, disabled: false };
-    const accounts = await AccountRepo.where(query);
-
-
     const price = await getFuturePrice(signal.symbol);
     if (!price || !price.price) {
       console.error("get price error", signal);
@@ -109,19 +103,31 @@ export class SignalController {
     await SignalRepo.create(signal);
 
 
-    const results = await Promise.all(
-      accounts.map(acc => action.action(actionKey, acc, signal)
-        .then(result => {
-          ActionRecordRepo.create(result);
-          return result;
-        }))
+    const query: Partial<Account> = { ownerId: signal.userId, disabled: false };
+    const accounts = await AccountRepo.where(query);
+
+    const logs = await Promise.all(
+      accounts.map(async acc => {
+        const log: any = {};
+        const updated = await updateAccount(acc)
+        log.before = updated;
+
+        const result = await action.action(actionKey, updated, signal);
+        log.actionResult = result;
+        await ActionRecordRepo.create(result);
+        log.saveResult = await AccountRepo.updateOne({ '_id': updated.id }, updated).exec();
+        return log;
+      })
     );
-    console.log('action results:', results);
+    const cloneLogs = JSON.parse(JSON.stringify(logs))
+      .map((each: any) => {
+        if (each && each.before) {
+          each.before.apiKey = 'apiKey';
+          each.before.apiSecret = 'apiSecret';
+        }
+        return each;
+      });
+    console.log('logs:', cloneLogs);
 
-    accounts.forEach(async acc => {
-
-      const updated = await updateAccount(acc);
-      await AccountRepo.updateOne({'_id':updated.id }, updated).exec();
-    });
   };
 };
