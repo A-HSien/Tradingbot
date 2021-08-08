@@ -1,5 +1,5 @@
-import axios from "axios";
 import { FutureApiBase } from "./common";
+import { BinanceAPI } from "./HttpMethods";
 
 const api = FutureApiBase + "/fapi/v1/ticker/price";
 
@@ -13,7 +13,7 @@ type Result = typeof result;
 
 
 export const getFuturePrice = async (symbol: string) => {
-    return await axios.get<Result>(api, { params: { symbol } })
+    return await BinanceAPI.get<Result>(api, { params: { symbol } })
         .then(resp => resp.data)
         .catch(err => console.error('Binance api error', err.response.data));
 };

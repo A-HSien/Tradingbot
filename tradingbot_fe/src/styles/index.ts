@@ -23,6 +23,13 @@ export const borderGray = createClass(
     'border-gray-100', 'dark:border-gray-600'
 );
 
+export const selectStyle = createClass(
+    border, 'border-blue-500',
+    'bg-gray-100', 'dark:bg-gray-700',
+    'py-2', 'px-4',
+    'font-semibold','text-blue-500',
+);
+
 export const buttonStyle = createClass(
     'block', 'w-full', 'text-center',
     'py-2', 'px-4',
@@ -64,6 +71,7 @@ const styles = {
     pageEdge,
     border,
     borderGray,
+    selectStyle,
     buttonStyle,
     table, tableCell,
     codeBlockStyle

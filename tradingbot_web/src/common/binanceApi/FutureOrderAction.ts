@@ -1,7 +1,7 @@
 import { Action } from "../../domains/Action";
 import { FutureApiBase } from "./common";
 import { generalSignedPostAction } from "./Actions";
-import { infos } from "./ExchangeInfo";
+import { getExchangeInfo } from "./ExchangeInfo";
 
 
 
@@ -30,7 +30,7 @@ const futureNewOrder: Action = async (actionKey, account, originalSignal) => {
         signal.quantity = Math.abs(toTrade);
     }
 
-    const precision = infos[signal.symbol].quantityPrecision;
+    const precision = getExchangeInfo(signal.symbol).quantityPrecision;
     signal.quantity = Number(signal.quantity).toFixed(precision);
 
     keys.forEach(key => {

@@ -14,6 +14,7 @@ import { ActionRecord } from "../domains/Action";
 import { Signal } from "../domains/Signal";
 import { getFuturePrice } from "../common/binanceApi/FuturePrice";
 import { updateAccount } from "../common/binanceApi/AccountSnapshot";
+import { getAllSymbol, updateExchangeInfo } from "../common/binanceApi/ExchangeInfo";
 
 
 
@@ -42,6 +43,15 @@ export class SignalController {
 
   ) {
     return this.tokenSvc.generateTokenForSignal(currentUser.id);
+  };
+
+  
+  @authenticate('jwt')
+  @get('signal/getAllSymbol')
+  async getAllSymbol(
+
+  ) {
+    return getAllSymbol();
   };
 
 
@@ -91,7 +101,10 @@ export class SignalController {
     if (!action) return;
 
 
-    const price = await getFuturePrice(signal.symbol);
+    const [price] = await Promise.all([
+      getFuturePrice(signal.symbol),
+      updateExchangeInfo(),
+    ]);
     if (!price || !price.price) {
       console.error("get price error", signal);
       await SignalRepo.create(signal);
@@ -115,7 +128,6 @@ export class SignalController {
         const result = await action.action(actionKey, updated, signal);
         log.actionResult = result;
         await ActionRecordRepo.create(result);
-        log.saveResult = await AccountRepo.updateOne({ '_id': updated.id }, updated).exec();
         return log;
       })
     );
