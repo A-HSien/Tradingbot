@@ -40,7 +40,10 @@ export const updateAccount = async (account: Account) => {
 
    account.error = '';
    const balance = await qurtyFutureAccountBalance(account)
-      .then(resp => resp.data)
+      .then(resp => {
+         console.log('qurtyFutureAccountBalance:', resp);
+         return resp.data;
+      })
       .catch(err => apiError(account, err));
    if (account.error) return account;
 
