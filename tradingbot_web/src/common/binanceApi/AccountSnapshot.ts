@@ -14,7 +14,7 @@ type ResponseType = typeof response;
 
 
 const apiError = (account: Account, err: any) => {
-   console.error('Binance api error', err.response.data);
+   console.error('Binance api error', err);
    const { code, msg } = err.response.data;
    account.error = `${msg}(${code})`;
 };
