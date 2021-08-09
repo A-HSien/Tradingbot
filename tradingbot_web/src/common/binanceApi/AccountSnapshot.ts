@@ -14,7 +14,6 @@ type ResponseType = typeof response;
 
 
 const apiError = (account: Account, err: any) => {
-   console.error('Binance api error', err);
    const { code, msg } = err.response.data;
    account.error = `${msg}(${code})`;
 };
@@ -40,10 +39,7 @@ export const updateAccount = async (account: Account) => {
 
    account.error = '';
    const balance = await qurtyFutureAccountBalance(account)
-      .then(resp => {
-         console.log('qurtyFutureAccountBalance:', resp);
-         return resp.data;
-      })
+      .then(resp => resp.data)
       .catch(err => apiError(account, err));
    if (account.error) return account;
 
