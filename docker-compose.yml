@@ -24,24 +24,12 @@ services:
         command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     web:
         restart: always
-        depends_on:
-            - db
-        links:
-            - db
         environment:
-            - DB_CONNECTION_STRING=dbuser:dbpassword@db:27017/tradingbot_db
+            - DB_CONNECTION_STRING=mongodb://dbuser:dbpassword@db:27017/tradingbot_db
             - SERVER_ROOT_URI=https://tradingbot.ahsien.rocks
         build:
             context: ./tradingbot_web
         ports:
             - "3000:3000"
-    db:
-        image: mongo
-        restart: always
-        environment:
-            - MONGO_INITDB_ROOT_USERNAME=adminuser
-            - MONGO_INITDB_ROOT_PASSWORD=adminpassword
-        ports:
-            - 27017:27017
-        volumes:
-            - ./data/db:/data/db
+        logging:
+            driver: "gcplogs"

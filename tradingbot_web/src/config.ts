@@ -8,4 +8,5 @@ export const SERVER_ROOT_URI =
   process.env.SERVER_ROOT_URI || "http://localhost:3000";
 
 export const DB_CONNECTION_STRING =
-  process.env.DB_CONNECTION_STRING || "dbuser:dbpassword@127.0.0.1:27017/tradingbot_db";
+  process.env.DB_CONNECTION_STRING || 
+  "mongodb+srv://dbUser:dbUserPassword@m0.cyj7x.mongodb.net/tradingbot_dev?retryWrites=true&w=majority";

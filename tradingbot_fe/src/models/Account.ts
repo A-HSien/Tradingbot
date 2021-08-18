@@ -1,8 +1,3 @@
-export type Balances = {
-    availableBalance: string,
-    positions: Position[],
-};
-
 
 const position =         {
     "symbol": "BTCUSDT",  // 交易对
@@ -21,10 +16,14 @@ const position =         {
 };
 export type Position = typeof position;
 
+export type Balances = {
+    availableBalance: string,
+    positions: Position[],
+};
+
 export type Account = {
     id: string,
     name: string,
-    quota: number,
     disabled: boolean,
 
     balances?: Balances,
@@ -35,13 +34,3 @@ export type EditingAccount = Account & {
     apiKey?: string,
     apiSecret?: string,
 };
-
-
-export const mockAccounts = Array(100).fill({}).map((_, i) => (
-    {
-        name: 'account-' + i,
-        balances: [],
-        quota: 1000,
-        disabled: Math.random() > 0.8,
-    }
-));

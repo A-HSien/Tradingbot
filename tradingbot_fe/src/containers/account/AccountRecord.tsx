@@ -2,7 +2,7 @@ import axios from "axios";
 import { observer } from "mobx-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { formatJson } from "src/common/utities";
+import { formatDate, formatJson } from "src/common/utities";
 import baseStyles, { codeBlockStyle, createClass } from "src/styles";
 
 type ActionRecord = {
@@ -12,7 +12,7 @@ type ActionRecord = {
     params: string,
     result?: any,
     success?: boolean,
-    createdAt?: Date,
+    createdAt: Date,
 };
 
 const styles = {
@@ -60,7 +60,7 @@ const AccountRecord = () => {
                     <tbody>
                         {records.map((record, i) => (
                             <tr key={i}>
-                                <td className={styles.tableCell}>{record.createdAt}</td>
+                                <td className={styles.tableCell}>{formatDate(record.createdAt)}</td>
                                 <td className={styles.tableCell}>{record.action}</td>
                                 <td className={styles.tableCell}>{record.success ? 'Y' : 'N'}</td>
                                 <td className={styles.tableCell}>{record.params}</td>

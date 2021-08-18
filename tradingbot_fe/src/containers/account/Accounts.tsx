@@ -3,7 +3,7 @@ import { useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Account } from "src/models/Account";
 import { accountStore } from "src/stores/AccountStore";
-import baseStyles, { createClass } from "src/styles";
+import baseStyles, { codeBlockStyle, createClass } from "src/styles";
 import { newAccountId } from "./AccountEditor";
 
 
@@ -39,12 +39,13 @@ const Accounts = () => {
         return <div className={styles.balancesCell}>
             可用資產(USDT):
             {account.balances.availableBalance} <br />
-            持倉:
-            {
-                (account.balances?.positions || [])
-                    .map(b => `${b.symbol}: ${b.positionAmt}`)
-                    .join(' ; ') || '無倉位紀錄'
-            }
+            <pre className={codeBlockStyle}>
+                {
+                    (account.balances?.positions || [])
+                        .map(b => `${b.symbol} 持倉:${b.positionAmt} 槓桿:${b.leverage} 逐倉:${b.isolated ? 'Y' : 'N'}`)
+                        .join('\n') || '無倉位紀錄'
+                }
+            </pre>
         </div>;
     }, []);
 
@@ -61,7 +62,6 @@ const Accounts = () => {
                         <th className={styles.tableCell}></th>
                         <th className={styles.tableCell}>名稱</th>
                         <th className={styles.tableCell}>資產 (free/locked)</th>
-                        <th className={styles.tableCell}>單筆投資額</th>
                         <th className={styles.tableCell}>停用</th>
                         <th className={styles.tableCell}></th>
                     </tr>
@@ -74,7 +74,6 @@ const Accounts = () => {
                             </td>
                             <td className={styles.tableCell}>{account.name}</td>
                             <td className={styles.tableCell}>{getAssetInfo(account)}</td>
-                            <td className={styles.tableCell}>{account.quota}</td>
                             <td className={styles.tableCell}>{account.disabled ? 'Y' : ''}</td>
                             <td className={styles.tableCell}>
                                 <Link className={baseStyles.buttonStyle} to={`/AccountRecord/${account.name}`}>操作記錄</Link>

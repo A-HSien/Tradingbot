@@ -1,7 +1,7 @@
 import { observer } from "mobx-react";
 import { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
-import { getLinkPath, linkMap } from "src/common/Manu";
+import { getLinkPath, linkMap } from "src/Manu";
 import { AuthStatus, authStore } from "src/stores/AuthStore";
 import baseStyles, { createClass } from "src/styles";
 

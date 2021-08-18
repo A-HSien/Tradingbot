@@ -1,13 +1,9 @@
-import { authenticate, TokenService } from '@loopback/authentication';
-import {
-  TokenServiceBindings,
-  AuthServiceBindings,
-  TOKEN_EXPIRES_IN_VALUE,
-} from '../auth';
+import { authenticate } from '@loopback/authentication';
+import { TOKEN_EXPIRES_IN_VALUE } from '../auth';
 import { inject } from '@loopback/core';
 import {
   get, post, param,
-  RestBindings, Response
+  RestBindings, Response, HttpErrors
 } from '@loopback/rest';
 import { SecurityBindings, UserProfile } from '@loopback/security';
 import { genSalt, hash } from 'bcryptjs';
@@ -15,16 +11,13 @@ import _ from 'lodash';
 import { GOOGLE_REDIRECT_URL } from '../config';
 import { AppUser } from '../domains/AppUser';
 import { getGoogleAuthURL, getUser, GoogleUser } from '../common/GoogleAuth';
-import { AuthService } from '../auth/services/AuthService';
 import AppUserRepo from '../repositories/AppUserRepo';
+import { signToken, TokenType } from '../domains/Token';
+import { convertToUserProfile, verifyCredentials } from '../auth/AuthService';
 
 
 
 export class AuthController {
-  constructor(
-    @inject(TokenServiceBindings.TOKEN_SERVICE) private jwtService: TokenService,
-    @inject(AuthServiceBindings.AUTH_SERVICE) private authService: AuthService,
-  ) { };
 
 
   @get('auth/url')
@@ -84,7 +77,7 @@ export class AuthController {
     response: Response
 
   ) {
-    const user = await this.authService.verifyCredentials({
+    const user = await verifyCredentials({
       email: googleUser.email,
       password: googleUser.id
     });
@@ -92,19 +85,32 @@ export class AuthController {
       'auth-token',
       await this.getAuthToken(user),
       {
-        maxAge: TOKEN_EXPIRES_IN_VALUE
+        maxAge: TOKEN_EXPIRES_IN_VALUE * 1000
       }
     );
   };
 
-  
+
   private async getAuthToken(
     user: AppUser,
 
   ) {
-    const userProfile = this.authService.convertToUserProfile(user);
-    return this.jwtService.generateToken(userProfile);
+    const userProfile = convertToUserProfile(user);
+    if (!userProfile) {
+      throw new HttpErrors.Unauthorized(
+        'Error generating token : userProfile is null',
+      );
+    }
+    const userInfoForToken = {
+      id: userProfile.id,
+      email: userProfile.email || '',
+    };
+    return await signToken(userInfoForToken, TokenType.login, TOKEN_EXPIRES_IN_VALUE)
+      .catch(error => {
+        throw new HttpErrors.Unauthorized(`Error encoding token : ${error}`);
+      });
   };
 
 
 }
+

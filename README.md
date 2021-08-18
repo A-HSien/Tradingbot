@@ -5,10 +5,8 @@
 
 Init env:
 install docker & docker-compose
-docker pull alpine/git
-docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git clone https://github.com/A-HSien/Tradingbot.git
+sudo git clone https://github.com/A-HSien/Tradingbot.git
 cd Tradingbot
-docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git pull
 chmod +x init-letsencrypt.sh
 sudo ./init-letsencrypt.sh
 
@@ -16,8 +14,10 @@ sudo ./init-letsencrypt.sh
 ## Server update
 
 only web:
+sudo git pull
+docker-compose down
 docker image rm tradingbot_web
-docker-compose up -dgit
+docker-compose up -d
 
 all:
 docker-compose down
@@ -29,18 +29,22 @@ sudo ./init-letsencrypt.sh
 
 ### Additional commands
 
-Build and check web locally:
+#### Build and check web locally:
+
 cd tradingbot_web
 docker build -t tradingbot_web .
 docker run -d -p 3000:3000 tradingbot_web
 curl localhost:3000
 
 
-Check db is running:
+#### for local db:
+
 docker ps
 docker exec mymongo mongo --eval "print(version())"
 
+
 Create user:
+
 docker stop mymongo
 docker run --name mymongo -v $(pwd)/data/db:/data/db -d -p 27017:27017 --rm mongo
 docker exec -it mymongo mongo admin
@@ -64,11 +68,15 @@ exit
 docker stop mymongo
 docker run --name mymongo -v $(pwd)/data/db:/data/db -d -p 27017:27017 --rm mongo --auth
 
-other commands:
+
+#### mongo commands:
+
 db.getCollectionNames()
 db.<collection>.drop()
 
-check live:
+
+#### check live server:
+
 docker container logs tradingbot_web_1
 docker container logs tradingbot_web_1 >& myFile.log
 docker exec -it tradingbot_db_1 mongo admin

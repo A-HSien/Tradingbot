@@ -5,20 +5,23 @@ import Accounts from "src/containers/account/Accounts";
 import Login from "src/containers/Login";
 import Register from "src/containers/Register";
 import SignalManual from "src/containers/signal/SignalManual";
-import Signals from "src/containers/signal/Signals";
+import Signals from "src/containers/signal/SignalsRecord";
 import { AuthStatus } from "src/stores/AuthStore";
+import { SystemStatus } from "./containers/SystemStatus.tsx";
 
 export type LinkProps = RouteProps & {
     lable?: string,
     protectionLevel?: AuthStatus,
 };
 
+
 export const linkMap: Record<
     'Login' | 'Register' |
-    'Accounts' | 'Account' | 'AccountRecord'|
-    'Signals' | 'SignalManual',
+    'Accounts' | 'Account' | 'AccountRecord' |
+    'Signals' | 'SignalManual' | 'SystemStatus',
     LinkProps
 > = {
+
     Login: {
         path: "/",
         exact: true,
@@ -59,6 +62,12 @@ export const linkMap: Record<
         component: SignalManual,
         protectionLevel: AuthStatus.Authorized,
     },
+    SystemStatus: {
+        path: "/SystemStatus",
+        lable: '系統狀態',
+        component: SystemStatus,
+        protectionLevel: AuthStatus.Authorized,
+    },
 };
 
 export const getLinkPath = (link: RouteProps) =>
@@ -66,5 +75,8 @@ export const getLinkPath = (link: RouteProps) =>
 
 
 export const menus = [
-    linkMap.Accounts, linkMap.Signals, linkMap.SignalManual
+    linkMap.Accounts,
+    linkMap.Signals,
+    linkMap.SignalManual,
+    linkMap.SystemStatus,
 ];

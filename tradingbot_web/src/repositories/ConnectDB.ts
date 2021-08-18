@@ -1,4 +1,4 @@
-import { connect } from 'mongoose';
+import { connect, set } from 'mongoose';
 import { accountInfoResp } from '../common/binanceApi/FutureAccountBalance';
 import { DB_CONNECTION_STRING } from '../config';
 import { Account } from '../domains/Account';
@@ -9,10 +9,10 @@ import AppUserRepo from './AppUserRepo';
 
 
 const connectDB = () => {
-    const conn = `mongodb://${DB_CONNECTION_STRING}`;
-    console.info('db connect:', conn);
+    console.info('db connect:', DB_CONNECTION_STRING);
+    set('useCreateIndex', true);
     return connect(
-        conn,
+        DB_CONNECTION_STRING,
         {
             useNewUrlParser: true,
             useUnifiedTopology: true
@@ -43,7 +43,6 @@ const AccountRepoTest = async () => {
         apiKey: 'apiKeyapiKeyapiKey',
         apiSecret: 'apiSecretapiSecretapiSecret',
         disabled: true,
-        quota: 987,
         balances: {
             availableBalance: (999).toString(),
             positions: accountInfoResp.positions

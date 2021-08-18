@@ -32,7 +32,7 @@
     "preopenapi-spec": "npm run build",
     "openapi-spec": "node ./dist/openapi-spec",
     "prestart": "npm run rebuild",
-    "start": "node -r source-map-support/register .",
+    "start": "GOOGLE_APPLICATION_CREDENTIALS=./service-account.json node -r source-map-support/register .",
     "clean": "lb-clean dist *.tsbuildinfo .eslintcache",
     "rebuild": "npm run clean && npm run build"
   },
@@ -49,6 +49,7 @@
     "!*/__tests__"
   ],
   "dependencies": {
+    "@google-cloud/kms": "^2.5.0",
     "@loopback/authentication": "^7.3.1",
     "@loopback/boot": "^3.4.1",
     "@loopback/core": "^2.16.1",
@@ -60,6 +61,7 @@
     "@types/jsonwebtoken": "^8.5.4",
     "axios": "^0.21.1",
     "bcryptjs": "^2.4.3",
+    "fast-crc32c": "^2.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.13.3",
     "querystring": "^0.2.1",

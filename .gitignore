@@ -108,3 +108,5 @@ dist
 # data
 data/db/
 data/certbot/
+
+service-account.json

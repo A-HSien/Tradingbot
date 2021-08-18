@@ -1,7 +1,5 @@
-import { TokenServiceBindings } from "../auth";
 import { inject } from "@loopback/core";
-import { HttpErrors, get, post, requestBody } from "@loopback/rest";
-import { JWTService } from "../auth";
+import { get, post, requestBody } from "@loopback/rest";
 import SignalRepo from "../repositories/SignalRepo";
 import _ from "lodash";
 import { authenticate } from "@loopback/authentication";
@@ -10,18 +8,18 @@ import { actions, ActionKey } from "../common/binanceApi/Actions";
 import AccountRepo from "../repositories/AccountRepo";
 import { Account } from "../domains/Account";
 import ActionRecordRepo from "../repositories/ActionRecordRepo";
-import { ActionRecord } from "../domains/Action";
-import { Signal } from "../domains/Signal";
+import { decodeSignal, Signal } from "../domains/Signal";
 import { getFuturePrice } from "../common/binanceApi/FuturePrice";
 import { updateAccount } from "../common/binanceApi/AccountSnapshot";
 import { getAllSymbol, updateExchangeInfo } from "../common/binanceApi/ExchangeInfo";
+import { getApiQuotaRecords } from "../common/binanceApi/HttpMethods";
+import { signToken, TokenType } from "../domains/Token";
 
 
 
 export class SignalController {
 
   constructor(
-    @inject(TokenServiceBindings.TOKEN_SERVICE) private tokenSvc: JWTService,
   ) { };
 
 
@@ -38,14 +36,17 @@ export class SignalController {
 
   @authenticate('jwt')
   @get('signal/getToken')
-  async getToken(
+  getToken(
     @inject(SecurityBindings.USER) currentUser: UserProfile,
 
   ) {
-    return this.tokenSvc.generateTokenForSignal(currentUser.id);
+    const payload = {
+      userId: currentUser.id,
+    };
+    return signToken(payload, TokenType.signal, 88 * 24 * 60 * 60);
   };
 
-  
+
   @authenticate('jwt')
   @get('signal/getAllSymbol')
   async getAllSymbol(
@@ -68,28 +69,18 @@ export class SignalController {
   };
 
 
+  @get('signal/getApiQuotaRecords')
+  getApiQuotaRecords() {
+    return getApiQuotaRecords();
+  };
+
+
   @post('signal/trading')
   async trading(
     @requestBody() data: Signal
 
   ) {
-    console.log('signal/trading payload:', data);
-    const tokenData = await this.tokenSvc.decodedToken(data.token);
-    console.log('signal/trading tokenData:', tokenData);
-
-    // validation
-    ['userId'].forEach(field => {
-      if (!tokenData[field])
-        throw new HttpErrors.Unauthorized(
-          `Error verifying token : ${field} is required`
-        );
-    });
-
-
-    const signal: Signal = {
-      ...(_.omit(data, 'token') as Signal),
-      userId: tokenData.userId,
-    };
+    const signal = await decodeSignal(data);
     const actionKey = signal.action;
     const action = actions[actionKey];
     if (!action) {
@@ -101,22 +92,26 @@ export class SignalController {
     if (!action) return;
 
 
-    const [price] = await Promise.all([
+    const [priceInfo] = await Promise.all([
       getFuturePrice(signal.symbol),
       updateExchangeInfo(),
     ]);
-    if (!price || !price.price) {
+    if (!priceInfo || !priceInfo.price) {
       console.error("get price error", signal);
       await SignalRepo.create(signal);
       return;
     }
-    console.log('price', price);
-    signal.currentPrice = Number(price.price);
+    console.log('priceInfo', priceInfo);
+    signal.currentPrice = Number(priceInfo.price);
     signal.quantity = Number(signal.quantity) / Number(signal.currentPrice);
     await SignalRepo.create(signal);
 
 
-    const query: Partial<Account> = { ownerId: signal.userId, disabled: false };
+    const query: Partial<Account> = {
+      ownerId: signal.userId,
+      disabled: false,
+    };
+    if (signal.groupName) query.groupName = signal.groupName;
     const accounts = await AccountRepo.where(query);
 
     const logs = await Promise.all(
@@ -126,7 +121,7 @@ export class SignalController {
         log.before = updated;
 
         const result = await action.action(actionKey, updated, signal);
-        log.actionResult = result;
+        log.result = result;
         await ActionRecordRepo.create(result);
         return log;
       })
@@ -139,7 +134,7 @@ export class SignalController {
         }
         return each;
       });
-    console.log('logs:', cloneLogs);
+    console.log('signal/trading log:', cloneLogs);
 
   };
 };

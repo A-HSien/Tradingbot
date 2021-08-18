@@ -1,7 +1,7 @@
 import { observer } from "mobx-react";
 import { Redirect } from "react-router-dom";
 import Cookies from "js-cookie";
-import { linkMap, getLinkPath } from "src/common/Manu";
+import { linkMap, getLinkPath } from "src/Manu";
 import baseStyles, { createClass } from "src/styles";
 import { useMemo, useState } from "react";
 import axios from 'axios';

@@ -1,24 +1,16 @@
-// Copyright IBM Corp. 2020. All Rights Reserved.
-// Node module: @loopback/authentication-jwt
-// This file is licensed under the MIT License.
-// License text available at https://opensource.org/licenses/MIT
-
 import { AuthenticationStrategy, TokenService } from '@loopback/authentication';
-import { inject } from '@loopback/core';
 import { HttpErrors, Request } from '@loopback/rest';
 import { UserProfile } from '@loopback/security';
-import { TokenServiceBindings } from '../keys';
+import { getUserProfile } from './AuthService';
+
 
 export class JWTAuthenticationStrategy implements AuthenticationStrategy {
   name = 'jwt';
 
-  constructor(
-    @inject(TokenServiceBindings.TOKEN_SERVICE) public tokenService: TokenService,
-  ) { }
 
   async authenticate(request: Request): Promise<UserProfile | undefined> {
-    const token: string = this.extractCredentials(request);
-    const userProfile: UserProfile = await this.tokenService.verifyToken(token);
+    const token = this.extractCredentials(request);
+    const userProfile = await getUserProfile(token);
     return userProfile;
   }
 

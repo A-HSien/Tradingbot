@@ -1,4 +1,4 @@
-import { IUser } from "../auth";
+import { IUser } from "../auth/IUser";
 
 export type AppUser = IUser & {
     activated?: boolean,

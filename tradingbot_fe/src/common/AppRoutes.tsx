@@ -1,7 +1,7 @@
 import { observer } from "mobx-react";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { authStore } from "../stores/AuthStore";
-import { getLinkPath, linkMap } from "./Manu";
+import { getLinkPath, linkMap } from "../Manu";
 
 
 

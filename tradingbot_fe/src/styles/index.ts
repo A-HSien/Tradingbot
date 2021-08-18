@@ -39,6 +39,10 @@ export const buttonStyle = createClass(
 );
 
 
+export const tableContainer = createClass(
+    'overflow-auto'
+);
+
 export const table = createClass(
     'table-auto', 'rounded',
     'border-collapse', 'border', 'border-gray-800',

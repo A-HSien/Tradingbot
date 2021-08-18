@@ -1,8 +1,9 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { Redirect, useParams } from "react-router-dom";
-import { getLinkPath, linkMap } from "src/common/Manu";
+import { getLinkPath, linkMap } from "src/Manu";
 import { accountStore } from "src/stores/AccountStore";
-import baseStyles, { createClass } from "src/styles";
+import baseStyles, { codeBlockStyle, createClass } from "src/styles";
 import { EditingAccount } from "../../models/Account";
 
 export const newAccountId = 'New';
@@ -11,7 +12,7 @@ export const newAccountId = 'New';
 const styles = {
     root: createClass(
         baseStyles.pageEdge,
-        'grid', 'grid-cols-2', 'gap-2'
+        'grid', 'grid-cols-2', 'gap-2', 'items-center'
     ),
     input: createClass(
         baseStyles.background, baseStyles.borderGray, 'px-3'
@@ -34,7 +35,6 @@ const newAccount: EditingAccount = {
     name: '',
     apiKey: '',
     apiSecret: '',
-    quota: 0,
     disabled: false,
 };
 
@@ -45,6 +45,8 @@ const AccountEditor = () => {
     const [shouldGoBack, setShouldGoBack] = useState(false);
     const [error, setError] = useState('');
     const [proccessing, setProccessing] = useState(false);
+    const [leverage, setLeverage] = useState<number | null>(null);
+
 
     useEffect(() => {
         const account = id === newAccountId ?
@@ -83,15 +85,32 @@ const AccountEditor = () => {
         if (errors.length > 0) return;
 
         setProccessing(true);
-        accountStore.save(account)
+        axios.post<string>('/account/save', account).then(r => r.data)
             .then(err => {
                 if (err) {
                     setError(err);
                     setProccessing(false);
                 }
                 else setShouldGoBack(true);
-            }).catch(() => {
+            })
+            .catch(() => {
                 setError('儲存失敗, 請檢查您的 api Key 或 api Secret');
+                setProccessing(false);
+            });
+    };
+
+    const action = (action: 'setLeverage' | 'setMarginType') => {
+        setProccessing(true);
+        axios.post<{ symbol: string, result: boolean }>(
+            '/account/setup',
+            {
+                accountId: account.id,
+                action,
+                leverage
+            }
+        )
+            .then(r => {
+                console.log(r.data);
                 setProccessing(false);
             });
     };
@@ -128,13 +147,6 @@ const AccountEditor = () => {
             </>
         }
 
-        <label>單筆投資額</label>
-        <input className={styles.input}
-            name="quota"
-            type="number" value={account.quota}
-            onChange={onChange}
-        />
-
         <label>停用</label>
         <input className={styles.checkbox}
             name="disabled"
@@ -142,9 +154,35 @@ const AccountEditor = () => {
             onChange={onChange}
         />
 
+        <button className={styles.button} onClick={save} disabled={proccessing}>儲存</button>
+
+        <div className={createClass('col-span-2', 'mt-6')}>
+            可用資產(USDT):
+            {account.balances?.availableBalance} <br />
+            <pre className={codeBlockStyle}>
+                {
+                    (account.balances?.positions || [])
+                        .map(b => `${b.symbol} 持倉:${b.positionAmt} 槓桿:${b.leverage} 逐倉:${b.isolated ? 'Y' : 'N'}`)
+                        .join('\n') || '無倉位紀錄'
+                }
+            </pre>
+        </div>
+        <div>
+            <label>槓桿</label>
+            <input className={createClass(styles.input, 'ml-2')}
+                type="number" value={leverage || ''}
+                onChange={e => setLeverage(Number(e.target.value) || null)}
+            />
+        </div>
+        <button className={baseStyles.buttonStyle}
+            onClick={_ => action('setLeverage')}>調整</button>
+
+        <label>修改保證金Ｆ模式</label>
+        <button className={baseStyles.buttonStyle}
+            onClick={_ => action('setMarginType')}>逐倉</button>
+
         <pre className={styles.error} >{error || account.error}</pre>
 
-        <button className={styles.button} onClick={save} disabled={proccessing}>儲存</button>
     </div>;
 };
 

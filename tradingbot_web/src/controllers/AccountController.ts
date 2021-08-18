@@ -1,14 +1,14 @@
 import { authenticate } from '@loopback/authentication';
 import { inject } from '@loopback/core';
 import { get, param, post, requestBody } from '@loopback/rest';
-import { SecurityBindings, securityId, UserProfile } from '@loopback/security';
+import { SecurityBindings, UserProfile } from '@loopback/security';
 import _ from 'lodash';
+import AccountSetup from '../common/binanceApi/AccountSetup';
 import { checkAndUpdateAccount, updateAccount } from '../common/binanceApi/AccountSnapshot';
 import { Account } from '../domains/Account';
 import { ActionRecord } from '../domains/Action';
 import AccountRepo from '../repositories/AccountRepo';
 import ActionRecordRepo from '../repositories/ActionRecordRepo';
-
 
 
 @authenticate('jwt')
@@ -20,7 +20,7 @@ export class AccountController {
     @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
 
   ) {
-    const userId = currentUserProfile[securityId];
+    const userId = currentUserProfile.id;
     const accounts: Account[] = await AccountRepo.where(
       { ownerId: userId }
     );
@@ -57,7 +57,7 @@ export class AccountController {
     @requestBody() account: Account,
 
   ) {
-    account.ownerId = currentUserProfile[securityId];
+    account.ownerId = currentUserProfile.id;
 
     if (account.id) {
 
@@ -83,13 +83,46 @@ export class AccountController {
   };
 
 
+  @post('/account/setup')
+  async setup(
+    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
+    @requestBody() payload: {
+      accountId: string,
+      action: keyof typeof AccountSetup,
+      leverage?: number
+    },
+
+  ) {
+    const ownerId = currentUserProfile.id;
+    const { accountId, action, leverage } = payload;
+
+    const account = await AccountRepo.findById(accountId);
+    if (!account || account.ownerId !== ownerId) {
+      const msg = 'account not found';
+      console.error(msg, { accountId, ownerId, msg });
+      throw Error(msg)
+    }
+    if (action === 'setLeverage')
+      return await AccountSetup.setLeverage(account, leverage || 2);
+    else if (action === 'setMarginType')
+      return await AccountSetup.setMarginType(account);
+    else if (action === 'setPositionSide')
+      return await AccountSetup.setPositionSide(account);
+    else {
+      const msg = 'action not found';
+      console.error(msg, { accountId, ownerId, msg, action });
+      throw Error(msg)
+    }
+  };
+
+
   @get('/account/records')
   async getRecords(
     @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
     @param.query.string('name') name: string,
 
   ) {
-    const userId = currentUserProfile[securityId];
+    const userId = currentUserProfile.id;
 
     const queryAccount: Partial<Account> = {
       ownerId: userId, name

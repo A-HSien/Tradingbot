@@ -1,13 +1,11 @@
 
 import axios from "axios";
 import { useEffect, useState } from "react";
-import baseStyles, { createClass } from "src/styles";
+import { formatDate } from "src/common/utities";
+import baseStyles, { createClass, tableContainer } from "src/styles";
 
 
 const styles = {
-    tableContainer: createClass(
-        'overflow-auto'
-    ),
     table: baseStyles.table,
     tableCell: createClass(
         baseStyles.tableCell,
@@ -18,7 +16,8 @@ const styles = {
 const Signals = () => {
 
     const [history, setHistory] = useState([] as any[]);
-    const [fields, setFields] = useState([] as string[]);
+    const [fields, setFields] = useState(['createdAt'] as string[]);
+
 
     const loadData = async () => {
         const history = await axios.get<any[]>('/signal/history')
@@ -41,10 +40,16 @@ const Signals = () => {
         loadData().then();
     }, []);
 
+    const getValue = (signal: any, field: string) => {
+        const val = signal[field];
+        return field === 'createdAt' ? formatDate(val) : val;
+    };
+
 
     return <div className={baseStyles.pageEdge}>
+
         訊號紀錄:
-        <div className={styles.tableContainer}>
+        <div className={tableContainer}>
             <table className={styles.table}>
                 <thead>
                     <tr>
@@ -72,7 +77,7 @@ const Signals = () => {
                                 fields.map((field, j) =>
                                     <td key={j}
                                         className={styles.tableCell}>
-                                        {signal[field]}
+                                        {getValue(signal, field)}
                                     </td>
                                 )
                             }
@@ -81,7 +86,7 @@ const Signals = () => {
                 </tbody>
             </table>
         </div>
-    </div>;
+    </div >;
 };
 
 

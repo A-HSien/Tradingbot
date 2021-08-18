@@ -1,8 +1,4 @@
-import {injectable} from '@loopback/core';
-// Copyright IBM Corp. 2019. All Rights Reserved.
-// Node module: @loopback/authentication-jwt"
-// This file is licensed under the MIT License.
-// License text available at https://opensource.org/licenses/MIT
+import { injectable } from '@loopback/core';
 import {
   asSpecEnhancer,
   mergeOpenAPISpec,
@@ -12,7 +8,7 @@ import {
   SecuritySchemeObject,
 } from '@loopback/rest';
 import debugModule from 'debug';
-import {inspect} from 'util';
+import { inspect } from 'util';
 const debug = debugModule('loopback:jwt-extension:spec-enhancer');
 
 export type SecuritySchemeObjects = {
