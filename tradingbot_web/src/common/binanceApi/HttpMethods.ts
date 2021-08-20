@@ -1,7 +1,7 @@
 import axios from "axios";
+import { createHmac } from "crypto";
 import { getIP } from "../../domains/utilities";
-import { test } from "../GoogleKms";
-import { createSignature } from "./common";
+import { decrypt } from "../GoogleKms";
 
 
 export const BinanceAPI = axios.create();
@@ -37,21 +37,30 @@ BinanceAPI.interceptors.response.use(resp => {
     return Promise.reject(error);
 });
 
-const addSecretAndTimestamp = (params: URLSearchParams, apiSecret: string) => {
-    test().then();
-    params.append('timestamp', Date.now().toString());
 
+const createSignature = (secret: string, content = '') => {
+    const hmac = createHmac('sha256', secret);
+    hmac.update(content);
+    return hmac.digest('hex');
+};
+
+const addSecretAndTimestamp = async (params: URLSearchParams, apiSecret: string) => {
+    if (!apiSecret) {
+        const msg = 'apiSecret is required';
+        console.error(msg, params);
+        throw new Error(msg)
+    }
+    params.append('timestamp', Date.now().toString());
     const signature = createSignature(
-        apiSecret,
+        await decrypt(apiSecret),
         params.toString()
     );
     params.append('signature', signature);
     return params;
 };
 
-export const signedPost = <T>(api: string, params: URLSearchParams, apiKey: string, apiSecret: string) => {
-
-    params = addSecretAndTimestamp(params, apiSecret);
+export const signedPost = async <T>(api: string, params: URLSearchParams, apiKey: string, apiSecret: string) => {
+    params = await addSecretAndTimestamp(params, apiSecret);
     return BinanceAPI.post<T>(
         api,
         params.toString(),
@@ -64,12 +73,13 @@ export const signedPost = <T>(api: string, params: URLSearchParams, apiKey: stri
     )
 };
 
-export const signedGet = <T>(api: string, params: URLSearchParams, apiKey: string, apiSecret: string) => {
-
-    params = addSecretAndTimestamp(params, apiSecret);
-
-    return BinanceAPI.get<T>(api, {
-        headers: { 'X-MBX-APIKEY': apiKey },
-        params
-    });
-}
+export const signedGet = async <T>(api: string, params: URLSearchParams, apiKey: string, apiSecret: string) => {
+    params = await addSecretAndTimestamp(params, apiSecret);
+    return BinanceAPI.get<T>(
+        api,
+        {
+            headers: { 'X-MBX-APIKEY': apiKey },
+            params
+        }
+    );
+};

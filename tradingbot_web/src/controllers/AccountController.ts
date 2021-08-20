@@ -5,6 +5,7 @@ import { SecurityBindings, UserProfile } from '@loopback/security';
 import _ from 'lodash';
 import AccountSetup from '../common/binanceApi/AccountSetup';
 import { checkAndUpdateAccount, updateAccount } from '../common/binanceApi/AccountSnapshot';
+import { encrypt } from '../common/GoogleKms';
 import { Account } from '../domains/Account';
 import { ActionRecord } from '../domains/Action';
 import AccountRepo from '../repositories/AccountRepo';
@@ -71,6 +72,11 @@ export class AccountController {
         }
       }
     }
+
+    if (!account.id) {
+      account.apiSecret = await encrypt(account.apiSecret);
+    }
+
 
     account = await checkAndUpdateAccount(account);
     if (account.error && !account.disabled) return account.error;

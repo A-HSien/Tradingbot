@@ -14,8 +14,15 @@ type ResponseType = typeof response;
 
 
 const apiError = (account: Account, err: any) => {
-   const { code, msg } = err.response.data;
-   account.error = `${msg}(${code})`;
+   if (!err?.response) {
+      console.error('error before call binance api', err);
+      account.error = err.toString();
+
+   } else {
+      const { code, msg } = err.response.data;
+      account.error = `${msg}(${code})`;
+
+   }
 };
 
 export const checkAndUpdateAccount = async (account: Account) => {

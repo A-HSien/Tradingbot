@@ -20,13 +20,13 @@ export const encrypt = async (text: string) => {
   // For more details on ensuring E2E in-transit integrity to and from Cloud KMS visit:
   // https://cloud.google.com/kms/docs/data-integrity-guidelines
   if (!encryptResponse.verifiedPlaintextCrc32c) {
-    throw new Error('Encrypt: request corrupted in-transit');
+    throw new Error('Encrypt request corrupted in-transit');
   }
   if (
     crc32c.calculate(ciphertext) !==
     Number(encryptResponse.ciphertextCrc32c.value)
   ) {
-    throw new Error('Encrypt: response corrupted in-transit');
+    throw new Error('Encrypt response corrupted in-transit');
   }
   return ciphertext.toString('base64');
 };
@@ -40,7 +40,12 @@ export const decrypt = async (ciphertext: string) => {
     ciphertextCrc32c: {
       value: ciphertextCrc32c,
     },
-  });
+  })
+    .catch((err: any) => {
+      const msg = 'Decrypt failed';
+      console.error(msg, err);
+      throw new Error(msg);
+    });
 
   // Optional, but recommended: perform integrity verification on decryptResponse.
   // For more details on ensuring E2E in-transit integrity to and from Cloud KMS visit:
@@ -49,17 +54,9 @@ export const decrypt = async (ciphertext: string) => {
     crc32c.calculate(decryptResponse.plaintext) !==
     Number(decryptResponse.plaintextCrc32c.value)
   ) {
-    throw new Error('Decrypt: response corrupted in-transit');
+    throw new Error('Decrypt response corrupted in-transit');
   }
 
   const decrypt = decryptResponse.plaintext.toString();
   return decrypt;
 }
-
-export const test = async () => {
-  const text = 'hello trading bot';
-  const encrypted = await encrypt(text);
-  console.log(`encrypted: ${encrypted}`);
-  const decrypted = await decrypt(encrypted);
-  console.log(`decrypt: ${decrypted}`);
-};
