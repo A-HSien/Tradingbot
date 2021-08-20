@@ -177,7 +177,7 @@ const AccountEditor = () => {
         <button className={baseStyles.buttonStyle}
             onClick={_ => action('setLeverage')}>調整</button>
 
-        <label>修改保證金Ｆ模式</label>
+        <label>修改保證金模式</label>
         <button className={baseStyles.buttonStyle}
             onClick={_ => action('setMarginType')}>逐倉</button>
 
