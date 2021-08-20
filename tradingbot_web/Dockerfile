@@ -4,6 +4,15 @@ FROM node:14-slim
 # Set to a non-root built-in user `node`
 USER node
 
+
+# Bind to all network interfaces so that it can be mapped to the host OS
+ENV HOST=0.0.0.0 PORT=3000
+ENV SERVER_ROOT_URI=$SERVER_ROOT_URI
+ENV DB_CONNECTION_STRING=$DB_CONNECTION_STRING
+
+RUN printenv
+
+
 # Create app directory (with user `node`)
 RUN mkdir -p /home/node/app
 
@@ -20,14 +29,6 @@ RUN npm install
 COPY --chown=node . .
 
 RUN npm run build
-
-# Bind to all network interfaces so that it can be mapped to the host OS
-ENV HOST=0.0.0.0 PORT=3000
-ENV SERVER_ROOT_URI=$SERVER_ROOT_URI
-ENV DB_CONNECTION_STRING=$DB_CONNECTION_STRING
-
-RUN echo $SERVER_ROOT_URI
-RUN echo $DB_CONNECTION_STRING
 
 
 EXPOSE ${PORT}
