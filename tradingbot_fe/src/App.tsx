@@ -5,17 +5,15 @@ import {
   HashRouter as Router
 } from "react-router-dom";
 import AppRoutes from './common/AppRoutes';
-// import Footer from './layout/Footer';
-import { Provider } from 'mobx-react';
-import stores from './stores';
 import './common/AxiosInterceptors';
 import baseStyles from './styles';
+import Overlay from './layout/Overlay';
 
 
 const appStyles = classnames(
   baseStyles.background,
   baseStyles.textColor,
-  'min-h-screen'
+  'min-h-screen',
 );
 
 const App = () => {
@@ -26,13 +24,12 @@ const App = () => {
 
   return (
     <div className={appStyles}>
-      <Provider {...stores}>
-        <Router>
-          <Header />
-          <AppRoutes />
-          {/* <Footer /> */}
-        </Router>
-      </Provider>
+      <Overlay />
+      <Router>
+        <Header />
+        <AppRoutes />
+        {/* <Footer /> */}
+      </Router>
     </div>
   );
 }

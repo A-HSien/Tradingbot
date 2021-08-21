@@ -16,15 +16,19 @@ const Login = () => {
     const [authUrl, setAuthUrl] = useState('');
 
     useEffect(() => {
-        fetch('/auth/url')
-            .then(resp => resp.text())
-            .then(url => {
-                setAuthUrl(url);
-            });
+        if (!authStore.authStatus)
+            fetch('/auth/url')
+                .then(resp => resp.text())
+                .then(url => {
+                    setAuthUrl(url);
+                });
     }, []);
 
     if (authStore.authStatus === AuthStatus.Authenticated)
         return <Redirect push to={getLinkPath(linkMap.Register)} />;
+
+    if (authStore.authStatus === AuthStatus.Authorized)
+        return <Redirect push to={getLinkPath(linkMap.Accounts)} />;
 
     return (
         <div className={styles.root}>

@@ -1,13 +1,13 @@
 import { generatePath, RouteProps } from "react-router-dom";
-import AccountEditor from "src/containers/account/AccountEditor";
-import AccountRecord from "src/containers/account/AccountRecord";
-import Accounts from "src/containers/account/Accounts";
-import Login from "src/containers/Login";
-import Register from "src/containers/Register";
-import SignalManual from "src/containers/signal/SignalManual";
-import Signals from "src/containers/signal/SignalsRecord";
+import AccountEditor from "src/pages/account/AccountEditor";
+import AccountRecord from "src/pages/account/AccountRecord";
+import Accounts from "src/pages/account/Accounts";
+import Login from "src/pages/Login";
+import Register from "src/pages/Register";
+import SignalManual from "src/pages/signal/SignalManual";
+import Signals from "src/pages/signal/SignalsRecord";
 import { AuthStatus } from "src/stores/AuthStore";
-import { SystemStatus } from "./containers/SystemStatus.tsx";
+import { SystemStatus } from "./pages/SystemStatus";
 
 export type LinkProps = RouteProps & {
     lable?: string,

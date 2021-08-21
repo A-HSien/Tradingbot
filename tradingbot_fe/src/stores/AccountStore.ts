@@ -10,9 +10,13 @@ export class AccountStore {
         makeAutoObservable(this);
     };
 
+    private setAccounts = (accounts: Account[]) => {
+        this.accounts = accounts;
+    };
+
     loadAccounts = async () => {
         const accounts = await axios.get<Account[]>('/account/all').then(r => r.data);
-        this.accounts = accounts;
+        this.setAccounts(accounts);
     };
 };
 

@@ -1,5 +1,5 @@
 import { Account } from "../../domains/Account";
-import { FutureApiBase } from "./common";
+import { FutureApiBase, logApiError } from "./common";
 import { qurtyFutureAccountBalance } from "./FutureAccountBalance";
 import { signedGet } from "./HttpMethods";
 
@@ -12,19 +12,6 @@ const response = {
 type ResponseType = typeof response;
 
 
-
-const apiError = (account: Account, err: any) => {
-   if (!err?.response) {
-      console.error('error before call binance api', err);
-      account.error = err.toString();
-
-   } else {
-      const { code, msg } = err.response.data;
-      account.error = `${msg}(${code})`;
-
-   }
-};
-
 export const checkAndUpdateAccount = async (account: Account) => {
 
    account.error = '';
@@ -32,7 +19,7 @@ export const checkAndUpdateAccount = async (account: Account) => {
       api, new URLSearchParams(), account.apiKey, account.apiSecret
    )
       .then(resp => resp.data)
-      .catch(err => apiError(account, err));
+      .catch(err => { account.error = logApiError(account, err) });
    if (account.error) return account;
 
    if (!data || data.dualSidePosition === true) {
@@ -47,7 +34,7 @@ export const updateAccount = async (account: Account) => {
    account.error = '';
    const balance = await qurtyFutureAccountBalance(account)
       .then(resp => resp.data)
-      .catch(err => apiError(account, err));
+      .catch(err => { account.error = logApiError(account, err) });
    if (account.error) return account;
 
 

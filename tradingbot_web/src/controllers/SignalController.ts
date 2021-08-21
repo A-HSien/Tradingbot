@@ -12,15 +12,13 @@ import { decodeSignal, Signal } from "../domains/Signal";
 import { getFuturePrice } from "../common/binanceApi/FuturePrice";
 import { updateAccount } from "../common/binanceApi/AccountSnapshot";
 import { getAllSymbol, updateExchangeInfo } from "../common/binanceApi/ExchangeInfo";
-import { getApiQuotaRecords } from "../common/binanceApi/HttpMethods";
 import { signToken, TokenType } from "../domains/Token";
+import { ActionRecord } from "../domains/Action";
+import { clone } from "../domains/utilities";
 
 
 
 export class SignalController {
-
-  constructor(
-  ) { };
 
 
   @authenticate('jwt')
@@ -68,13 +66,6 @@ export class SignalController {
     });
   };
 
-
-  @get('signal/getApiQuotaRecords')
-  getApiQuotaRecords() {
-    return getApiQuotaRecords();
-  };
-
-
   @post('signal/trading')
   async trading(
     @requestBody() data: Signal
@@ -116,25 +107,29 @@ export class SignalController {
 
     const logs = await Promise.all(
       accounts.map(async acc => {
-        const log: any = {};
-        const updated = await updateAccount(acc)
-        log.before = updated;
-
-        const result = await action.action(actionKey, updated, signal);
-        log.result = result;
-        await ActionRecordRepo.create(result);
-        return log;
+        const updated = await updateAccount(acc);
+        const before = clone(updated);
+        const result: ActionRecord = !updated.error ?
+          await action.action(actionKey, updated, signal) :
+          {
+            userId: signal.userId,
+            accountId: acc.id,
+            action: actionKey,
+            result: 'action skiped -' + updated.error,
+            success: false
+          };
+        return { before, result };
       })
     );
-    const cloneLogs = JSON.parse(JSON.stringify(logs))
-      .map((each: any) => {
-        if (each && each.before) {
-          each.before.apiKey = 'apiKey';
-          each.before.apiSecret = 'apiSecret';
-        }
-        return each;
-      });
-    console.log('signal/trading log:', cloneLogs);
+    await ActionRecordRepo.insertMany(logs.map(e => e.result));
+    logs.forEach((each: any) => {
+      if (each && each.before) {
+        each.before.apiKey = 'apiKey';
+        each.before.apiSecret = 'apiSecret';
+      }
+    });
+    console.log('signal/trading log:', logs);
+    console.log('signal/trading performance:', performance.timeOrigin);
 
   };
 };

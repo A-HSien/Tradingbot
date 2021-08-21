@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 import { Redirect, useParams } from "react-router-dom";
 import { getLinkPath, linkMap } from "src/Manu";
 import { accountStore } from "src/stores/AccountStore";
+import { layoutStore } from "src/stores/LayoutStore";
 import baseStyles, { codeBlockStyle, createClass } from "src/styles";
 import { EditingAccount } from "../../models/Account";
 
 export const newAccountId = 'New';
-
+type ActionResult = { result: string, symbols: string[] };
 
 const styles = {
     root: createClass(
@@ -44,8 +45,8 @@ const AccountEditor = () => {
     const [account, setAccount] = useState({ ...newAccount });
     const [shouldGoBack, setShouldGoBack] = useState(false);
     const [error, setError] = useState('');
-    const [proccessing, setProccessing] = useState(false);
-    const [leverage, setLeverage] = useState<number | null>(null);
+    const [leverage, setLeverage] = useState<number | null>(2);
+    const [actionResult, setActionResult] = useState<ActionResult[]>([]);
 
 
     useEffect(() => {
@@ -84,24 +85,24 @@ const AccountEditor = () => {
         }
         if (errors.length > 0) return;
 
-        setProccessing(true);
+        layoutStore.switchOverlay(true);
         axios.post<string>('/account/save', account).then(r => r.data)
             .then(err => {
                 if (err) {
                     setError(err);
-                    setProccessing(false);
+                    layoutStore.switchOverlay(false);
                 }
                 else setShouldGoBack(true);
             })
             .catch(() => {
                 setError('儲存失敗, 請檢查您的 api Key 或 api Secret');
-                setProccessing(false);
+                layoutStore.switchOverlay(false);
             });
     };
 
     const action = (action: 'setLeverage' | 'setMarginType') => {
-        setProccessing(true);
-        axios.post<{ symbol: string, result: boolean }>(
+        layoutStore.switchOverlay(true);
+        axios.post<{ symbol: string, result: string }[]>(
             '/account/setup',
             {
                 accountId: account.id,
@@ -110,8 +111,19 @@ const AccountEditor = () => {
             }
         )
             .then(r => {
-                console.log(r.data);
-                setProccessing(false);
+                layoutStore.switchOverlay(false);
+                const result = {} as Record<string, string[]>;
+                r?.data?.forEach(each => {
+                    result[each.result] = (result[each.result] || []);
+                    result[each.result].push(each.symbol)
+                });
+                const entries = Object.entries(result);
+                setActionResult(entries.map(e => ({ result: e[0], symbols: e[1] })));
+            })
+
+            .catch(() => {
+                layoutStore.switchOverlay(false);
+                setActionResult([{ result: 'server error', symbols: ['操作失敗'] }]);
             });
     };
 
@@ -154,36 +166,52 @@ const AccountEditor = () => {
             onChange={onChange}
         />
 
-        <button className={styles.button} onClick={save} disabled={proccessing}>儲存</button>
-
-        <div className={createClass('col-span-2', 'mt-6')}>
-            可用資產(USDT):
-            {account.balances?.availableBalance} <br />
-            <pre className={codeBlockStyle}>
-                {
-                    (account.balances?.positions || [])
-                        .map(b => `${b.symbol} 持倉:${b.positionAmt} 槓桿:${b.leverage} 逐倉:${b.isolated ? 'Y' : 'N'}`)
-                        .join('\n') || '無倉位紀錄'
-                }
-            </pre>
-        </div>
-        <div>
-            <label>槓桿</label>
-            <input className={createClass(styles.input, 'ml-2')}
-                type="number" value={leverage || ''}
-                onChange={e => setLeverage(Number(e.target.value) || null)}
-            />
-        </div>
-        <button className={baseStyles.buttonStyle}
-            onClick={_ => action('setLeverage')}>調整</button>
-
-        <label>修改保證金模式</label>
-        <button className={baseStyles.buttonStyle}
-            onClick={_ => action('setMarginType')}>逐倉</button>
-
+        <button className={styles.button} onClick={save}>儲存</button>
         <pre className={styles.error} >{error || account.error}</pre>
 
-    </div>;
+        {id !== newAccountId && <>
+            <div className={createClass('col-span-2', 'mt-6')}>
+                可用資產(USDT):
+                {account.balances?.availableBalance} <br />
+                <pre className={codeBlockStyle}>
+                    {
+                        (account.balances?.positions || [])
+                            .map(b => `${b.symbol} 持倉:${b.positionAmt} 槓桿:${b.leverage} 逐倉:${b.isolated ? 'Y' : 'N'}`)
+                            .join('\n') || '無倉位紀錄'
+                    }
+                </pre>
+            </div>
+            <div>
+                <label>槓桿</label>
+                <input className={createClass(styles.input, 'ml-2')}
+                    type="number" value={leverage || ''}
+                    onChange={e => setLeverage(Number(e.target.value) || null)}
+                />
+            </div>
+            <button className={baseStyles.buttonStyle}
+                onClick={_ => action('setLeverage')}>
+                調整
+            </button>
+
+            <label>切換保證金模式</label>
+            <button className={baseStyles.buttonStyle}
+                onClick={_ => action('setMarginType')}>
+                逐倉
+            </button>
+
+            {
+                actionResult.map(res =>
+                    <div className={createClass('col-span-2')}>
+                        <label className={createClass('font-bold')}>
+                            {res.result}:
+                        </label>
+                        {res.symbols.join(', ')}
+                    </div>
+                )
+            }
+        </>
+        }
+    </div >;
 };
 
 

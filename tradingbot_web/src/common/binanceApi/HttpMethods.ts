@@ -1,18 +1,17 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { createHmac } from "crypto";
 import { getIP } from "../../domains/utilities";
+import ApiQuotaRecordRepo from "../../repositories/ApiQuotaRecordRepo";
 import { decrypt } from "../GoogleKms";
 
 
 export const BinanceAPI = axios.create();
 
-let apiQuotaRecords: { time: Date, ip: string, key: string, value: string }[] = [];
-export const getApiQuotaRecords = () => apiQuotaRecords;
-const expire = 1000 * 60 * 60 * 24 * 3; // 3 days
+let localQuotaRecords: { time: Date, ip: string, key: string, value: string }[] = [];
+export const getApiQuotaRecords = () => localQuotaRecords;
+const expire = 1000 * 60 * 60 * 24 * 2; // 2 days
 
-
-
-BinanceAPI.interceptors.response.use(resp => {
+const logQuotaRecords = (resp: AxiosResponse<any>) => {
     const quotaEntries = Object.entries(resp.headers)
         .filter(([key]) => key.includes('x-mbx'));
     const quota = Object.fromEntries(quotaEntries);
@@ -20,20 +19,28 @@ BinanceAPI.interceptors.response.use(resp => {
     console.log('BinanceAPI log:', { url: resp.config.url, quota, });
     const time = new Date();
     if (
-        apiQuotaRecords.length > 1500 &&
-        (time.getTime() - apiQuotaRecords[1000].time.getTime()) > expire
-    ) apiQuotaRecords.length = 1000;
+        localQuotaRecords.length > 1500 &&
+        (time.getTime() - localQuotaRecords[1000].time.getTime()) > expire
+    ) localQuotaRecords.length = 1000;
 
-    quotaEntries.map(e => ({
+    const newRecords = quotaEntries.map(e => ({
         time,
         ip: getIP(),
         key: e[0],
         value: e[1] as string
-    })).forEach(e => apiQuotaRecords.unshift(e));
+    }))
+    newRecords.forEach(e => localQuotaRecords.unshift(e));
+    ApiQuotaRecordRepo.insertMany(newRecords).then();
+};
+
+
+BinanceAPI.interceptors.response.use(resp => {
+    logQuotaRecords(resp);
     return resp;
 
 }, error => {
     console.error('BinanceAPI error:', error);
+    error?.response && logQuotaRecords(error.response);
     return Promise.reject(error);
 });
 

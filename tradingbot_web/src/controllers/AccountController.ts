@@ -108,16 +108,24 @@ export class AccountController {
       console.error(msg, { accountId, ownerId, msg });
       throw Error(msg)
     }
-    if (action === 'setLeverage')
-      return await AccountSetup.setLeverage(account, leverage || 2);
-    else if (action === 'setMarginType')
-      return await AccountSetup.setMarginType(account);
-    else if (action === 'setPositionSide')
-      return await AccountSetup.setPositionSide(account);
+    if (action === 'setLeverage') {
+      const result = await AccountSetup.setLeverage(account, leverage || 2);
+      console.log('setLeverage performance:', performance.timeOrigin);
+      return result;
+    }
+    else if (action === 'setMarginType') {
+      const result = await AccountSetup.setMarginType(account);
+      console.log('setMarginType performance:', performance.timeOrigin);
+      return result;
+    }
+    else if (action === 'setPositionSide') {
+      const result = await AccountSetup.setPositionSide(account);
+      return result;
+    }
     else {
       const msg = 'action not found';
       console.error(msg, { accountId, ownerId, msg, action });
-      throw Error(msg)
+      throw Error(msg);
     }
   };
 
