@@ -34,6 +34,7 @@ const styles = {
 const newAccount: EditingAccount = {
     id: '',
     name: '',
+    groupName: '',
     apiKey: '',
     apiSecret: '',
     disabled: false,
@@ -55,7 +56,7 @@ const AccountEditor = () => {
             accountStore.accounts.find(acc => acc.id === id);
 
         if (!account) setShouldGoBack(true);
-        else setAccount({ ...account });
+        else setAccount({ ...newAccount, ...account });
     }, [id]);
 
 
@@ -88,11 +89,9 @@ const AccountEditor = () => {
         layoutStore.switchOverlay(true);
         axios.post<string>('/account/save', account).then(r => r.data)
             .then(err => {
-                if (err) {
-                    setError(err);
-                    layoutStore.switchOverlay(false);
-                }
+                if (err) setError(err);
                 else setShouldGoBack(true);
+                layoutStore.switchOverlay(false);
             })
             .catch(() => {
                 setError('儲存失敗, 請檢查您的 api Key 或 api Secret');
@@ -159,6 +158,14 @@ const AccountEditor = () => {
             </>
         }
 
+
+        <label>群組</label>
+        <input className={styles.input}
+            name="groupName"
+            type="text" value={account.groupName}
+            onChange={onChange}
+        />
+
         <label>停用</label>
         <input className={styles.checkbox}
             name="disabled"
@@ -198,17 +205,20 @@ const AccountEditor = () => {
                 onClick={_ => action('setMarginType')}>
                 逐倉
             </button>
-
-            {
-                actionResult.map(res =>
-                    <div className={createClass('col-span-2')}>
-                        <label className={createClass('font-bold')}>
-                            {res.result}:
-                        </label>
-                        {res.symbols.join(', ')}
-                    </div>
-                )
-            }
+            <pre className={createClass('col-span-2', codeBlockStyle)}>
+                {
+                    actionResult.map((res, i) =>
+                        <div key={i}>
+                            <label className={createClass('font-bold')}>
+                                {res.result}:
+                            </label>
+                            <div >
+                                {res.symbols.join(', ')}
+                            </div>
+                        </div>
+                    )
+                }
+            </pre>
         </>
         }
     </div >;

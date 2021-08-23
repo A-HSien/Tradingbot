@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 axios.interceptors.request.use(config => {
     const token = Cookies.get('auth-token');
     if (token) config.headers.Authorization = `Bearer ${token}`;
-    return config
+    return config;
 }, error => {
     return Promise.reject(error)
 })

@@ -20,6 +20,7 @@ const orderSample = {
     action: 'FOrder',
     symbol: "{{ticker}}",
     side: "{{strategy.order.action}}",
+    groupName: '帳號群組名稱(不指定=觸發全部帳號)',
     quantity: '數量(USDT)',
     token: '你的Token',
 };
@@ -83,11 +84,11 @@ const SignalManual = () => {
         <label>訊號測試:</label>
         <div className={createClass(
             styles.block, borderGray,
-            'p-3', 'flex'
+            'p-3', 'flex', 'items-center'
         )}>
             <select onChange={e => setSymbol(e.target.value)}
                 value={symbol}
-                className={selectStyle}>
+                className={createClass(selectStyle, 'mr-3')}>
                 <option value=''>請選擇交易對</option>
                 {
                     symbols.length > 0 &&
@@ -96,7 +97,11 @@ const SignalManual = () => {
                 }
             </select>
             {
-                !testSubmitted &&
+                !symbol && !testSubmitted &&
+                <div>請選擇symbol</div>
+            }
+            {
+                symbol && !testSubmitted &&
                 <button className={buttonStyle} onClick={submitTest}>送出</button>
             }
             {

@@ -1,5 +1,5 @@
 
-const position =         {
+const position = {
     "symbol": "BTCUSDT",  // 交易对
     "initialMargin": "0",   // 当前所需起始保证金(基于最新标记价格)
     "maintMargin": "0", //维持保证金
@@ -24,6 +24,7 @@ export type Balances = {
 export type Account = {
     id: string,
     name: string,
+    groupName: string,
     disabled: boolean,
 
     balances?: Balances,

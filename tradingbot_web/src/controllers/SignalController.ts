@@ -1,4 +1,4 @@
-import { inject } from "@loopback/core";
+import { inject, intercept } from "@loopback/core";
 import { get, post, requestBody } from "@loopback/rest";
 import SignalRepo from "../repositories/SignalRepo";
 import _ from "lodash";
@@ -15,7 +15,7 @@ import { getAllSymbol, updateExchangeInfo } from "../common/binanceApi/ExchangeI
 import { signToken, TokenType } from "../domains/Token";
 import { ActionRecord } from "../domains/Action";
 import { clone } from "../domains/utilities";
-
+import { PerformanceLog } from "../Interceptors";
 
 
 export class SignalController {
@@ -66,7 +66,9 @@ export class SignalController {
     });
   };
 
+
   @post('signal/trading')
+  @intercept(PerformanceLog)
   async trading(
     @requestBody() data: Signal
 
@@ -129,7 +131,6 @@ export class SignalController {
       }
     });
     console.log('signal/trading log:', logs);
-    console.log('signal/trading performance:', performance.timeOrigin);
 
   };
 };

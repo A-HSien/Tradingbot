@@ -1,6 +1,5 @@
 import { ActionKey } from "../common/binanceApi/Actions";
 import { TokenType, verifyToken } from "./Token";
-import { omit } from "./utilities";
 
 
 export const SignalBase = {
@@ -34,7 +33,10 @@ export const decodeSignal = async (signal: Signal) => {
     });
 
     signal.userId = tokenData.userId;
-    return omit(signal, 'token');
+    signal.token = signal.token.substring(0, 8);
+    signal['tokenExp'] = tokenData.exp;
+
+    return signal;
 };
 
 

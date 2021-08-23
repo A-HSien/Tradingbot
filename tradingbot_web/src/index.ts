@@ -1,3 +1,4 @@
+import { RestBindings } from '@loopback/rest';
 import { ApplicationConfig, TradingbotWebApplication } from './application';
 import './repositories/ConnectDB';
 
@@ -12,7 +13,7 @@ export async function main(options: ApplicationConfig = {}) {
   console.log(`Server is running at ${url}`);
   console.log(`Try ${url}/ping`);
 
-
+  app.bind(RestBindings.ERROR_WRITER_OPTIONS).to({debug: true});
   return app;
 }
 

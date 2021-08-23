@@ -5,7 +5,6 @@ import {
   HashRouter as Router
 } from "react-router-dom";
 import AppRoutes from './common/AppRoutes';
-import './common/AxiosInterceptors';
 import baseStyles from './styles';
 import Overlay from './layout/Overlay';
 

@@ -6,7 +6,7 @@ export const formatJson = (obj: any) => {
 };
 
 
-export const formatDate = (input: Date | string) => {
+export const formatDate = (input: Date | string | number) => {
     const date = new Date(input);
     const local = new Date(date);
     local.setMinutes(date.getMinutes() - date.getTimezoneOffset());

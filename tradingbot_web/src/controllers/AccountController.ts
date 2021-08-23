@@ -1,5 +1,5 @@
 import { authenticate } from '@loopback/authentication';
-import { inject } from '@loopback/core';
+import { inject, intercept } from '@loopback/core';
 import { get, param, post, requestBody } from '@loopback/rest';
 import { SecurityBindings, UserProfile } from '@loopback/security';
 import _ from 'lodash';
@@ -8,6 +8,7 @@ import { checkAndUpdateAccount, updateAccount } from '../common/binanceApi/Accou
 import { encrypt } from '../common/GoogleKms';
 import { Account } from '../domains/Account';
 import { ActionRecord } from '../domains/Action';
+import { PerformanceLog } from '../Interceptors';
 import AccountRepo from '../repositories/AccountRepo';
 import ActionRecordRepo from '../repositories/ActionRecordRepo';
 
@@ -90,6 +91,7 @@ export class AccountController {
 
 
   @post('/account/setup')
+  @intercept(PerformanceLog)
   async setup(
     @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
     @requestBody() payload: {
@@ -109,18 +111,13 @@ export class AccountController {
       throw Error(msg)
     }
     if (action === 'setLeverage') {
-      const result = await AccountSetup.setLeverage(account, leverage || 2);
-      console.log('setLeverage performance:', performance.timeOrigin);
-      return result;
+      return await AccountSetup.setLeverage(account, leverage || 2);
     }
     else if (action === 'setMarginType') {
-      const result = await AccountSetup.setMarginType(account);
-      console.log('setMarginType performance:', performance.timeOrigin);
-      return result;
+      return await AccountSetup.setMarginType(account);
     }
     else if (action === 'setPositionSide') {
-      const result = await AccountSetup.setPositionSide(account);
-      return result;
+      return await AccountSetup.setPositionSide(account);
     }
     else {
       const msg = 'action not found';

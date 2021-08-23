@@ -32,7 +32,7 @@ const Component = () => {
     return (
         <div className={styles.root}>
             <div className={styles.menus}>
-                <div className={styles.site}>TradingBotttt v.0</div>
+                <div className={styles.site}>TradingBot</div>
                 {
                     authStore.authStatus === AuthStatus.Authorized &&
                     menus.map((menu, i) =>
