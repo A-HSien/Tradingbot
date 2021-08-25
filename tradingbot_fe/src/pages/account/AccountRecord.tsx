@@ -36,7 +36,7 @@ const AccountRecord = () => {
     useEffect(() => {
         const account = accountStore.accounts.find(acc => acc.name === name);
         if (!account) return;
-        
+
         axios.get('/account/records', { params: { id: account.id } })
             .then(r => r.data)
             .then(setRecords);
@@ -65,7 +65,9 @@ const AccountRecord = () => {
                                 <td className={styles.tableCell}>{formatDate(record.createdAt)}</td>
                                 <td className={styles.tableCell}>{record.action}</td>
                                 <td className={styles.tableCell}>{record.success ? 'Y' : 'N'}</td>
-                                <td className={styles.tableCell}>{record.params}</td>
+                                <td className={styles.tableCell}>
+                                    <pre className={codeBlockStyle}>{record.params.replaceAll('&', '\n')}</pre>
+                                </td>
                                 <td className={styles.tableCell}>
                                     <pre className={codeBlockStyle}>{formatJson(record.result)}</pre>
                                 </td>

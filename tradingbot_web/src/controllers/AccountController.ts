@@ -173,7 +173,6 @@ export class AccountController {
   ) {
     const account = await getAuthorizedAccount(id, currentUserProfile);
     const query: Partial<ActionRecord> = {
-      userId: currentUserProfile.id,
       accountId: account.id
     };
     return (await ActionRecordRepo.where(query)).reverse();

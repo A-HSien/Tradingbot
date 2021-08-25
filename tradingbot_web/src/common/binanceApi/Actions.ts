@@ -12,12 +12,12 @@ export const generalSignedPostAction: Action = async (
 ) => {
     const action = actions[actionKey];
     const result: ActionRecord = {
-        userId: account.ownerId,
+        userId: signal.userId,
         accountId: account.id!,
         action: actionKey,
     };
 
-    const params = createTradingParams(signal, action.tradingParamKeys)
+    const params = createTradingParams(signal, action.tradingParamKeys);
     result.params = params.toString();
 
 
