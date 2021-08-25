@@ -3,6 +3,7 @@ import { observer } from "mobx-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { formatDate, formatJson } from "src/common/utities";
+import { accountStore } from "src/stores/AccountStore";
 import baseStyles, { codeBlockStyle, createClass } from "src/styles";
 
 type ActionRecord = {
@@ -29,16 +30,17 @@ const styles = {
 
 
 const AccountRecord = () => {
-
     const { name } = useParams<{ name: string }>();
     const [records, setRecords] = useState([] as ActionRecord[]);
 
     useEffect(() => {
-        axios.get('/account/records', { params: { name } })
-            .then(r => {
-                return r.data
-            })
+        const account = accountStore.accounts.find(acc => acc.name === name);
+        if (!account) return;
+        
+        axios.get('/account/records', { params: { id: account.id } })
+            .then(r => r.data)
             .then(setRecords);
+
     }, [name]);
 
 

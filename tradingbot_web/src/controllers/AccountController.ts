@@ -6,11 +6,14 @@ import _ from 'lodash';
 import AccountSetup from '../common/binanceApi/AccountSetup';
 import { checkAndUpdateAccount, updateAccount } from '../common/binanceApi/AccountSnapshot';
 import { encrypt } from '../common/GoogleKms';
-import { Account } from '../domains/Account';
+import { Account, validateOwnership } from '../domains/Account';
 import { ActionRecord } from '../domains/Action';
+import { AppUser } from '../domains/AppUser';
+import { omit } from '../domains/utilities';
 import { PerformanceLog } from '../Interceptors';
-import AccountRepo from '../repositories/AccountRepo';
+import AccountRepo, { fetchAccountsByUserProfile, getAuthorizedAccount } from '../repositories/AccountRepo';
 import ActionRecordRepo from '../repositories/ActionRecordRepo';
+import AppUserRepo from '../repositories/AppUserRepo';
 
 
 @authenticate('jwt')
@@ -22,10 +25,7 @@ export class AccountController {
     @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
 
   ) {
-    const userId = currentUserProfile.id;
-    const accounts: Account[] = await AccountRepo.where(
-      { ownerId: userId }
-    );
+    const accounts: Account[] = await fetchAccountsByUserProfile(currentUserProfile);
     const expireTime = 3 * 60 * 1000; // 3 mins
     const now = Date.now();
     const infos = await Promise.all(
@@ -59,22 +59,30 @@ export class AccountController {
     @requestBody() account: Account,
 
   ) {
-    account.ownerId = currentUserProfile.id;
 
     if (account.id) {
 
       const before = await AccountRepo.findById(account.id);
-      if (!before) account.id = '';
+      if (!before) {
+        // don't do any other things here, 
+        // handle new account in "if (!account.id)" instead.
+        account.id = '';
+      }
       else {
+        validateOwnership(before, currentUserProfile);
+        const removedProtectedFields = omit(
+          account,
+          'ownerId', 'delegateUserEmail', 'apiKey', 'apiSecret'
+        );
         account = {
-          ...account,
-          apiKey: before.apiKey,
-          apiSecret: before.apiSecret,
-        }
+          ...removedProtectedFields,
+          ...before
+        };
       }
     }
 
     if (!account.id) {
+      account.ownerId = currentUserProfile.id;
       account.apiSecret = await encrypt(account.apiSecret);
     }
 
@@ -90,6 +98,42 @@ export class AccountController {
   };
 
 
+
+  @post('/account/updateOwnership')
+  async updateOwnership(
+    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
+    @requestBody() payload: {
+      accountId: string,
+      userEmail: string,
+      action: 'changeOwner' | 'delegate'
+    },
+
+  ) {
+    const { accountId, userEmail, action } = payload;
+    const query: Partial<AppUser> = { email: userEmail };
+    const to = await AppUserRepo.findOne(query);
+    if (!to) {
+      const msg = 'updateOwnership - User not found';
+      console.error(msg, userEmail);
+      throw Error(msg);
+    }
+
+    const account = await getAuthorizedAccount(accountId, currentUserProfile);
+    if (action === 'changeOwner') {
+      account.ownerId = to.id;
+    }
+    else if (action === 'delegate') {
+      account.delegateUserEmail = to.email;
+    }
+    else {
+      const msg = 'updateOwnership - action not support';
+      console.error(msg, { accountId, userId: currentUserProfile.id, msg, action });
+      throw Error(msg);
+    }
+    return await AccountRepo.updateOne({ '_id': account.id }, account).exec();
+  };
+
+
   @post('/account/setup')
   @intercept(PerformanceLog)
   async setup(
@@ -101,15 +145,9 @@ export class AccountController {
     },
 
   ) {
-    const ownerId = currentUserProfile.id;
     const { accountId, action, leverage } = payload;
 
-    const account = await AccountRepo.findById(accountId);
-    if (!account || account.ownerId !== ownerId) {
-      const msg = 'account not found';
-      console.error(msg, { accountId, ownerId, msg });
-      throw Error(msg)
-    }
+    const account = await getAuthorizedAccount(accountId, currentUserProfile);
     if (action === 'setLeverage') {
       return await AccountSetup.setLeverage(account, leverage || 2);
     }
@@ -120,8 +158,8 @@ export class AccountController {
       return await AccountSetup.setPositionSide(account);
     }
     else {
-      const msg = 'action not found';
-      console.error(msg, { accountId, ownerId, msg, action });
+      const msg = '/account/setup - action not support';
+      console.error(msg, { accountId, userId: currentUserProfile.id, msg, action });
       throw Error(msg);
     }
   };
@@ -130,19 +168,13 @@ export class AccountController {
   @get('/account/records')
   async getRecords(
     @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
-    @param.query.string('name') name: string,
+    @param.query.string('id') id: string,
 
   ) {
-    const userId = currentUserProfile.id;
-
-    const queryAccount: Partial<Account> = {
-      ownerId: userId, name
-    };
-    const account = await AccountRepo.findOne(queryAccount);
-    if (!account) throw new Error('account not found');
-
+    const account = await getAuthorizedAccount(id, currentUserProfile);
     const query: Partial<ActionRecord> = {
-      userId, accountId: account.id!
+      userId: currentUserProfile.id,
+      accountId: account.id
     };
     return (await ActionRecordRepo.where(query)).reverse();
   };

@@ -1,4 +1,5 @@
 import { accountInfoResp } from "../common/binanceApi/FutureAccountBalance";
+import { UserProfile } from '@loopback/security';
 
 
 export type AccountSecrets = {
@@ -18,10 +19,28 @@ export type Balances = {
 export type Account = AccountSecrets & {
     id?: string,
     ownerId: string,
+    delegateUserEmail?: string,
     groupName?: string,
     name: string,
     disabled?: boolean,
     balances?: Balances,
     balancesLastUpdateTime?: Date,
     error?: string,
+};
+
+export const validateOwnership = (
+    account: Account | null, userProfile: UserProfile
+) => {
+    if (
+        !account ||
+        (
+            account.ownerId !== userProfile.id &&
+            account.delegateUserEmail !== userProfile.email
+        )
+    ) {
+        const msg = '帳號不存在或權限不足';
+        console.error(msg, { accountId: account?.id, msg, ...userProfile });
+        throw Error(msg)
+    }
+    return account;
 };

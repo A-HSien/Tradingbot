@@ -21,7 +21,8 @@ axios.interceptors.response.use(response => {
                 window.location.href = '/';
                 break
         }
+        return Promise.reject(error.response);
     }
 
-    return Promise.reject(error)
+    return Promise.reject(error);
 })

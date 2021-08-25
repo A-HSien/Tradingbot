@@ -46,8 +46,12 @@ const Component = () => {
                 }
             </div>
             {
-                authStore.authStatus === AuthStatus.Authorized &&
-                <a onClick={logout} href="/">logout</a>
+                authStore.authStatus === AuthStatus.Authorized && <div>
+                    <span className={createClass('text-gray-400', 'pr-3')}>
+                        {authStore.email}
+                    </span>
+                    <a onClick={logout} href="/">logout</a>
+                </div>
             }
         </div>
     )

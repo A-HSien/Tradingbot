@@ -14,7 +14,7 @@ export class JWTAuthenticationStrategy implements AuthenticationStrategy {
     return userProfile;
   }
 
-  extractCredentials(request: Request): string {
+  private extractCredentials(request: Request): string {
     if (!request.headers.authorization) {
       throw new HttpErrors.Unauthorized(`Authorization header not found.`);
     }

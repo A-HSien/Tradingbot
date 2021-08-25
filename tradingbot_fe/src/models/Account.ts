@@ -23,6 +23,8 @@ export type Balances = {
 
 export type Account = {
     id: string,
+    ownerId: string,
+    delegateUserEmail?: string,
     name: string,
     groupName: string,
     disabled: boolean,

@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { orderBy } from "lodash";
 import { observer } from "mobx-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -71,9 +72,14 @@ const Accounts = () => {
     }, [groupNames, filteredGroups]);
 
 
-    const accountsToDisplay = useMemo(() => {
+    const accountGroups = useMemo(() => {
         const filtered = accounts.filter(acc => !filteredGroups.has(acc.groupName));
-        return orderBy(filtered, ['groupName'], ['asc']);
+        const sorted = orderBy(filtered, ['groupName'], ['asc']);
+        const groups = _.groupBy(sorted, acc => acc.ownerId === authStore.userId);
+        return {
+            my: groups[true.toString()],
+            delegated: groups[false.toString()],
+        };
     }, [accounts, filteredGroups]);
 
 
@@ -99,37 +105,74 @@ const Accounts = () => {
                     </div>
                 )}
             </div>
-            帳戶列表:
-            <table className={styles.table}>
-                <thead>
-                    <tr>
-                        <th className={styles.tableCell}></th>
-                        <th className={styles.tableCell}>名稱</th>
-                        <th className={styles.tableCell}>群組</th>
-                        <th className={styles.tableCell}>資產 (free/locked)</th>
-                        <th className={styles.tableCell}>停用</th>
-                        <th className={styles.tableCell}></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {accountsToDisplay.map((account, i) => (
-                        <tr key={i}>
-                            <td className={styles.tableCell}>
-                                <Link className={baseStyles.buttonStyle} to={`/Account/${account.id}`}>編輯</Link>
-                            </td>
-                            <td className={styles.tableCell}>{account.name}</td>
-                            <td className={styles.tableCell}>{account.groupName}</td>
-                            <td className={styles.tableCell}>{getAssetInfo(account)}</td>
-                            <td className={styles.tableCell}>{account.disabled ? 'Y' : ''}</td>
-                            <td className={styles.tableCell}>
-                                <Link className={baseStyles.buttonStyle} to={`/AccountRecord/${account.name}`}>操作記錄</Link>
-                            </td>
-
-
+            <div>
+                我的帳戶:
+                <table className={styles.table}>
+                    <thead>
+                        <tr>
+                            <th className={styles.tableCell}></th>
+                            <th className={styles.tableCell}>名稱</th>
+                            <th className={styles.tableCell}>群組</th>
+                            <th className={styles.tableCell}>資產 (free/locked)</th>
+                            <th className={styles.tableCell}>停用</th>
+                            <th className={styles.tableCell}>委託</th>
+                            <th className={styles.tableCell}></th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {accountGroups?.my?.map((account, i) => (
+                            <tr key={i}>
+                                <td className={styles.tableCell}>
+                                    <Link className={baseStyles.buttonStyle} to={`/Account/${account.id}`}>設定</Link>
+                                </td>
+                                <td className={styles.tableCell}>{account.name}</td>
+                                <td className={styles.tableCell}>{account.groupName}</td>
+                                <td className={styles.tableCell}>{getAssetInfo(account)}</td>
+                                <td className={styles.tableCell}>{account.disabled ? 'Y' : ''}</td>
+                                <td className={styles.tableCell}>{account.delegateUserEmail}</td>
+                                <td className={styles.tableCell}>
+                                    <Link className={baseStyles.buttonStyle} to={`/AccountRecord/${account.name}`}>操作記錄</Link>
+                                </td>
+
+
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            <div className={createClass('mt-6')}>
+                委託帳戶:
+                <table className={styles.table}>
+                    <thead>
+                        <tr>
+                            <th className={styles.tableCell}></th>
+                            <th className={styles.tableCell}>名稱</th>
+                            <th className={styles.tableCell}>群組</th>
+                            <th className={styles.tableCell}>資產 (free/locked)</th>
+                            <th className={styles.tableCell}>停用</th>
+                            <th className={styles.tableCell}></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {accountGroups?.delegated?.map((account, i) => (
+                            <tr key={i}>
+                                <td className={styles.tableCell}>
+                                    <Link className={baseStyles.buttonStyle} to={`/Account/${account.id}`}>設定</Link>
+                                </td>
+                                <td className={styles.tableCell}>{account.name}</td>
+                                <td className={styles.tableCell}>{account.groupName}</td>
+                                <td className={styles.tableCell}>{getAssetInfo(account)}</td>
+                                <td className={styles.tableCell}>{account.disabled ? 'Y' : ''}</td>
+                                <td className={styles.tableCell}>
+                                    <Link className={baseStyles.buttonStyle} to={`/AccountRecord/${account.name}`}>操作記錄</Link>
+                                </td>
+
+
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

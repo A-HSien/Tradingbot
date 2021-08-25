@@ -1,6 +1,7 @@
 import { Schema, model, SchemaDefinition } from 'mongoose';
-import { Account, Balances } from '../domains/Account';
+import { Account, Balances, validateOwnership } from '../domains/Account';
 import { mapIdField } from './utilities';
+import { UserProfile } from '@loopback/security';
 
 
 const balancesDef: SchemaDefinition<Balances> = {
@@ -16,6 +17,7 @@ const accountDef: SchemaDefinition<Account> = {
     apiKey: { type: String, required: true },
     apiSecret: { type: String, required: true },
     ownerId: { type: String, required: true },
+    delegateUserEmail: { type: String },
     name: { type: String },
     groupName: { type: String },
     disabled: { type: Boolean },
@@ -26,4 +28,19 @@ const accountDef: SchemaDefinition<Account> = {
 const schema = new Schema<Account>(accountDef);
 mapIdField(schema);
 
-export default model<Account>('Account', schema);
+const AccountRepo = model<Account>('Account', schema);
+
+export default AccountRepo;
+
+export const getAuthorizedAccount = async (id: string, userProfile: UserProfile) => {
+    const account = await AccountRepo.findById(id);
+    return validateOwnership(account, userProfile);
+};
+
+export const fetchAccountsByUserProfile = (userProfile: UserProfile) => {
+    return AccountRepo.find()
+        .or([
+            { ownerId: userProfile.id },
+            { delegateUserEmail: userProfile.email }
+        ]);
+};

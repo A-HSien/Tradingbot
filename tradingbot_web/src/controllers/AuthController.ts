@@ -81,13 +81,10 @@ export class AuthController {
       email: googleUser.email,
       password: googleUser.id
     });
-    response.cookie(
-      'auth-token',
-      await this.getAuthToken(user),
-      {
-        maxAge: TOKEN_EXPIRES_IN_VALUE * 1000
-      }
-    );
+    const maxAge = TOKEN_EXPIRES_IN_VALUE * 1000;
+    response.cookie('auth-token', await this.getAuthToken(user), { maxAge });
+    response.cookie('userId', user.id, { maxAge });
+    response.cookie('email', user.email, { maxAge });
   };
 
 

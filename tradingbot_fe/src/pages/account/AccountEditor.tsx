@@ -16,7 +16,12 @@ const styles = {
         'grid', 'grid-cols-2', 'gap-2', 'items-center'
     ),
     input: createClass(
-        baseStyles.background, baseStyles.borderGray, 'px-3'
+        baseStyles.background, baseStyles.borderGray,
+        'px-3',
+    ),
+    inlineInput: createClass(
+        baseStyles.background, baseStyles.borderGray,
+        'px-3', 'ml-2',
     ),
     checkbox: createClass(
         'translate-y-1.5', 'transform-gpu'
@@ -33,6 +38,7 @@ const styles = {
 
 const newAccount: EditingAccount = {
     id: '',
+    ownerId: '',
     name: '',
     groupName: '',
     apiKey: '',
@@ -48,6 +54,8 @@ const AccountEditor = () => {
     const [error, setError] = useState('');
     const [leverage, setLeverage] = useState<number | null>(2);
     const [actionResult, setActionResult] = useState<ActionResult[]>([]);
+    const [newOwner, setNewOwner] = useState('');
+    const [delegate, setDelegate] = useState('');
 
 
     useEffect(() => {
@@ -99,7 +107,11 @@ const AccountEditor = () => {
             });
     };
 
-    const action = (action: 'setLeverage' | 'setMarginType') => {
+    const action = (
+        action:
+            'setLeverage' |
+            'setMarginType'
+    ) => {
         layoutStore.switchOverlay(true);
         axios.post<{ symbol: string, result: string }[]>(
             '/account/setup',
@@ -119,10 +131,35 @@ const AccountEditor = () => {
                 const entries = Object.entries(result);
                 setActionResult(entries.map(e => ({ result: e[0], symbols: e[1] })));
             })
-
-            .catch(() => {
+            .catch(err => {
                 layoutStore.switchOverlay(false);
-                setActionResult([{ result: 'server error', symbols: ['操作失敗'] }]);
+                setActionResult([{
+                    result: err?.data?.message || 'server error',
+                    symbols: ['操作失敗']
+                }]);
+            });
+    };
+
+    const updateOwnership = (
+        action:
+            'changeOwner' |
+            'delegate'
+    ) => {
+        layoutStore.switchOverlay(true);
+        axios.post<{ symbol: string, result: string }[]>(
+            '/account/updateOwnership',
+            {
+                accountId: account.id,
+                userEmail: action === 'changeOwner' ? newOwner : delegate,
+                action
+            }
+        )
+            .then(r => {
+                layoutStore.switchOverlay(false);
+                setShouldGoBack(true);
+            })
+            .catch(err => {
+                layoutStore.switchOverlay(false);
             });
     };
 
@@ -135,25 +172,25 @@ const AccountEditor = () => {
 
         <label>名稱</label>
         <input className={styles.input}
-            name="name"
             type="text" value={account.name}
             onChange={onChange}
+            name="name"
         />
 
         {
             id === newAccountId && <>
                 <label>API key</label>
                 <input className={styles.input}
-                    name="apiKey"
                     type="text" value={account.apiKey}
                     onChange={onChange}
+                    name="apiKey"
                 />
 
                 <label>API Secret</label>
                 <input className={styles.input}
-                    name="apiSecret"
                     type="text" value={account.apiSecret}
                     onChange={onChange}
+                    name="apiSecret"
                 />
             </>
         }
@@ -161,16 +198,16 @@ const AccountEditor = () => {
 
         <label>群組</label>
         <input className={styles.input}
-            name="groupName"
             type="text" value={account.groupName}
             onChange={onChange}
+            name="groupName"
         />
 
         <label>停用</label>
         <input className={styles.checkbox}
-            name="disabled"
             type="checkbox" checked={account.disabled}
             onChange={onChange}
+            name="disabled"
         />
 
         <button className={styles.button} onClick={save}>儲存</button>
@@ -190,7 +227,7 @@ const AccountEditor = () => {
             </div>
             <div>
                 <label>槓桿</label>
-                <input className={createClass(styles.input, 'ml-2')}
+                <input className={styles.inlineInput}
                     type="number" value={leverage || ''}
                     onChange={e => setLeverage(Number(e.target.value) || null)}
                 />
@@ -205,20 +242,48 @@ const AccountEditor = () => {
                 onClick={_ => action('setMarginType')}>
                 逐倉
             </button>
-            <pre className={createClass('col-span-2', codeBlockStyle)}>
-                {
-                    actionResult.map((res, i) =>
-                        <div key={i}>
-                            <label className={createClass('font-bold')}>
-                                {res.result}:
-                            </label>
-                            <div >
-                                {res.symbols.join(', ')}
+            {actionResult.length > 0 &&
+                <pre className={createClass('col-span-2', codeBlockStyle)}>
+                    {
+                        actionResult.map((res, i) =>
+                            <div key={i}>
+                                <label className={createClass('font-bold')}>
+                                    {res.result}:
+                                </label>
+                                <div >
+                                    {res.symbols.join(', ')}
+                                </div>
                             </div>
-                        </div>
-                    )
-                }
-            </pre>
+                        )
+                    }
+                </pre>
+            }
+
+            <div>
+                <label>委託</label>
+                <input className={styles.inlineInput}
+                    placeholder="委託其他帳號操作, 請輸入帳號email"
+                    type="text" value={delegate}
+                    onChange={e => setDelegate(e.target.value)}
+                />
+            </div>
+            <button className={baseStyles.buttonStyle}
+                onClick={_ => updateOwnership('delegate')}>
+                設定
+            </button>
+            <div>
+                <label>轉移</label>
+                <input className={styles.inlineInput}
+                    placeholder="轉移所有權至其他帳號, 請輸入帳號email"
+                    type="text" value={newOwner}
+                    onChange={e => setNewOwner(e.target.value)}
+                />
+            </div>
+            <button className={baseStyles.buttonStyle}
+                onClick={_ => updateOwnership('changeOwner')}>
+                設定
+            </button>
+
         </>
         }
     </div >;

@@ -5,7 +5,7 @@ import _ from "lodash";
 import { authenticate } from "@loopback/authentication";
 import { SecurityBindings, UserProfile } from '@loopback/security';
 import { actions, ActionKey } from "../common/binanceApi/Actions";
-import AccountRepo from "../repositories/AccountRepo";
+import { fetchAccountsByUserProfile } from "../repositories/AccountRepo";
 import { Account } from "../domains/Account";
 import ActionRecordRepo from "../repositories/ActionRecordRepo";
 import { decodeSignal, Signal } from "../domains/Signal";
@@ -67,9 +67,11 @@ export class SignalController {
   };
 
 
-  @post('signal/trading')
   @intercept(PerformanceLog)
+  @authenticate('jwt')
+  @post('signal/trading')
   async trading(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
     @requestBody() data: Signal
 
   ) {
@@ -100,18 +102,16 @@ export class SignalController {
     await SignalRepo.create(signal);
 
 
-    const query: Partial<Account> = {
-      ownerId: signal.userId,
-      disabled: false,
-    };
-    if (signal.groupName) query.groupName = signal.groupName;
-    const accounts = await AccountRepo.where(query);
+    const conditions: Partial<Account>[] = [{ disabled: false }];
+    if (signal.groupName) conditions.push({ groupName: signal.groupName });
+    const query = fetchAccountsByUserProfile(currentUser).and(conditions);
+    const accounts = await query.exec();
 
     const logs = await Promise.all(
       accounts.map(async acc => {
         const updated = await updateAccount(acc);
         const before = clone(updated);
-        const result: ActionRecord = !updated.error ?
+        const result: ActionRecord = !before.error ?
           await action.action(actionKey, updated, signal) :
           {
             userId: signal.userId,
