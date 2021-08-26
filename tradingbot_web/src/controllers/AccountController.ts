@@ -63,6 +63,7 @@ export class AccountController {
     if (account.id) {
 
       const before = await AccountRepo.findById(account.id);
+      console.log('before', before);
       if (!before) {
         // don't do any other things here, 
         // handle new account in "if (!account.id)" instead.
@@ -70,14 +71,11 @@ export class AccountController {
       }
       else {
         validateOwnership(before, currentUserProfile);
-        const removedProtectedFields = omit(
-          account,
-          'ownerId', 'delegateUserEmail', 'apiKey', 'apiSecret'
-        );
-        account = {
-          ...removedProtectedFields,
-          ...before
-        };
+        // protectedFields
+        account.ownerId = before.ownerId;
+        account.delegateUserEmail = before.delegateUserEmail;
+        account.apiKey = before.apiKey;
+        account.apiSecret = before.apiSecret;
       }
     }
 
