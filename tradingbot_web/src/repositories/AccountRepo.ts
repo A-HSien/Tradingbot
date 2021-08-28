@@ -37,10 +37,10 @@ export const getAuthorizedAccount = async (id: string, userProfile: UserProfile)
     return validateOwnership(account, userProfile);
 };
 
-export const fetchAccountsByUserProfile = (userProfile: UserProfile) => {
-    return AccountRepo.find()
-        .or([
-            { ownerId: userProfile.id },
-            { delegateUserEmail: userProfile.email }
-        ]);
+export const fetchAccountsByUser = (userId: string, email?: string) => {
+    const query: Partial<Account>[] = [
+        { ownerId: userId },
+    ];
+    if (email) query.push({ delegateUserEmail: email })
+    return AccountRepo.find().or(query);
 };

@@ -11,7 +11,7 @@ import { ActionRecord } from '../domains/Action';
 import { AppUser } from '../domains/AppUser';
 import { omit } from '../domains/utilities';
 import { PerformanceLog } from '../Interceptors';
-import AccountRepo, { fetchAccountsByUserProfile, getAuthorizedAccount } from '../repositories/AccountRepo';
+import AccountRepo, { fetchAccountsByUser, getAuthorizedAccount } from '../repositories/AccountRepo';
 import ActionRecordRepo from '../repositories/ActionRecordRepo';
 import AppUserRepo from '../repositories/AppUserRepo';
 
@@ -22,10 +22,10 @@ export class AccountController {
 
   @get('/account/all')
   async all(
-    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
+    @inject(SecurityBindings.USER) userProfile: UserProfile,
 
   ) {
-    const accounts: Account[] = await fetchAccountsByUserProfile(currentUserProfile);
+    const accounts: Account[] = await fetchAccountsByUser(userProfile.id, userProfile.email || '');
     const expireTime = 3 * 60 * 1000; // 3 mins
     const now = Date.now();
     const infos = await Promise.all(

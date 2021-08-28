@@ -12,4 +12,4 @@ export const SERVER_ROOT_URI =
 
 export const DB_CONNECTION_STRING =
   process.env.DB_CONNECTION_STRING || 
-  "mongodb+srv://dbUser:dbUserPassword@m0.cyj7x.mongodb.net/tradingbot_dev?retryWrites=true&w=majority";
+  "mongodb+srv://dbUser:dbUserPassword@m0.cyj7x.mongodb.net/tradingbot?retryWrites=true&w=majority";

@@ -7,6 +7,7 @@ export const SignalBase = {
     groupName: '',
     token: '',
     userId: '',
+    email: '',
 };
 
 const signalBaseKeys = Object.keys(SignalBase);
@@ -25,7 +26,7 @@ export const decodeSignal = async (signal: Signal) => {
     console.log('decodeSignal tokenData:', tokenData);
 
     // validation
-    ['userId'].forEach(field => {
+    ['userId', 'email'].forEach(field => {
         if (!tokenData[field])
             throw new Error(
                 `Error verifying token : ${field} is required`
@@ -33,7 +34,8 @@ export const decodeSignal = async (signal: Signal) => {
     });
 
     signal.userId = tokenData.userId;
-    signal.token = signal.token.substring(0, 8);
+    signal.email = tokenData.email;
+    signal.token = '---' + signal.token.substr(-8, 8);;
     signal['tokenExp'] = tokenData.exp;
 
     return signal;
