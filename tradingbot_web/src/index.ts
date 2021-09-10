@@ -1,4 +1,4 @@
-import { RestBindings } from '@loopback/rest';
+import { RestBindings, RestServer } from '@loopback/rest';
 import { ApplicationConfig, TradingbotWebApplication } from './application';
 import { attach } from './common/GoogleLogger';
 import './repositories/ConnectDB';

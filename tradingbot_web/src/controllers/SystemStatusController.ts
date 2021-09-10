@@ -1,4 +1,4 @@
-import { get } from "@loopback/rest";
+import { get, RestBindings, Request } from "@loopback/rest";
 import ApiQuotaRecordRepo from "../repositories/ApiQuotaRecordRepo";
 import { connection } from 'mongoose';
 import _ from "lodash";
@@ -6,6 +6,7 @@ import _ from "lodash";
 
 import compute from '@google-cloud/compute';
 import { project } from "../common/GoogleConst";
+import { inject } from "@loopback/core";
 const instancesClient = new compute.InstancesClient();
 const addressesClient = new compute.AddressesClient();
 const region = 'asia-east1';
@@ -23,8 +24,17 @@ export class SystemStatusController {
     };
 
 
+    @get('systemStatus/requestInfo')
+    requestInfo(@inject(RestBindings.Http.REQUEST) request: Request) {
+        const { ip, ips, headers } = request;
+        const req = { ip, ips, ...headers };
+        console.info('requestInfo', req);
+        return req;
+    };
+
     @get('systemStatus/livenessProbe')
     async livenessProbe() {
+        console.log('livenessProbe activated');
         const status: Record<string, any> = {};
         status.db = connection.readyState !== 0 && connection.readyState !== 3;
 
@@ -39,7 +49,7 @@ export class SystemStatusController {
 
     @get('systemStatus/startupProbe')
     async startupProbe() {
-
+        console.log('startupProbe activated');
         const [instanceList] = await instancesClient.list({ project, zone });
         const vms = _.chain(instanceList)
             .orderBy(vm => vm.creationTimestamp, 'desc');

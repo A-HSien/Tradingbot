@@ -1,4 +1,4 @@
-import { AuthenticationStrategy, TokenService } from '@loopback/authentication';
+import { AuthenticationStrategy } from '@loopback/authentication';
 import { HttpErrors, Request } from '@loopback/rest';
 import { UserProfile } from '@loopback/security';
 import { getUserProfile } from './AuthService';
