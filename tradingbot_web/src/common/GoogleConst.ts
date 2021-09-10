@@ -1,0 +1,1 @@
+export const project = 'tradingbot-319005';

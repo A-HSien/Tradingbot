@@ -1,6 +1,9 @@
-const { KeyManagementServiceClient } = require('@google-cloud/kms');
+import { KeyManagementServiceClient } from '@google-cloud/kms';
+import { project } from './GoogleConst';
+
+
 const client = new KeyManagementServiceClient();
-const keyName = 'projects/tradingbot-319005/locations/global/keyRings/KeyRing/cryptoKeys/key';
+const keyName = `projects/${project}/locations/global/keyRings/KeyRing/cryptoKeys/key`;
 const crc32c = require('fast-crc32c');
 
 
@@ -14,7 +17,7 @@ export const encrypt = async (text: string) => {
       value: plaintextCrc32c,
     },
   });
-  const ciphertext = encryptResponse.ciphertext;
+  const ciphertext: any = encryptResponse.ciphertext;
 
   // Optional, but recommended: perform integrity verification on encryptResponse.
   // For more details on ensuring E2E in-transit integrity to and from Cloud KMS visit:
@@ -24,7 +27,7 @@ export const encrypt = async (text: string) => {
   }
   if (
     crc32c.calculate(ciphertext) !==
-    Number(encryptResponse.ciphertextCrc32c.value)
+    Number(encryptResponse.ciphertextCrc32c?.value)
   ) {
     throw new Error('Encrypt response corrupted in-transit');
   }
@@ -52,11 +55,11 @@ export const decrypt = async (ciphertext: string) => {
   // https://cloud.google.com/kms/docs/data-integrity-guidelines
   if (
     crc32c.calculate(decryptResponse.plaintext) !==
-    Number(decryptResponse.plaintextCrc32c.value)
+    Number(decryptResponse.plaintextCrc32c?.value)
   ) {
     throw new Error('Decrypt response corrupted in-transit');
   }
 
-  const decrypt = decryptResponse.plaintext.toString();
-  return decrypt;
+  const decrypt = decryptResponse.plaintext?.toString();
+  return decrypt || '';
 }

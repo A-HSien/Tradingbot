@@ -1,8 +1,11 @@
 import { RestBindings } from '@loopback/rest';
 import { ApplicationConfig, TradingbotWebApplication } from './application';
+import { attach } from './common/GoogleLogger';
 import './repositories/ConnectDB';
 
 export * from './application';
+
+process.env.IS_PROD && attach();
 
 export async function main(options: ApplicationConfig = {}) {
   const app = new TradingbotWebApplication(options);

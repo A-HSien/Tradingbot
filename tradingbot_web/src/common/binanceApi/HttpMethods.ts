@@ -39,7 +39,7 @@ BinanceAPI.interceptors.response.use(resp => {
     return resp;
 
 }, error => {
-    console.error('BinanceAPI error:', error);
+    console.error('BinanceAPI error:', error?.response || error);
     error?.response && logQuotaRecords(error.response);
     return Promise.reject(error);
 });

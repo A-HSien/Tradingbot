@@ -6,7 +6,7 @@ USER node
 
 
 # Bind to all network interfaces so that it can be mapped to the host OS
-ENV HOST=0.0.0.0 PORT=3000
+ENV HOST=0.0.0.0 PORT=3000 IS_PROD=true
 ARG SERVER_ROOT_URI
 ENV SERVER_ROOT_URI=${SERVER_ROOT_URI}
 ARG DB_CONNECTION_STRING
