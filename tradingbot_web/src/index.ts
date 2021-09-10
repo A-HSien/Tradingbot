@@ -6,19 +6,19 @@ import { connectDB } from './repositories/ConnectDB';
 
 export * from './application';
 
-process.env.IS_PROD && attach();
 
 export async function main(options: ApplicationConfig = {}) {
   const app = new TradingbotWebApplication(options);
   await app.boot();
   await app.start();
+  app.bind(RestBindings.ERROR_WRITER_OPTIONS).to({ debug: true });
 
+  process.env.IS_PROD && attach();
   const url = app.restServer.url;
   console.log(`Server is running at ${url}`);
   console.log(`Try ${url}/ping`);
   connectDB();
 
-  app.bind(RestBindings.ERROR_WRITER_OPTIONS).to({debug: true});
   return app;
 }
 

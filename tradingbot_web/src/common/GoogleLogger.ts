@@ -9,13 +9,12 @@ export const attach = () => {
 
     const logging = new Logging({ projectId: project });
     const logger = logging.log('tradingbot_web');
-    const resource = { type: 'global', };
+    const resource = { type: 'k8s_container', };
     const metadata = new Map([
         ['log', { severity: 'DEBUG', resource }],
         ['info', { severity: 'INFO', resource }],
         ['error', { severity: 'ERROR', resource }],
     ]);
-    let loggerError = false;
 
     const write = (
         type: keyof typeof console,
@@ -28,8 +27,8 @@ export const attach = () => {
         };
         const entry = logger.entry(metadata.get(type), payload);
         logger.write(entry).catch(err => {
-            !loggerError && error('google logger', err?.details || err);
-            loggerError = true;
+            const data = { payload, error: err?.details || err }
+            error('google logger', data);
         });
     };
 
