@@ -8,16 +8,19 @@ import AppUserRepo from './AppUserRepo';
 
 
 
-const connectDB = () => {
+export const connectDB = () => {
     console.info('db connect:', DB_CONNECTION_STRING);
     set('useCreateIndex', true);
-    return connect(
+    connect(
         DB_CONNECTION_STRING,
         {
             useNewUrlParser: true,
             useUnifiedTopology: true
         }
-    );
+    )
+    .then(() => console.log('db connected'))
+    // .then(() => runDBTest)
+    .catch(err => console.error('db connect failed:', err));
 };
 
 
@@ -63,8 +66,3 @@ const runDBTest = async () => {
     await AppUserRepoTest();
     await AccountRepoTest();
 };
-
-connectDB()
-    .then(() => console.log('db connected'))
-    // .then(() => runDBTest)
-    .catch(err => console.error('db connect failed:', err));

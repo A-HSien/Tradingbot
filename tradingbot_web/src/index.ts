@@ -2,6 +2,7 @@ import { RestBindings } from '@loopback/rest';
 import { ApplicationConfig, TradingbotWebApplication } from './application';
 import { attach } from './common/GoogleLogger';
 import './repositories/ConnectDB';
+import { connectDB } from './repositories/ConnectDB';
 
 export * from './application';
 
@@ -15,6 +16,7 @@ export async function main(options: ApplicationConfig = {}) {
   const url = app.restServer.url;
   console.log(`Server is running at ${url}`);
   console.log(`Try ${url}/ping`);
+  connectDB();
 
   app.bind(RestBindings.ERROR_WRITER_OPTIONS).to({debug: true});
   return app;
