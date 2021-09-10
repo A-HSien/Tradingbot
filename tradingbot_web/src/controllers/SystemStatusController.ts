@@ -23,10 +23,22 @@ export class SystemStatusController {
     };
 
 
-    @get('systemStatus/healthy')
-    async healthy() {
+    @get('systemStatus/livenessProbe')
+    async livenessProbe() {
         const status: Record<string, any> = {};
         status.db = connection.readyState !== 0 && connection.readyState !== 3;
+
+        if (Object.values(status).some(e => !e)) {
+            const msg = 'livenessProbe check not pass';
+            console.error(msg, status);
+            throw new Error(msg);
+        }
+        return true;
+    };
+
+
+    @get('systemStatus/startupProbe')
+    async startupProbe() {
 
         const [instanceList] = await instancesClient.list({ project, zone });
         const vms = _.chain(instanceList)
@@ -47,12 +59,21 @@ export class SystemStatusController {
             const freeAddresses = addresses.filter(ad =>
                 prodIps.has(ad.address || '') && ad.status !== 'IN_USE'
             );
-            if (freeAddresses.length === 0)
-                console.log('no free addresses');
+            const throwError = () => {
+                const err = 'no free addresses';
+                console.error(err);
+                throw new Error(err);
+
+            };
+            if (freeAddresses.length === 0) throwError();
 
             needUpdate.forEach(async vm => {
                 const address = freeAddresses.pop();
-                if (address) {
+                if (!address) {
+                    throwError();
+                }
+                else {
+                    console.log('apply address', address);
                     const vmName = vm.name;
                     const network = vm.networkInterfaces?.find(x => true);
                     const toDelete = network?.accessConfigs?.find(x => true);
@@ -76,14 +97,6 @@ export class SystemStatusController {
                 }
             });
         }
-        /*         
-        if (Object.values(status).some(e => !e)) {
-            const msg = 'healthy check not pass';
-            console.error(msg, status);
-            throw new Error(msg);
-        } 
-        */
-        return status;
+        return true;
     };
-
 };

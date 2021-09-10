@@ -129,7 +129,7 @@ export class SignalController {
         each.before.apiSecret = 'apiSecret';
       }
     });
-    console.log('signal/trading log:', logs);
+    console.log('signal/trading log', logs);
 
   };
 };

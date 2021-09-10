@@ -18,7 +18,7 @@ export const cacheable = <T extends (...args: any) => any>(func: T) => {
 const getIpOnce = () => {
     const nets = Object.values(networkInterfaces());
     const external = _.flatten(nets).find(e => !e.internal && e.family === 'IPv4');
-    console.log('nets:', external);
+    console.log('nets info', external);
     return external?.address || '';
 };
 export const getIP = cacheable(getIpOnce);

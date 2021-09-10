@@ -1,4 +1,4 @@
-console.log('process.env:', process.env);
+console.log('process.env', process.env);
 
 
 export const GOOGLE_CLIENT_ID =

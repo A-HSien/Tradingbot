@@ -36,7 +36,7 @@ export class AuthController {
     let appUser = await AppUserRepo.findOne({
       email: googleUser.email
     });
-    console.log('app user login:', appUser);
+    console.log(`app user login - ${appUser?.email}`, appUser);
     if (!appUser) {
       const password = await hash(googleUser.id, await genSalt());
       const newUser: AppUser = {
@@ -46,7 +46,7 @@ export class AuthController {
         submitted: false,
       }
       appUser = await AppUserRepo.create(newUser);
-      console.log('add new user:', appUser);
+      console.log(`add new user - ${appUser?.email}`, appUser);
     }
 
     await this.setAuthToken(googleUser, response);
@@ -67,7 +67,7 @@ export class AuthController {
 
     user.submitted = true;
     await AppUserRepo.updateOne({ _id: user.id }, user);
-    console.log('user registered:', user);
+    console.log(`user registered - ${user.email}`, user);
     return true;
   };
 

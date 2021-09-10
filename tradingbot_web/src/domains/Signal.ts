@@ -23,7 +23,7 @@ export type Signal = typeof SignalBase & TradingParams;
 
 export const decodeSignal = async (signal: Signal) => {
     const tokenData = await verifyToken(signal.token, TokenType.signal);
-    console.log('decodeSignal tokenData:', tokenData);
+    console.log('decodeSignal tokenData', tokenData);
 
     // validation
     ['userId', 'email'].forEach(field => {

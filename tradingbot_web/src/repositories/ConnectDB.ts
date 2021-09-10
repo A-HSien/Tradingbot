@@ -9,7 +9,7 @@ import AppUserRepo from './AppUserRepo';
 
 
 export const connectDB = () => {
-    console.info('db connect:', DB_CONNECTION_STRING);
+    console.info('db connecting', DB_CONNECTION_STRING);
     set('useCreateIndex', true);
     connect(
         DB_CONNECTION_STRING,
@@ -20,7 +20,7 @@ export const connectDB = () => {
     )
     .then(() => console.log('db connected'))
     // .then(() => runDBTest)
-    .catch(err => console.error('db connect failed:', err));
+    .catch(err => console.error('db connect failed', err));
 };
 
 

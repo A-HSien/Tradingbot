@@ -9,7 +9,7 @@ export const attach = () => {
 
     const logging = new Logging({ projectId: project });
     const logger = logging.log('tradingbot_web');
-    const resource = { type: 'global', };
+    const resource = { type: 'tradingbot_web' };
     const metadata = new Map([
         ['log', { severity: 'DEBUG', resource }],
         ['info', { severity: 'INFO', resource }],
