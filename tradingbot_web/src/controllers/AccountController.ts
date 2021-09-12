@@ -4,7 +4,7 @@ import { get, param, post, requestBody } from '@loopback/rest';
 import { SecurityBindings, UserProfile } from '@loopback/security';
 import _ from 'lodash';
 import AccountSetup from '../common/binanceApi/AccountSetup';
-import { checkAndUpdateAccount, updateAccount } from '../common/binanceApi/AccountSnapshot';
+import { checkAndQueryAccount, queryAccountBalance } from '../common/binanceApi/AccountSnapshot';
 import { encrypt } from '../common/GoogleKms';
 import { Account, validateOwnership } from '../domains/Account';
 import { ActionRecord } from '../domains/Action';
@@ -38,7 +38,7 @@ export class AccountController {
         )
           return Promise.resolve(account);
         else
-          return updateAccount(account).then(async updated => {
+          return queryAccountBalance(account).then(async updated => {
             await AccountRepo.updateOne({ '_id': updated.id }, updated).exec();
             return updated;
           });
@@ -85,7 +85,7 @@ export class AccountController {
     }
 
 
-    account = await checkAndUpdateAccount(account);
+    account = await checkAndQueryAccount(account);
     if (account.error && !account.disabled) return account.error;
 
     !account.id ?

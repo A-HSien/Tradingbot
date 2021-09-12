@@ -1,6 +1,6 @@
 import { Account } from "../../domains/Account";
 import { FutureApiBase, logApiError } from "./common";
-import { qurtyFutureAccountBalance } from "./FutureAccountBalance";
+import { queryFutureAccountBalance } from "./FutureAccountBalance";
 import { signedGet } from "./HttpMethods";
 
 
@@ -12,7 +12,7 @@ const response = {
 type ResponseType = typeof response;
 
 
-export const checkAndUpdateAccount = async (account: Account) => {
+export const checkAndQueryAccount = async (account: Account) => {
 
    account.error = '';
    const data = await signedGet<ResponseType>(
@@ -26,13 +26,13 @@ export const checkAndUpdateAccount = async (account: Account) => {
       account.error = '請調整帳戶為[單向持倉模式]';
       return account;
    }
-   return updateAccount(account);
+   return queryAccountBalance(account);
 };
 
-export const updateAccount = async (account: Account) => {
+export const queryAccountBalance = async (account: Account) => {
 
    account.error = '';
-   const balance = await qurtyFutureAccountBalance(account)
+   const balance = await queryFutureAccountBalance(account)
       .then(resp => resp.data)
       .catch(err => { account.error = logApiError(account, err) });
    if (account.error) return account;

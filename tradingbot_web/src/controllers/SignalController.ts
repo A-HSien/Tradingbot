@@ -10,7 +10,7 @@ import { Account } from "../domains/Account";
 import ActionRecordRepo from "../repositories/ActionRecordRepo";
 import { decodeSignal, Signal } from "../domains/Signal";
 import { getFuturePrice } from "../common/binanceApi/FuturePrice";
-import { updateAccount } from "../common/binanceApi/AccountSnapshot";
+import { queryAccountBalance } from "../common/binanceApi/AccountSnapshot";
 import { getAllSymbol, updateExchangeInfo } from "../common/binanceApi/ExchangeInfo";
 import { signToken, TokenType } from "../domains/Token";
 import { ActionRecord } from "../domains/Action";
@@ -108,7 +108,7 @@ export class SignalController {
 
     const logs = await Promise.all(
       accounts.map(async acc => {
-        const updated = await updateAccount(acc);
+        const updated = await queryAccountBalance(acc);
         const before = clone(updated);
         const result: ActionRecord = !before.error ?
           await action.action(actionKey, updated, signal) :
@@ -123,13 +123,16 @@ export class SignalController {
       })
     );
     await ActionRecordRepo.insertMany(logs.map(e => e.result));
-    logs.forEach((each: any) => {
-      if (each && each.before) {
-        each.before.apiKey = 'apiKey';
-        each.before.apiSecret = 'apiSecret';
-      }
+    logs.forEach(each => {
+      each.before.apiKey = 'apiKey';
+      each.before.apiSecret = 'apiSecret';
+      console.log(
+        `signal trading log
+        name:${each.before.name} 
+        success:${each.result.success}`,
+        each
+      );
     });
-    console.log('signal/trading log', logs);
 
   };
 };

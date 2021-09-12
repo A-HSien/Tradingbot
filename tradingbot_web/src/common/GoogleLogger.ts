@@ -9,7 +9,7 @@ export const attach = () => {
 
     const logging = new Logging({ projectId: project });
     const logger = logging.log('tradingbot_web');
-    const resource = { type: 'k8s_container', };
+    const resource = { type: 'global' };
     const metadata = new Map([
         ['log', { severity: 'DEBUG', resource }],
         ['info', { severity: 'INFO', resource }],
@@ -28,7 +28,7 @@ export const attach = () => {
         const entry = logger.entry(metadata.get(type), payload);
         logger.write(entry).catch(err => {
             const data = { payload, error: err?.details || err }
-            error('google logger', data);
+            error('google logger error', data);
         });
     };
 

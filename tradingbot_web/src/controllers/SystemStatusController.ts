@@ -27,9 +27,9 @@ export class SystemStatusController {
     @get('systemStatus/requestInfo')
     requestInfo(@inject(RestBindings.Http.REQUEST) request: Request) {
         const { ip, ips, headers } = request;
-        const req = { ip, ips, ...headers };
-        console.info('requestInfo', req);
-        return req;
+        console.info('requestInfo', { ip, ips, headers });
+       const forwarded =  headers['x-forwarded-for'];
+        return ;
     };
 
     @get('systemStatus/livenessProbe')

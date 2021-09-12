@@ -78,7 +78,7 @@ export const accountInfoResp = {
 type ResponseType = typeof accountInfoResp;
 
 
-export const qurtyFutureAccountBalance = (account: AccountSecrets) => {
+export const queryFutureAccountBalance = (account: AccountSecrets) => {
 
     return signedGet<ResponseType>(
         api,
