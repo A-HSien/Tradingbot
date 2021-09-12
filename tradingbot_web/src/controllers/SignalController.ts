@@ -123,12 +123,12 @@ export class SignalController {
       })
     );
     await ActionRecordRepo.insertMany(logs.map(e => e.result));
-    logs.forEach(each => {
+    logs.forEach((each, i) => {
       each.before.apiKey = 'apiKey';
       each.before.apiSecret = 'apiSecret';
       console.log(
-        `signal trading log
-        name:${each.before.name} 
+        `signal trading log ${i} -
+        ${each.before.name} 
         success:${each.result.success}`,
         each
       );

@@ -66,7 +66,7 @@ const AccountRecord = () => {
                                 <td className={styles.tableCell}>{record.action}</td>
                                 <td className={styles.tableCell}>{record.success ? 'Y' : 'N'}</td>
                                 <td className={styles.tableCell}>
-                                    <pre className={codeBlockStyle}>{record.params.replaceAll('&', '\n')}</pre>
+                                    <pre className={codeBlockStyle}>{record.params?.replaceAll('&', '\n')}</pre>
                                 </td>
                                 <td className={styles.tableCell}>
                                     <pre className={codeBlockStyle}>{formatJson(record.result)}</pre>
