@@ -14,7 +14,6 @@ const zone = 'asia-east1-b';
 
 
 
-
 export class SystemStatusController {
 
 
@@ -32,15 +31,14 @@ export class SystemStatusController {
         return;
     };
 
+
     @get('systemStatus/livenessProbe')
     async livenessProbe() {
-        console.log('livenessProbe activated');
-        const status: Record<string, any> = {};
-        status.db = connection.readyState !== 0 && connection.readyState !== 3;
+        const dbIsOk = connection.readyState !== 0 && connection.readyState !== 3;
 
-        if (Object.values(status).some(e => !e)) {
-            const msg = 'livenessProbe check not pass';
-            console.error(msg, status);
+        if (!dbIsOk) {
+            const msg = 'livenessProbe check not pass - db connection failed';
+            console.error(msg);
             throw new Error(msg);
         }
         return true;
@@ -76,15 +74,13 @@ export class SystemStatusController {
                 const err = 'no free addresses';
                 console.error(err);
                 throw new Error(err);
-
             };
             if (freeAddresses.length === 0) throwError();
 
             needUpdate.forEach(async vm => {
                 const address = freeAddresses.pop();
-                if (!address) {
+                if (!address)
                     throwError();
-                }
                 else {
                     console.log(`apply address - ${address.address}`, address);
                     const vmName = vm.name;
