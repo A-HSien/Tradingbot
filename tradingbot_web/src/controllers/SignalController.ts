@@ -91,11 +91,11 @@ export class SignalController {
       updateExchangeInfo(),
     ]);
     if (!priceInfo || !priceInfo.price) {
-      console.error("get price error", signal);
+      console.error(`get price error`, signal);
       await SignalRepo.create(signal);
       return;
     }
-    console.log('priceInfo', priceInfo);
+    console.log(`priceInfo - ${priceInfo.symbol}: ${priceInfo.price}`, priceInfo);
     signal.currentPrice = Number(priceInfo.price);
     signal.quantity = Number(signal.quantity) / Number(signal.currentPrice);
     await SignalRepo.create(signal);

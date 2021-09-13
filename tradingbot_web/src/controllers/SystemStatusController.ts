@@ -28,8 +28,8 @@ export class SystemStatusController {
     requestInfo(@inject(RestBindings.Http.REQUEST) request: Request) {
         const { ip, ips, headers } = request;
         console.info('requestInfo', { ip, ips, headers });
-       const forwarded =  headers['x-forwarded-for'];
-        return ;
+        const forwarded = headers['x-forwarded-for'];
+        return;
     };
 
     @get('systemStatus/livenessProbe')
@@ -55,15 +55,18 @@ export class SystemStatusController {
             .orderBy(vm => vm.creationTimestamp, 'desc');
 
         const prodIps = new Set(['34.81.132.186', '35.201.191.95']);
-        const checkIp = (vm: typeof instanceList[0]) => {
+        const isProdIp = (vm: typeof instanceList[0]) => {
             const allConfig = _.chain(vm.networkInterfaces)
                 .flatMap(net => net.accessConfigs)
                 .value();
             return allConfig.some(conf => prodIps.has(conf?.natIP || ''));
         };
-        const needUpdate = vms.take(2).filter(vm => checkIp(vm)).value();
+        const needUpdate = vms.take(2).filter(vm => !isProdIp(vm)).value();
         if (needUpdate.length > 0) {
-            console.log('vm ip need update', needUpdate);
+            console.log(
+                `vm ip need update - ${needUpdate.map(vm => vm.name).join(' / ')}`,
+                needUpdate
+            );
 
             const [addresses] = await addressesClient.list({ project, region });
             const freeAddresses = addresses.filter(ad =>
@@ -83,7 +86,7 @@ export class SystemStatusController {
                     throwError();
                 }
                 else {
-                    console.log('apply address', address);
+                    console.log(`apply address - ${address.address}`, address);
                     const vmName = vm.name;
                     const network = vm.networkInterfaces?.find(x => true);
                     const toDelete = network?.accessConfigs?.find(x => true);

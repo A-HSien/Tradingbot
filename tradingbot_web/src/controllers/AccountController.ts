@@ -3,13 +3,13 @@ import { inject, intercept } from '@loopback/core';
 import { get, param, post, requestBody } from '@loopback/rest';
 import { SecurityBindings, UserProfile } from '@loopback/security';
 import _ from 'lodash';
+import { queryAccountIncome } from '../common/binanceApi/AccountIncome';
 import AccountSetup from '../common/binanceApi/AccountSetup';
 import { checkAndQueryAccount, queryAccountBalance } from '../common/binanceApi/AccountSnapshot';
 import { encrypt } from '../common/GoogleKms';
 import { Account, validateOwnership } from '../domains/Account';
 import { ActionRecord } from '../domains/Action';
 import { AppUser } from '../domains/AppUser';
-import { omit } from '../domains/utilities';
 import { PerformanceLog } from '../Interceptors';
 import AccountRepo, { fetchAccountsByUser, getAuthorizedAccount } from '../repositories/AccountRepo';
 import ActionRecordRepo from '../repositories/ActionRecordRepo';
@@ -51,6 +51,17 @@ export class AccountController {
       return info;
     });
   };
+
+
+  @get('/account/income')
+  async queryAccountIncome(
+    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
+    @param.query.string('id') id: string,
+
+  ) {
+    const account = await getAuthorizedAccount(id, currentUserProfile);
+    return queryAccountIncome(account);
+  }
 
 
   @post('/account/save')
