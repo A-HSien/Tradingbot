@@ -1,7 +1,6 @@
 import _ from "lodash";
 import { Account } from "../../domains/Account";
-import { FutureApiBase, logApiError } from "./common";
-import { queryFutureAccountBalance } from "./FutureAccountBalance";
+import { FutureApiBase } from "./common";
 import { signedGet } from "./HttpMethods";
 
 
@@ -24,7 +23,11 @@ const oneDay = 24 * 60 * 60 * 1000;
 const timeWindow = 60 * oneDay;
 const limit = 1000;
 
-const _queryAccountIncome = (account: Account, startTime: number, endTime: number) => {
+const _queryAccountIncome = (
+    { name, apiKey, apiSecret }: Account,
+    startTime: number, endTime: number
+) => {
+
     return signedGet<ResponseType>(
         api,
         new URLSearchParams({
@@ -32,8 +35,14 @@ const _queryAccountIncome = (account: Account, startTime: number, endTime: numbe
             endTime: endTime.toString(),
             limit: limit.toString(),
         }),
-        account.apiKey, account.apiSecret
-    ).then(res => _.orderBy(res.data, e => e.time, 'desc'));
+        apiKey, apiSecret
+    ).then(res => {
+        console.log(
+            `queryAccountIncome - ${name} ${startTime}~${endTime}`,
+            { name, startTime, endTime, resultCount: res.data.length }
+        );
+        return _.orderBy(res.data, e => e.time, 'desc');
+    });
 };
 
 export const queryAccountIncome = async (account: Account) => {
@@ -42,10 +51,12 @@ export const queryAccountIncome = async (account: Account) => {
     const startTime = now - timeWindow;
     const result = await _queryAccountIncome(account, startTime, endTime);
     let next = result.length === limit;
+    let quota = 6;
     while (next) {
         const newResult = await _queryAccountIncome(account, result[0].time, endTime);
-        result.concat(...newResult);
-        next = newResult.length === limit;
+        result.unshift(...newResult);
+        quota--;
+        next = newResult.length === limit && quota > 0;
     }
-    return _.uniqBy(result, e => e.tranId);
+    return _.uniqBy(result, e => e.tranId + e.incomeType);
 };

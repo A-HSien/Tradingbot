@@ -16,7 +16,10 @@ const logQuotaRecords = (resp: AxiosResponse<any>) => {
         .filter(([key]) => key.includes('x-mbx'));
     const quota = Object.fromEntries(quotaEntries);
 
-    console.log('BinanceAPI logQuotaRecords', { url: resp.config.url, quota, });
+    console.log(
+        `BinanceAPI logQuotaRecords - ${resp.config.url} ${quota}`,
+        { url: resp.config.url, quota, }
+    );
     const time = new Date();
     if (
         localQuotaRecords.length > 1500 &&
@@ -29,11 +32,15 @@ const logQuotaRecords = (resp: AxiosResponse<any>) => {
         key: e[0],
         value: e[1] as string
     }))
-    newRecords.forEach(e => localQuotaRecords.unshift(e));
+    localQuotaRecords.unshift(...newRecords);
     ApiQuotaRecordRepo.insertMany(newRecords).then();
 };
 
-
+BinanceAPI.interceptors.request.use(req => {
+    const quota = localQuotaRecords.find(_ => true)?.value;
+    if (quota && Number(quota) > 1200) throw new Error('BinanceAPI quota exceeded');
+    return req;
+});
 BinanceAPI.interceptors.response.use(resp => {
     logQuotaRecords(resp);
     return resp;
