@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { Account } from "../../domains/Account";
 import { FutureApiBase, logApiError } from "./common";
 import { queryFutureAccountBalance } from "./FutureAccountBalance";
@@ -16,28 +17,35 @@ const response = [
         "time": 1570608000000, // 时间
         "tranId": "9689322392",      // 划转ID
         "tradeId": ""                    // 引起流水产生的原始交易ID
-    },
-    {
-        "symbol": "BTCUSDT",
-        "incomeType": "COMMISSION",
-        "income": "-0.01000000",
-        "asset": "USDT",
-        "info": "COMMISSION",
-        "time": 1570636800000,
-        "tranId": "9689322392",
-        "tradeId": "2059192"
     }
 ];
 type ResponseType = typeof response;
-const timeWindow = 60 * 24 * 60 * 60 * 1000; // 60d
+const oneDay = 24 * 60 * 60 * 1000;
+const timeWindow = 60 * oneDay;
+const limit = 1000;
+
+const _queryAccountIncome = (account: Account, startTime: number, endTime: number) => {
+    return signedGet<ResponseType>(
+        api,
+        new URLSearchParams({
+            startTime: startTime.toString(),
+            endTime: endTime.toString(),
+            limit: limit.toString(),
+        }),
+        account.apiKey, account.apiSecret
+    ).then(res => _.orderBy(res.data, e => e.time, 'desc'));
+};
 
 export const queryAccountIncome = async (account: Account) => {
     const now = Date.now();
-    const endTime = now.toString();
-    const startTime = (now - timeWindow).toString();
-    return signedGet<ResponseType>(
-        api,
-        new URLSearchParams({ startTime, endTime, limit: '1000' }),
-        account.apiKey, account.apiSecret
-    ).then(res => res.data);
+    const endTime = now;
+    const startTime = now - timeWindow;
+    const result = await _queryAccountIncome(account, startTime, endTime);
+    let next = result.length === limit;
+    while (next) {
+        const newResult = await _queryAccountIncome(account, result[0].time, endTime);
+        result.concat(...newResult);
+        next = newResult.length === limit;
+    }
+    return _.uniqBy(result, e => e.tranId);
 };
