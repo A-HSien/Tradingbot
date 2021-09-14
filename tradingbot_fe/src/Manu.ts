@@ -7,6 +7,7 @@ import Register from "src/pages/Register";
 import SignalManual from "src/pages/signal/SignalManual";
 import Signals from "src/pages/signal/SignalsRecord";
 import { AuthStatus } from "src/stores/AuthStore";
+import AccountIncome from "./pages/account/AccountIncome";
 import { SystemStatus } from "./pages/SystemStatus";
 
 export type LinkProps = RouteProps & {
@@ -17,7 +18,7 @@ export type LinkProps = RouteProps & {
 
 export const linkMap: Record<
     'Login' | 'Register' |
-    'Accounts' | 'Account' | 'AccountRecord' |
+    'Accounts' | 'Account' | 'AccountRecord' | 'AccountIncome' |
     'Signals' | 'SignalManual' | 'SystemStatus',
     LinkProps
 > = {
@@ -48,6 +49,12 @@ export const linkMap: Record<
         path: "/AccountRecord/:name",
         lable: '帳戶操作紀錄',
         component: AccountRecord,
+        protectionLevel: AuthStatus.Authorized,
+    },
+    AccountIncome: {
+        path: "/AccountIncome/:name",
+        lable: '帳戶績效紀錄',
+        component: AccountIncome,
         protectionLevel: AuthStatus.Authorized,
     },
     Signals: {

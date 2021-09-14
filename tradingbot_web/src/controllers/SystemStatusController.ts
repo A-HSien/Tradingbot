@@ -27,8 +27,8 @@ export class SystemStatusController {
     requestInfo(@inject(RestBindings.Http.REQUEST) request: Request) {
         const { ip, ips, headers } = request;
         console.info('requestInfo', { ip, ips, headers });
-        const forwarded = headers['x-forwarded-for'];
-        return;
+        const xForwarded = headers['x-forwarded-for'];
+        return xForwarded;
     };
 
 
@@ -70,40 +70,35 @@ export class SystemStatusController {
             const freeAddresses = addresses.filter(ad =>
                 prodIps.has(ad.address || '') && ad.status !== 'IN_USE'
             );
-            const throwError = () => {
-                const err = 'no free addresses';
-                console.error(err);
-                throw new Error(err);
-            };
-            if (freeAddresses.length === 0) throwError();
 
             needUpdate.forEach(async vm => {
                 const address = freeAddresses.pop();
-                if (!address)
-                    throwError();
-                else {
-                    console.log(`apply address - ${address.address}`, address);
-                    const vmName = vm.name;
-                    const network = vm.networkInterfaces?.find(x => true);
-                    const toDelete = network?.accessConfigs?.find(x => true);
-                    if (toDelete) {
-                        await instancesClient.deleteAccessConfig({
-                            project, zone,
-                            instance: vmName,
-                            networkInterface: network?.name,
-                            accessConfig: toDelete.name
-                        });
-                    }
-                    await instancesClient.addAccessConfig({
+                if (!address) {
+                    const err = 'no free addresses';
+                    console.error(err);
+                    throw new Error(err);
+                }
+                console.log(`apply address - ${address.address}`, address);
+                const vmName = vm.name;
+                const network = vm.networkInterfaces?.find(x => true);
+                const toDelete = network?.accessConfigs?.find(x => true);
+                if (toDelete) {
+                    await instancesClient.deleteAccessConfig({
                         project, zone,
                         instance: vmName,
                         networkInterface: network?.name,
-                        accessConfigResource: {
-                            natIP: address.address,
-                            networkTier: "PREMIUM",
-                        }
+                        accessConfig: toDelete.name
                     });
                 }
+                await instancesClient.addAccessConfig({
+                    project, zone,
+                    instance: vmName,
+                    networkInterface: network?.name,
+                    accessConfigResource: {
+                        natIP: address.address,
+                        networkTier: "PREMIUM",
+                    }
+                });
             });
         }
         return true;

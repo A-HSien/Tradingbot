@@ -117,6 +117,7 @@ const Accounts = () => {
                             <th className={styles.tableCell}>停用</th>
                             <th className={styles.tableCell}>委託</th>
                             <th className={styles.tableCell}></th>
+                            <th className={styles.tableCell}></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -132,6 +133,9 @@ const Accounts = () => {
                                 <td className={styles.tableCell}>{account.delegateUserEmail}</td>
                                 <td className={styles.tableCell}>
                                     <Link className={baseStyles.buttonStyle} to={`/AccountRecord/${account.name}`}>操作記錄</Link>
+                                </td>
+                                <td className={styles.tableCell}>
+                                    <Link className={baseStyles.buttonStyle} to={`/AccountIncome/${account.name}`}>績效記錄</Link>
                                 </td>
 
 

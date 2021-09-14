@@ -37,7 +37,7 @@ export const queryAccountIncome = async (account: Account) => {
     const startTime = (now - timeWindow).toString();
     return signedGet<ResponseType>(
         api,
-        new URLSearchParams({ startTime, endTime }),
+        new URLSearchParams({ startTime, endTime, limit: '1000' }),
         account.apiKey, account.apiSecret
-    );
+    ).then(res => res.data);
 };

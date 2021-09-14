@@ -60,7 +60,8 @@ export class AccountController {
 
   ) {
     const account = await getAuthorizedAccount(id, currentUserProfile);
-    return queryAccountIncome(account);
+    const result = await queryAccountIncome(account);
+    return result;
   }
 
 
