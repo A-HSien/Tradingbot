@@ -18,6 +18,7 @@ export type Position = typeof position;
 
 export type Balances = {
     availableBalance: string,
+    totalUnrealizedProfit: string,
     positions: Position[],
 };
 

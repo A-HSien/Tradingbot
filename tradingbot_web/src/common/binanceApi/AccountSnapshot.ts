@@ -37,9 +37,10 @@ export const queryAccountBalance = async (account: Account) => {
       .catch(err => { account.error = logApiError(account, err) });
    if (account.error) return account;
 
-
+   console.log('balance',balance);
    account.balances = {
       availableBalance: balance?.availableBalance || '',
+      totalUnrealizedProfit: balance?.totalUnrealizedProfit || '',
       positions: balance?.positions?.filter(pos => Number(pos.positionAmt) !== 0) || []
    };
    account.balancesLastUpdateTime = new Date();

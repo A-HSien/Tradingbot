@@ -12,8 +12,9 @@ type Position = typeof accountInfoResp.positions[0];
 
 
 export type Balances = {
-    availableBalance: string,
-    positions: Position[],
+    availableBalance?: string,
+    totalUnrealizedProfit?: string,
+    positions?: Position[],
 };
 
 export type Account = AccountSecrets & {

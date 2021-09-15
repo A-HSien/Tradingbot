@@ -44,7 +44,9 @@ const Accounts = () => {
 
         return <div className={styles.balancesCell}>
             可用資產(USDT):
-            {account.balances.availableBalance} <br />
+            {account?.balances?.availableBalance} <br />
+            未實現獲利:<br />
+            {account?.balances?.totalUnrealizedProfit} <br />
             <pre className={codeBlockStyle}>
                 {
                     (account.balances?.positions || [])

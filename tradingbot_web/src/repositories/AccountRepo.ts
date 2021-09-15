@@ -5,7 +5,8 @@ import { UserProfile } from '@loopback/security';
 
 
 const balancesDef: SchemaDefinition<Balances> = {
-    availableBalance: { type: String, required: true },
+    availableBalance: { type: String },
+    totalUnrealizedProfit: { type: String },
     positions: [Object],
 };
 const balancesSchema = new Schema<Balances>(balancesDef);

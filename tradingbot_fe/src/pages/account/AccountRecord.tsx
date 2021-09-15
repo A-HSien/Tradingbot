@@ -35,7 +35,7 @@ const AccountRecord = () => {
 
     useEffect(() => {
         const account = accountStore.accounts.find(acc => acc.name === name);
-        if (!account) return;
+        if (!account) { window.location.href = '/#/accounts'; return; }
 
         axios.get('/account/records', { params: { id: account.id } })
             .then(r => r.data)
