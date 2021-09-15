@@ -19,15 +19,8 @@ const AppRoutes = () => {
                 <Route key={index} {...link}><Redirect to={getLinkPath(linkMap.Login)} /></Route> :
                 <Route key={index} {...link} />
     ), []);
-    debugger;
 
-    return (
-        <Switch>
-            {
-                routes
-            }
-        </Switch>
-    );
+    return <Switch>  {routes}  </Switch>;
 };
 
 export default observer(AppRoutes);
