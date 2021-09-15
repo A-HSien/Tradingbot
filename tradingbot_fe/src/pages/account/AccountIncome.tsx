@@ -3,9 +3,7 @@ import _ from "lodash";
 import { observer } from "mobx-react";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { formatDate } from "src/common/utities";
-import { Account } from "src/models/Account";
-import { accountStore } from "src/stores/AccountStore";
+import { formatDate, formatJson } from "src/common/utities";
 import baseStyles, { createClass } from "src/styles";
 
 
@@ -47,7 +45,8 @@ const performanceKeys: PerformanceKey[] = Object.keys(defaultPerformance) as any
 
 const AccountIncome = () => {
     const { name } = useParams<{ name: string }>();
-    const [account, setAccount] = useState<Account>();
+    const [error, setError] = useState<any>();
+    const [unrealizedProfit, setUnrealizedProfit] = useState('');
     const [records, setRecords] = useState<IncomeViewModel[]>([]);
 
 
@@ -73,14 +72,19 @@ const AccountIncome = () => {
 
 
     useEffect(() => {
-        const account = accountStore.accounts.find(acc => acc.name === name);
-        if (!account) { window.location.href = '/#/accounts'; return; }
-
-        setAccount(account);
-
-        axios.get<Income[]>('/account/income', { params: { id: account.id } })
+        if (!name) {
+            setError('請於網址帶入帳號名稱');
+            return;
+        }
+        axios.get<{
+            totalUnrealizedProfit: string,
+            incomes: Income[]
+        }>('/account/income', { params: { name } })
             .then(r => {
-                const arr = _.chain(r.data)
+                const { totalUnrealizedProfit, incomes } = r.data;
+                setUnrealizedProfit(totalUnrealizedProfit);
+
+                const arr = _.chain(incomes)
                     .filter(e => e.asset === 'USDT')
                     .orderBy(e => e.time, 'desc')
                     .map(e => e as IncomeViewModel)
@@ -95,7 +99,8 @@ const AccountIncome = () => {
                 }, 0);
 
                 setRecords(arr);
-            });
+            })
+            .catch(setError);
 
     }, [name]);
 
@@ -103,9 +108,10 @@ const AccountIncome = () => {
     return (
         <div className={styles.page}>
             帳戶 - {name} (單位:USDT)<br />
+            {error && <pre>{formatJson(error)}</pre>}
             <div className={createClass('flex')}>
                 <div className={createClass('mr-2', 'w-20', 'text-right')}>未實現獲利</div>
-                <div>{account?.balances?.totalUnrealizedProfit}</div>
+                <div>{unrealizedProfit}</div>
             </div>
             {
                 performanceKeys.map((key, i) => {

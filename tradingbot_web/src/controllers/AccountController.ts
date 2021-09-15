@@ -52,15 +52,22 @@ export class AccountController {
     });
   };
 
-
+  @authenticate.skip()
   @get('/account/income')
   async queryAccountIncome(
-    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
-    @param.query.string('id') id: string,
+    @param.query.string('name') name: string,
 
   ) {
-    const account = await getAuthorizedAccount(id, currentUserProfile);
-    const result = await queryAccountIncome(account);
+    const account = await AccountRepo.findOne({ name });
+    if (!account) {
+      const msg = `account not found, name: ${name}`;
+      console.warn(msg);
+      return {};
+    }
+    const result = {
+      totalUnrealizedProfit: account.balances?.totalUnrealizedProfit || '',
+      incomes: await queryAccountIncome(account)
+    };
     return result;
   }
 

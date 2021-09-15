@@ -55,7 +55,6 @@ export const linkMap: Record<
         path: "/AccountIncome/:name",
         lable: '帳戶績效紀錄',
         component: AccountIncome,
-        protectionLevel: AuthStatus.Authorized,
     },
     Signals: {
         path: "/Signals",
