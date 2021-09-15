@@ -11,13 +11,13 @@ let localQuotaRecords: { time: Date, ip: string, key: string, value: string }[] 
 export const getApiQuotaRecords = () => localQuotaRecords;
 const expire = 1000 * 60 * 60 * 24 * 2; // 2 days
 
-const logQuotaRecords = (resp: AxiosResponse<any>) => {
+const logQuota = (resp: AxiosResponse<any>) => {
     const quotaEntries = Object.entries(resp.headers)
         .filter(([key]) => key.includes('x-mbx'));
     const quota = Object.fromEntries(quotaEntries);
 
     console.log(
-        `BinanceAPI logQuotaRecords - ${resp.config.url} ${quota}`,
+        `BinanceAPI logQuota - ${resp.config.url}`,
         { url: resp.config.url, quota, }
     );
     const time = new Date();
@@ -42,12 +42,12 @@ BinanceAPI.interceptors.request.use(req => {
     return req;
 });
 BinanceAPI.interceptors.response.use(resp => {
-    logQuotaRecords(resp);
+    logQuota(resp);
     return resp;
 
 }, error => {
     console.error('BinanceAPI error', error?.response?.data || error);
-    error?.response && logQuotaRecords(error.response);
+    error?.response && logQuota(error.response);
     return Promise.reject(error);
 });
 

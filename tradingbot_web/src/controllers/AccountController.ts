@@ -52,6 +52,7 @@ export class AccountController {
     });
   };
 
+
   @authenticate.skip()
   @get('/account/income')
   async queryAccountIncome(
@@ -64,9 +65,15 @@ export class AccountController {
       console.warn(msg);
       return {};
     }
+    const [updated, incomes] = await Promise.all([
+      queryAccountBalance(account),
+      queryAccountIncome(account)
+    ]);
+
+    await AccountRepo.updateOne({ '_id': updated.id }, updated).exec();
     const result = {
-      totalUnrealizedProfit: account.balances?.totalUnrealizedProfit || '',
-      incomes: await queryAccountIncome(account)
+      totalUnrealizedProfit: updated.balances?.totalUnrealizedProfit || '',
+      incomes
     };
     return result;
   }
