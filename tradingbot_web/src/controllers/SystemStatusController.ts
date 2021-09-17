@@ -7,10 +7,13 @@ import _ from "lodash";
 import compute from '@google-cloud/compute';
 import { project } from "../common/GoogleConst";
 import { inject } from "@loopback/core";
+import axios from "axios";
+import { SERVER_ROOT_URI } from "../config";
 const instancesClient = new compute.InstancesClient();
 const addressesClient = new compute.AddressesClient();
 const region = 'asia-east1';
 const zone = 'asia-east1-b';
+const prodIps = new Set(['34.81.132.186', '35.201.191.95']);
 
 
 
@@ -23,12 +26,11 @@ export class SystemStatusController {
     };
 
 
-    @get('systemStatus/requestInfo')
-    requestInfo(@inject(RestBindings.Http.REQUEST) request: Request) {
-        const { ip, ips, headers } = request;
-        console.info('requestInfo', { ip, ips, headers });
-        const xForwarded = headers['x-forwarded-for'];
-        return xForwarded;
+    @get('systemStatus/getIp')
+    getIp(@inject(RestBindings.Http.REQUEST) request: Request) {
+        const xForwarded = request.headers['x-forwarded-for'];
+        const ip = Array.isArray(xForwarded) ? xForwarded.find(e => true) : xForwarded;
+        return ip?.split(',')[0]?.trim() || '';
     };
 
 
@@ -41,6 +43,10 @@ export class SystemStatusController {
             console.error(msg);
             throw new Error(msg);
         }
+
+        const ip = await axios.get(SERVER_ROOT_URI + '/systemStatus/getIp');
+        console.info(`check ip: ${ip}`);
+
         return true;
     };
 
@@ -52,7 +58,6 @@ export class SystemStatusController {
         const vms = _.chain(instanceList)
             .orderBy(vm => vm.creationTimestamp, 'desc');
 
-        const prodIps = new Set(['34.81.132.186', '35.201.191.95']);
         const isProdIp = (vm: typeof instanceList[0]) => {
             const allConfig = _.chain(vm.networkInterfaces)
                 .flatMap(net => net.accessConfigs)
