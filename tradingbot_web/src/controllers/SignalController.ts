@@ -97,8 +97,8 @@ export class SignalController {
     }
     console.log(`priceInfo - ${priceInfo.symbol}: ${priceInfo.price}`, priceInfo);
     signal.currentPrice = Number(priceInfo.price);
-    signal.quantity = Number(signal.quantity) / Number(signal.currentPrice);
-    await SignalRepo.create(signal);
+    signal.quantity = Number(signal.quantity) / signal.currentPrice;
+    SignalRepo.create(signal).then();
 
 
     const conditions: Partial<Account>[] = [{ disabled: false }];

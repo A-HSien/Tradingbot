@@ -20,7 +20,7 @@ const AppRoutes = () => {
                 <Route key={index} {...link} />
     ), []);
 
-    return <Switch>  {routes}  </Switch>;
+    return <Switch>{routes}</Switch>;
 };
 
 export default observer(AppRoutes);

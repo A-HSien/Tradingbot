@@ -1,10 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Redirect, useParams } from "react-router-dom";
-import { getLinkPath, linkMap } from "src/Manu";
+import { useParams } from "react-router-dom";
 import { accountStore } from "src/stores/AccountStore";
 import { layoutStore } from "src/stores/LayoutStore";
-import baseStyles, { codeBlockStyle, createClass } from "src/styles";
+import baseStyles, { buttonStyle, codeBlockStyle, createClass, inputStyle, selectStyle } from "src/styles";
 import { EditingAccount } from "../../models/Account";
 
 export const newAccountId = 'New';
@@ -16,11 +15,11 @@ const styles = {
         'grid', 'grid-cols-2', 'gap-2', 'items-center'
     ),
     input: createClass(
-        baseStyles.background, baseStyles.borderGray,
+        inputStyle,
         'px-3',
     ),
     inlineInput: createClass(
-        baseStyles.background, baseStyles.borderGray,
+        inputStyle,
         'px-3', 'ml-2',
     ),
     checkbox: createClass(
@@ -50,7 +49,9 @@ const AccountEditor = () => {
 
     const { id } = useParams<{ id: string }>();
     const [account, setAccount] = useState({ ...newAccount });
-    const [shouldGoBack, setShouldGoBack] = useState(false);
+    const [symbols, setSymbols] = useState<string[]>([]);
+    const [symbol, setSymbol] = useState('');
+    const [quantity, setQuantity] = useState(0);
     const [error, setError] = useState('');
     const [leverage, setLeverage] = useState<number | null>(2);
     const [actionResult, setActionResult] = useState<ActionResult[]>([]);
@@ -58,14 +59,34 @@ const AccountEditor = () => {
     const [delegate, setDelegate] = useState('');
 
 
+    const goBack = () => {
+        window.location.href = '/#/Accounts';
+        return;
+    };
+
     useEffect(() => {
         const account = id === newAccountId ?
             newAccount :
             accountStore.accounts.find(acc => acc.id === id);
+        if (!account) return goBack();
 
-        if (!account) setShouldGoBack(true);
-        else setAccount({ ...newAccount, ...account });
+        setAccount({ ...newAccount, ...account });
+        axios.get('/signal/getAllSymbol')
+            .then(r => setSymbols(r.data.sort()));
     }, [id]);
+
+    useEffect(() => {
+        const quantity = account.quantities?.find(e => e.symbol === symbol);
+        quantity && setQuantity(quantity.quantity);
+    }, [account, symbol]);
+
+
+    const addQuantity = () => {
+        if (!symbol) return;
+        const quantities = account.quantities?.filter(e => e.symbol !== symbol) || [];
+        quantity && quantities.push({ symbol, quantity });
+        setAccount({ ...account, quantities });
+    };
 
 
     const onChange = (event: React.FormEvent<HTMLInputElement>) => {
@@ -98,7 +119,7 @@ const AccountEditor = () => {
         axios.post<string>('/account/save', account).then(r => r.data)
             .then(err => {
                 if (err) setError(err);
-                else setShouldGoBack(true);
+                else goBack();
                 layoutStore.switchOverlay(false);
             })
             .catch(() => {
@@ -107,11 +128,7 @@ const AccountEditor = () => {
             });
     };
 
-    const action = (
-        action:
-            'setLeverage' |
-            'setMarginType'
-    ) => {
+    const action = (action: 'setLeverage' | 'setMarginType') => {
         layoutStore.switchOverlay(true);
         axios.post<{ symbol: string, result: string }[]>(
             '/account/setup',
@@ -156,16 +173,12 @@ const AccountEditor = () => {
         )
             .then(r => {
                 layoutStore.switchOverlay(false);
-                setShouldGoBack(true);
+                goBack();
             })
             .catch(err => {
                 layoutStore.switchOverlay(false);
             });
     };
-
-
-    if (shouldGoBack)
-        return <Redirect push to={getLinkPath(linkMap.Accounts)} />;
 
 
     return <div className={styles.root}>
@@ -203,12 +216,47 @@ const AccountEditor = () => {
             name="groupName"
         />
 
+
         <label>停用</label>
         <input className={styles.checkbox}
             type="checkbox" checked={account.disabled}
             onChange={onChange}
             name="disabled"
         />
+
+        <label className={createClass('col-span-2')}>
+            自訂投資額 (可依幣種自訂, 無指定金額的幣種則使用訊號中訂的投資額)
+        </label>
+        <select onChange={e => setSymbol(e.target.value)}
+            value={symbol}
+            className={selectStyle}>
+            <option value=''>請選擇交易對</option>
+            {
+                symbols.length > 0 &&
+                symbols.map((symbol, i) =>
+                    <option key={i} value={symbol}>{symbol}</option>)
+            }
+        </select>
+        <div className={createClass('h-full', 'w-full', 'flex')}>
+            <input className={createClass(styles.input)}
+                type="number" value={quantity}
+                placeholder="金額(USDT), 設定為0可刪除設定"
+                onChange={e => setQuantity(Number(e.target.value || 0))}
+            />
+            <button className={buttonStyle}
+                onClick={addQuantity}
+            >+</button>
+        </div>
+        <div className={createClass('col-span-2')}>
+            <pre className={codeBlockStyle}>
+                {
+                    (account.quantities || [])
+                        .map(q => `${q.symbol}:${q.quantity}`)
+                        .join('\n') || '無自訂投資額'
+                }
+            </pre>
+        </div>
+
 
         <button className={styles.button} onClick={save}>儲存</button>
         <pre className={styles.error} >{error || account.error}</pre>

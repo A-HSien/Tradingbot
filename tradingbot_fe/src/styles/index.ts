@@ -27,7 +27,7 @@ export const selectStyle = createClass(
     border, 'border-blue-500',
     'bg-gray-100', 'dark:bg-gray-700',
     'py-2', 'px-4',
-    'font-semibold','text-blue-500',
+    'font-semibold', 'text-blue-500',
 );
 
 export const buttonStyle = createClass(
@@ -36,6 +36,10 @@ export const buttonStyle = createClass(
     'hover:bg-blue-500',
     'font-semibold', 'text-blue-500', 'hover:text-white',
     border, 'border-blue-500', 'hover:border-transparent',
+);
+
+export const inputStyle = createClass(
+    background, borderGray, 'h-full'
 );
 
 

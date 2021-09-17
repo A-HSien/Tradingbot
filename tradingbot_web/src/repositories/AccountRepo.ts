@@ -24,6 +24,7 @@ const accountDef: SchemaDefinition<Account> = {
     disabled: { type: Boolean },
     balances: balancesSchema,
     balancesLastUpdateTime: { type: Date },
+    quantities: [Object],
     error: { type: String },
 };
 const schema = new Schema<Account>(accountDef);

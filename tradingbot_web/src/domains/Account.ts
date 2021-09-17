@@ -26,6 +26,7 @@ export type Account = AccountSecrets & {
     disabled?: boolean,
     balances?: Balances,
     balancesLastUpdateTime?: Date,
+    quantities?:  { symbol: string, quantity: number }[],
     error?: string,
 };
 

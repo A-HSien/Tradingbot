@@ -8,6 +8,7 @@ export const SignalBase = {
     token: '',
     userId: '',
     email: '',
+    currentPrice: 0,
 };
 
 const signalBaseKeys = Object.keys(SignalBase);
@@ -15,6 +16,7 @@ const signalBaseKeys = Object.keys(SignalBase);
 
 export type TradingParams = {
     symbol: string,
+    quantity: number,
     [key: string]: string | number,
 };
 

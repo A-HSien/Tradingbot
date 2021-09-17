@@ -30,8 +30,9 @@ export type Account = {
     groupName: string,
     disabled: boolean,
 
+    quantities?: { symbol: string, quantity: number }[],
     balances?: Balances,
-    error?: string
+    error?: string,
 };
 
 export type EditingAccount = Account & {
