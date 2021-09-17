@@ -33,6 +33,7 @@ const futureNewOrder: Action = async (actionKey, account, originalSignal) => {
     console.log(`futureNewOrder account:${account.name}`, {
         account: account.name,
         prevPosition: prev,
+        customQuantity,
         toTrade:  signal.quantity,
     });
 
