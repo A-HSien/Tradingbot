@@ -1,4 +1,5 @@
 import axios from "axios";
+import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { accountStore } from "src/stores/AccountStore";
@@ -64,6 +65,7 @@ const AccountEditor = () => {
         return;
     };
 
+
     useEffect(() => {
         const account = id === newAccountId ?
             newAccount :
@@ -75,6 +77,7 @@ const AccountEditor = () => {
             .then(r => setSymbols(r.data.sort()));
     }, [id]);
 
+
     useEffect(() => {
         const quantity = account.quantities?.find(e => e.symbol === symbol);
         quantity && setQuantity(quantity.quantity);
@@ -85,7 +88,7 @@ const AccountEditor = () => {
         if (!symbol) return;
         const quantities = account.quantities?.filter(e => e.symbol !== symbol) || [];
         quantity && quantities.push({ symbol, quantity });
-        setAccount({ ...account, quantities });
+        setAccount({ ...account, quantities: _.orderBy(quantities, e => e.symbol) });
     };
 
 
@@ -98,6 +101,7 @@ const AccountEditor = () => {
             [name]: value
         });
     };
+
 
     const save = () => {
         let errors: string[] = [];
@@ -128,6 +132,7 @@ const AccountEditor = () => {
             });
     };
 
+
     const action = (action: 'setLeverage' | 'setMarginType') => {
         layoutStore.switchOverlay(true);
         axios.post<{ symbol: string, result: string }[]>(
@@ -157,6 +162,7 @@ const AccountEditor = () => {
             });
     };
 
+    
     const updateOwnership = (
         action:
             'changeOwner' |

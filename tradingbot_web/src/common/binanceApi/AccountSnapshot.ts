@@ -37,7 +37,6 @@ export const queryAccountBalance = async (account: Account) => {
       .catch(err => { account.error = logApiError(account, err) });
    if (account.error) return account;
 
-   console.log('balance',balance);
    account.balances = {
       availableBalance: balance?.availableBalance || '',
       totalUnrealizedProfit: balance?.totalUnrealizedProfit || '',
