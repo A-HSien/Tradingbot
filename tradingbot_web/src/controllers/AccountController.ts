@@ -89,7 +89,6 @@ export class AccountController {
     if (account.id) {
 
       const before = await AccountRepo.findById(account.id);
-      console.log('before', before);
       if (!before) {
         // don't do any other things here, 
         // handle new account in "if (!account.id)" instead.
