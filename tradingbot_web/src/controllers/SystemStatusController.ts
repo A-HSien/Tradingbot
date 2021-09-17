@@ -45,7 +45,7 @@ export class SystemStatusController {
         }
 
         const ip = await axios.get(SERVER_ROOT_URI + '/systemStatus/getIp');
-        console.info(`check ip: ${ip}`);
+        console.info(`check ip`, ip.data);
 
         return true;
     };
