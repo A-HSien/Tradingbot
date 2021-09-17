@@ -44,8 +44,14 @@ export class SystemStatusController {
             throw new Error(msg);
         }
 
-        const ip = await axios.get(SERVER_ROOT_URI + '/systemStatus/getIp');
-        console.info(`check ip`, ip.data);
+        const ip = await axios.get<string>(SERVER_ROOT_URI + '/systemStatus/getIp')
+            .then(r => r.data)
+            .catch(err => console.warn('livenessProbe network not ready', err.response || err))
+        if (ip && !prodIps.has(ip)) {
+            const msg = 'livenessProbe check not pass - ip not match';
+            console.error(msg, { ip });
+            throw new Error(msg);
+        }
 
         return true;
     };
