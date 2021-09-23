@@ -46,7 +46,7 @@ export const borderGray = createClass(
 );
 
 export const selectStyle = createClass(
-    border, 'border-blue-500',
+    border, 'border-gray-100', 'dark:border-gray-600',
     'bg-gray-100', 'dark:bg-gray-700',
     'py-2', 'px-4',
     'font-semibold', 'text-blue-500',

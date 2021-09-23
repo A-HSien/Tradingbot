@@ -1,6 +1,6 @@
 import axios from "axios";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { accountStore } from "src/stores/AccountStore";
 import { layoutStore } from "src/stores/LayoutStore";
@@ -83,6 +83,14 @@ const AccountEditor = () => {
         quantity && setQuantity(quantity.quantity);
     }, [account, symbol]);
 
+
+    const quantitySum = useMemo(() => {
+        let sum = 0;
+        account.quantities?.forEach(q => {
+            sum += q.quantity;
+        });
+        return sum;
+    }, [account]);
 
 
     const addQuantity = () => {
@@ -264,7 +272,7 @@ const AccountEditor = () => {
         />
 
         <label className={createClass('col-span-2')}>
-            投資額設定, 單位: USDT
+            投資額設定 - 加總: {quantitySum} USDT
         </label>
         <select onChange={e => setSymbol(e.target.value)}
             value={symbol}
@@ -276,7 +284,7 @@ const AccountEditor = () => {
                     <option key={i} value={symbol}>{symbol}</option>)
             }
         </select>
-        <div className={createClass('w-full', 'flex')}>
+        <div className={createClass('flex')}>
             <input className={createClass(styles.input, 'w-full')}
                 type="number"
                 value={quantity}
