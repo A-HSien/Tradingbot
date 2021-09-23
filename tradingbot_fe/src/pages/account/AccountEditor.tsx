@@ -84,11 +84,44 @@ const AccountEditor = () => {
     }, [account, symbol]);
 
 
+
     const addQuantity = () => {
         if (!symbol) return;
         const quantities = account.quantities?.filter(e => e.symbol !== symbol) || [];
         quantity && quantities.push({ symbol, quantity });
         setAccount({ ...account, quantities: _.orderBy(quantities, e => e.symbol) });
+    };
+
+    const tryExcute = (func: Function) => {
+        try { func(); return true; } catch (err) { return false }
+    };
+
+    const [quantitiesForImport, setQuantitiesForImport] = useState('');
+
+    const importQuantities = () => {
+        if (!quantitiesForImport) return;
+        if (!tryExcute(() => {
+            const quantities = JSON.parse(atob(quantitiesForImport));
+            console.info('importQuantities', quantities);
+            setAccount({ ...account, quantities });
+        })) alert("投資額設定格式錯誤");
+    };
+
+    const exportQuantities = () => {
+        const quantities = btoa(JSON.stringify(account.quantities || []));
+
+        navigator.permissions.query({ name: 'clipboard-write' as any })
+            .then(result => {
+                if (result.state === 'granted') {
+                    return navigator.clipboard.writeText(quantities)
+                }
+                return Promise.reject();
+            })
+            .then(() => {
+                alert("投資額設定已複製至剪貼簿");
+            })
+            .catch(err => { })
+
     };
 
 
@@ -162,7 +195,7 @@ const AccountEditor = () => {
             });
     };
 
-    
+
     const updateOwnership = (
         action:
             'changeOwner' |
@@ -231,7 +264,7 @@ const AccountEditor = () => {
         />
 
         <label className={createClass('col-span-2')}>
-            自訂投資額 (可依幣種自訂, 無指定金額的幣種則使用訊號中訂的投資額)
+            投資額設定, 單位: USDT
         </label>
         <select onChange={e => setSymbol(e.target.value)}
             value={symbol}
@@ -243,28 +276,46 @@ const AccountEditor = () => {
                     <option key={i} value={symbol}>{symbol}</option>)
             }
         </select>
-        <div className={createClass('h-full', 'w-full', 'flex')}>
-            <input className={createClass(styles.input)}
-                type="number" value={quantity}
-                placeholder="金額(USDT), 設定為0可刪除設定"
+        <div className={createClass('w-full', 'flex')}>
+            <input className={createClass(styles.input, 'w-full')}
+                type="number"
+                value={quantity}
                 onChange={e => setQuantity(Number(e.target.value || 0))}
             />
-            <button className={buttonStyle}
+            <button className={createClass(buttonStyle, 'w-12')}
                 onClick={addQuantity}
             >+</button>
         </div>
-        <div className={createClass('col-span-2')}>
-            <pre className={codeBlockStyle}>
-                {
-                    (account.quantities || [])
-                        .map(q => `${q.symbol}:${q.quantity}`)
-                        .join('\n') || '無自訂投資額'
-                }
-            </pre>
+        <div className={createClass('col-span-2', 'flex', 'flex-wrap')}>
+            {
+                (account.quantities || [])
+                    .map(q =>
+                        <button className={createClass(buttonStyle, 'w-48', 'relative')}>
+                            {q.symbol} ${q.quantity}
+                            <span className={createClass('absolute', 'top-0.5', 'right-1.5', 'text-gray-700')}>x</span>
+                        </button>
+                    )
+            }
+        </div>
+        <div className={createClass('col-span-2', 'flex', 'items-stretch')}>
+            <input className={createClass(styles.input, 'w-full')}
+                placeholder="請貼上投資額設定"
+                type="text"
+                value={quantitiesForImport}
+                onChange={e => setQuantitiesForImport(e.target.value)}
+            />
+            <button className={createClass(buttonStyle, 'w-28')}
+                onClick={importQuantities}
+            >匯入</button>
+            <button className={createClass(buttonStyle, 'w-28')}
+                onClick={exportQuantities}
+            >匯出</button>
         </div>
 
 
-        <button className={styles.button} onClick={save}>儲存</button>
+        <button className={createClass(styles.button, 'mt-12')}
+            onClick={save}
+        >儲存</button>
         <pre className={styles.error} >{error || account.error}</pre>
 
         {id !== newAccountId && <>

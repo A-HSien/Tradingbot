@@ -18,9 +18,9 @@ const keys = Object.keys(tradingParams);
 const futureNewOrder: Action = async (actionKey, account, originalSignal) => {
 
     const signal = { ...originalSignal };
-    const customQuantity = account.quantities?.find(e => e.symbol === signal.symbol)?.quantity;
-    if (customQuantity)
-        signal.quantity = Number(customQuantity) / signal.currentPrice;
+    const quantitySetting = account.quantities?.find(e => e.symbol === signal.symbol);
+    if (quantitySetting)
+        signal.quantity = Number(quantitySetting.quantity) / signal.currentPrice;
     const prev = account.balances?.positions?.find(pos => pos.symbol === signal.symbol)?.positionAmt;
     if (prev) {
         const targetIsBuy = (signal.side as string).toUpperCase() === 'BUY';
@@ -33,7 +33,7 @@ const futureNewOrder: Action = async (actionKey, account, originalSignal) => {
     console.log(`futureNewOrder account:${account.name}`, {
         account: account.name,
         prevPosition: prev,
-        customQuantity,
+        customQuantity: quantitySetting?.quantity,
         toTrade:  signal.quantity,
     });
 

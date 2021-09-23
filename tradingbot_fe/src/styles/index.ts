@@ -1,5 +1,27 @@
+import _ from "lodash";
 import { classnames } from "./classnames";
-export const createClass = classnames;
+export const createClass: typeof classnames =
+    (...args) => {
+        const map = _.flatMap(args, a => (a as string).split(' '))
+            .reduce((map, curr) => {
+                const tokens = curr.split('-');
+                let grouped = false;
+                if (tokens.length > 1) {
+                    const val = tokens.pop();
+                    const key = tokens.join('-');
+                    if (key !== 'flex') {
+                        grouped = true;
+                        map.set(key, `${key}-${val}`);
+                    }
+                }
+                if (!grouped) {
+                    map.set(curr, curr);
+                }
+                return map;
+            }, new Map<string, string>())
+        const vals: any[] = Array.from(map.values());
+        return classnames(...vals);
+    };
 
 
 export const background = createClass(
@@ -39,7 +61,7 @@ export const buttonStyle = createClass(
 );
 
 export const inputStyle = createClass(
-    background, borderGray, 'h-full'
+    background, borderGray
 );
 
 

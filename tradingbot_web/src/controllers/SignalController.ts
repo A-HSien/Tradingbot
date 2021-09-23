@@ -103,8 +103,8 @@ export class SignalController {
 
     const conditions: Partial<Account>[] = [{ disabled: false }];
     if (signal.groupName) conditions.push({ groupName: signal.groupName });
-    const query = fetchAccountsByUser(signal.userId, signal.email).and(conditions);
-    const accounts = await query.exec();
+    const queryAccount = fetchAccountsByUser(signal.userId, signal.email).and(conditions);
+    const accounts = await queryAccount.exec();
 
     const logs = await Promise.all(
       accounts.map(async acc => {
