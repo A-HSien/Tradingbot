@@ -96,7 +96,7 @@ const AccountEditor = () => {
     const addQuantity = () => {
         if (!symbol) return;
         const quantities = account.quantities?.filter(e => e.symbol !== symbol) || [];
-        quantity && quantities.push({ symbol, quantity });
+        quantities.push({ symbol, quantity: quantity || 0 });
         setAccount({ ...account, quantities: _.orderBy(quantities, e => e.symbol) });
     };
 
