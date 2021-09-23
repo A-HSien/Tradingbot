@@ -47,7 +47,7 @@ export class SystemStatusController {
 
         const ip = await axios.get<string>(SERVER_ROOT_URI + '/systemStatus/getIp')
             .then(r => r.data)
-            .catch(err => console.info('livenessProbe network not ready', err.response || err))
+            .catch(err => console.info('livenessProbe network not ready'))
         if (ip && !prodIps.has(ip)) {
             const msg = 'livenessProbe check not pass - ip not match';
             console.error(msg, { ip });
