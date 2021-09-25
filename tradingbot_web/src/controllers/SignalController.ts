@@ -91,7 +91,7 @@ export class SignalController {
       updateExchangeInfo(),
     ]);
     if (!priceInfo || !priceInfo.price) {
-      console.error(`get price error`, signal);
+      console.error(`get price failed`, signal);
       await SignalRepo.create(signal);
       return;
     }

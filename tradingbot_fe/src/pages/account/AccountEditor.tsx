@@ -100,6 +100,11 @@ const AccountEditor = () => {
         setAccount({ ...account, quantities: _.orderBy(quantities, e => e.symbol) });
     };
 
+    const deleteQuantity = (symbol: string) => {
+        const quantities = account.quantities?.filter(e => e.symbol !== symbol) || [];
+        setAccount({ ...account, quantities: _.orderBy(quantities, e => e.symbol) });
+    };
+
     const tryExcute = (func: Function) => {
         try { func(); return true; } catch (err) { return false }
     };
@@ -298,7 +303,8 @@ const AccountEditor = () => {
             {
                 (account.quantities || [])
                     .map(q =>
-                        <button className={createClass(buttonStyle, 'w-48', 'relative')}>
+                        <button className={createClass(buttonStyle, 'w-48', 'relative')}
+                            onClick={() => deleteQuantity(q.symbol)}>
                             {q.symbol} ${q.quantity}
                             <span className={createClass('absolute', 'top-0.5', 'right-1.5', 'text-gray-700')}>x</span>
                         </button>

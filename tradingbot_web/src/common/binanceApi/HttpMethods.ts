@@ -36,17 +36,13 @@ const logQuota = (resp: AxiosResponse<any>) => {
     ApiQuotaRecordRepo.insertMany(newRecords).then();
 };
 
-BinanceAPI.interceptors.request.use(req => {
-    const quota = localQuotaRecords.find(_ => true)?.value;
-    if (quota && Number(quota) > 1200) throw new Error('BinanceAPI quota exceeded');
-    return req;
-});
+
 BinanceAPI.interceptors.response.use(resp => {
     logQuota(resp);
     return resp;
 
 }, error => {
-    console.error('BinanceAPI error', error?.response?.data || error);
+    console.warn('BinanceAPI error', error?.response?.data || error);
     error?.response && logQuota(error.response);
     return Promise.reject(error);
 });

@@ -9,6 +9,7 @@ import { project } from "../common/GoogleConst";
 import { inject } from "@loopback/core";
 import axios from "axios";
 import { SERVER_ROOT_URI } from "../config";
+import { getApiQuotaRecords } from "../common/binanceApi/HttpMethods";
 const instancesClient = new compute.InstancesClient();
 const addressesClient = new compute.AddressesClient();
 const region = 'asia-east1';
@@ -40,7 +41,7 @@ export class SystemStatusController {
 
         if (!dbIsOk) {
             const msg = 'livenessProbe check not pass - db connection failed';
-            console.error(msg);
+            console.error(msg, { msg });
             throw new Error(msg);
         }
 
@@ -50,11 +51,17 @@ export class SystemStatusController {
             .catch(err => console.info('livenessProbe network not ready'))
         if (ip && !prodIps.has(ip)) {
             const msg = 'livenessProbe check not pass - ip not match';
-            console.error(msg, { ip });
+            console.error(msg, { msg, ip });
             throw new Error(msg);
         }
 
-        
+        const quota = getApiQuotaRecords().find(_ => true)?.value;
+        if (quota && Number(quota) > 1000) {
+            const msg = 'livenessProbe check not pass - BinanceAPI quota exceeded';
+            console.error(msg, { msg, quota });
+            throw new Error(msg);
+        }
+
 
 
         return true;

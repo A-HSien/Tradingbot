@@ -14,6 +14,5 @@ type Result = typeof result;
 
 export const getFuturePrice = async (symbol: string) => {
     return await BinanceAPI.get<Result>(api, { params: { symbol } })
-        .then(resp => resp.data)
-        .catch(err => console.error('Binance api error', err.response.data));
+        .then(resp => resp.data);
 };

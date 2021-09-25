@@ -13,6 +13,7 @@ export const attach = () => {
     const metadata = new Map([
         ['log', { severity: 'DEBUG', resource }],
         ['info', { severity: 'INFO', resource }],
+        ['warn', { severity: 'WARNING', resource }],
         ['error', { severity: 'ERROR', resource }],
     ]);
 
@@ -39,6 +40,10 @@ export const attach = () => {
 
     console.info = (message: string, data: any) => {
         write('info', message, data);
+    };
+
+    console.warn = (message: string, data: any) => {
+        write('warn', message, data);
     };
 
     console.error = (message: string, data: any) => {
