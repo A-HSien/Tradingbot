@@ -86,8 +86,11 @@ export class SignalController {
     if (!action) return;
 
 
-    const [priceInfo] = await Promise.all([
+    const conditions: Partial<Account>[] = [{ disabled: false }];
+    const queryAccount = fetchAccountsByUser(signal.userId, signal.email).and(conditions);
+    const [priceInfo, accounts] = await Promise.all([
       getFuturePrice(signal.symbol),
+      queryAccount.exec(),
       updateExchangeInfo(),
     ]);
     if (!priceInfo || !priceInfo.price) {
@@ -97,30 +100,30 @@ export class SignalController {
     }
     console.log(`priceInfo - ${priceInfo.symbol}: ${priceInfo.price}`, priceInfo);
     signal.currentPrice = Number(priceInfo.price);
-    signal.quantity = Number(signal.quantity) / signal.currentPrice;
     SignalRepo.create(signal).then();
 
 
-    const conditions: Partial<Account>[] = [{ disabled: false }];
-    if (signal.groupName) conditions.push({ groupName: signal.groupName });
-    const queryAccount = fetchAccountsByUser(signal.userId, signal.email).and(conditions);
-    const accounts = await queryAccount.exec();
 
     const logs = await Promise.all(
-      accounts.map(async acc => {
-        const updated = await queryAccountBalance(acc);
-        const before = clone(updated);
-        const result: ActionRecord = !before.error ?
-          await action.action(actionKey, updated, signal) :
-          {
-            userId: signal.userId,
-            accountId: acc.id,
-            action: actionKey,
-            result: 'action skiped -' + updated.error,
-            success: false
-          };
-        return { before, result };
-      })
+      accounts
+        .filter(acc => {
+          const setting = acc.quantities?.find(e => e.symbol === signal.symbol);
+          return setting && setting.quantity > 0;
+        })
+        .map(async acc => {
+          const updated = await queryAccountBalance(acc);
+          const before = clone(updated);
+          const result: ActionRecord = !before.error ?
+            await action.action(actionKey, updated, signal) :
+            {
+              userId: signal.userId,
+              accountId: acc.id,
+              action: actionKey,
+              result: 'action skiped -' + updated.error,
+              success: false
+            };
+          return { before, result };
+        })
     );
     await ActionRecordRepo.insertMany(logs.map(e => e.result));
     logs.forEach((each, i) => {
