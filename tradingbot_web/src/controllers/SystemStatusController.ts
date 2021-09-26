@@ -2,14 +2,13 @@ import { get, RestBindings, Request } from "@loopback/rest";
 import ApiQuotaRecordRepo from "../repositories/ApiQuotaRecordRepo";
 import { connection } from 'mongoose';
 import _ from "lodash";
-
-
 import compute from '@google-cloud/compute';
 import { project } from "../common/GoogleConst";
 import { inject } from "@loopback/core";
 import axios from "axios";
 import { SERVER_ROOT_URI } from "../config";
 import { getApiQuotaRecords } from "../common/binanceApi/HttpMethods";
+import { ApiQuotaRecord } from "../domains/ApiQuotaRecord";
 const instancesClient = new compute.InstancesClient();
 const addressesClient = new compute.AddressesClient();
 const region = 'asia-east1';
@@ -23,7 +22,8 @@ export class SystemStatusController {
 
     @get('systemStatus/getApiQuotaRecords')
     getApiQuotaRecords() {
-        return ApiQuotaRecordRepo.where();
+        const start = Date.now() - (24 * 60 * 60 * 1000);
+        return ApiQuotaRecordRepo.where({ time: { $gte: new Date(start) } });
     };
 
 

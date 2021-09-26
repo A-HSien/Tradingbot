@@ -87,6 +87,7 @@ export class SignalController {
 
 
     const conditions: Partial<Account>[] = [{ disabled: false }];
+    if (signal.groupName) conditions.push({ groupName: signal.groupName });
     const queryAccount = fetchAccountsByUser(signal.userId, signal.email).and(conditions);
     const [priceInfo, accounts] = await Promise.all([
       getFuturePrice(signal.symbol),
