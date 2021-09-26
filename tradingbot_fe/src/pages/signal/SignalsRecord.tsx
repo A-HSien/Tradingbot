@@ -2,7 +2,7 @@
 import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { formatDate } from "src/common/utities";
-import baseStyles, { createClass, tableContainer } from "src/styles";
+import baseStyles, { createClass, scrollable } from "src/styles";
 
 
 type Signal = {
@@ -81,7 +81,7 @@ const Signals = () => {
     return <div className={baseStyles.pageEdge}>
 
         訊號紀錄:
-        <div className={tableContainer}>
+        <div className={scrollable}>
             <table className={styles.table}>
                 <thead>
                     <tr>

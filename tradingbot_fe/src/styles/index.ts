@@ -65,8 +65,8 @@ export const inputStyle = createClass(
 );
 
 
-export const tableContainer = createClass(
-    'overflow-auto'
+export const scrollable = createClass(
+    'overflow-auto',
 );
 
 export const table = createClass(
@@ -84,16 +84,13 @@ export const tableCell = createClass(
 
 
 export const codeBlockStyle = createClass(
-    'overflow-auto',
+    scrollable,
     'rounded',
     'bg-gray-600',
     'p-2', 'mb-3',
     'text-left',
 );
 
-export const scrollable = createClass(
-    'overflow-auto',
-);
 
 const styles = {
     background,

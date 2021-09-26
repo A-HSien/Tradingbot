@@ -4,15 +4,12 @@ import { observer } from "mobx-react";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { formatDate, formatJson } from "src/common/utities";
-import baseStyles, { createClass } from "src/styles";
+import baseStyles, { createClass, scrollable } from "src/styles";
 
 
 const styles = {
     page: createClass(
         baseStyles.pageEdge,
-    ),
-    tableContainer: createClass(
-        'overflow-auto'
     ),
     table: baseStyles.table,
     tableCell: baseStyles.tableCell,
@@ -121,7 +118,7 @@ const AccountIncome = () => {
                     </div>;
                 })
             }
-            <div className={styles.tableContainer}>
+            <div className={scrollable}>
                 <table className={styles.table}>
                     <thead>
                         <tr>

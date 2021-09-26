@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { formatDate } from "src/common/utities";
-import { table, tableCell, tableContainer } from "src/styles";
+import { table, tableCell, scrollable } from "src/styles";
 
 type Record = {
     time: string,
@@ -36,7 +36,7 @@ export const SystemStatus = () => {
 
     return <>
         API配額使用狀態(max: {max}):
-        <div className={tableContainer}>
+        <div className={scrollable}>
             <table className={table}>
                 <tbody>
                     {apiQuotaRecords.map((record, i) => (

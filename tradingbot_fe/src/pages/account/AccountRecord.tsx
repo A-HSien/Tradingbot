@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { formatDate, formatJson } from "src/common/utities";
 import { accountStore } from "src/stores/AccountStore";
-import baseStyles, { codeBlockStyle, createClass } from "src/styles";
+import baseStyles, { codeBlockStyle, createClass, scrollable } from "src/styles";
 
 type ActionRecord = {
     userId: string,
@@ -19,9 +19,6 @@ type ActionRecord = {
 const styles = {
     page: createClass(
         baseStyles.pageEdge,
-    ),
-    tableContainer: createClass(
-        'overflow-auto'
     ),
     table: baseStyles.table,
     tableCell: baseStyles.tableCell,
@@ -48,7 +45,7 @@ const AccountRecord = () => {
         <div className={styles.page}>
             帳戶 - {name}<br />
             系統僅保存七天內之交易紀錄:
-            <div className={styles.tableContainer}>
+            <div className={scrollable}>
                 <table className={styles.table}>
                     <thead>
                         <tr>
