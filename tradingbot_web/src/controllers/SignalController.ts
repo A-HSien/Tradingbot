@@ -107,10 +107,7 @@ export class SignalController {
 
     const logs = await Promise.all(
       accounts
-        .filter(acc => {
-          const setting = acc.quantities?.find(e => e.symbol === signal.symbol);
-          return setting && setting.quantity > 0;
-        })
+        .filter(acc => acc.quantities?.some(e => e.symbol === signal.symbol))
         .map(async acc => {
           const updated = await queryAccountBalance(acc);
           const before = clone(updated);

@@ -8,7 +8,6 @@ import { inject } from "@loopback/core";
 import axios from "axios";
 import { SERVER_ROOT_URI } from "../config";
 import { getApiQuotaRecords } from "../common/binanceApi/HttpMethods";
-import { ApiQuotaRecord } from "../domains/ApiQuotaRecord";
 const instancesClient = new compute.InstancesClient();
 const addressesClient = new compute.AddressesClient();
 const region = 'asia-east1';

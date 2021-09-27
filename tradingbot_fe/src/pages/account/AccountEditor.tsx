@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { accountStore } from "src/stores/AccountStore";
 import { layoutStore } from "src/stores/LayoutStore";
-import baseStyles, { buttonStyle, codeBlockStyle, createClass, inputStyle, selectStyle } from "src/styles";
+import baseStyles, { buttonStyle, codeBlockStyle, createClass, inputStyle, redButtonStyle, selectStyle } from "src/styles";
 import { EditingAccount } from "../../models/Account";
 
 export const newAccountId = 'New';
@@ -29,10 +29,6 @@ const styles = {
     error: createClass(
         'col-span-2', 'pt-2',
         'text-red-500', 'text-xs'
-    ),
-    button: createClass(
-        baseStyles.buttonStyle,
-        'col-span-2',
     ),
 };
 
@@ -232,6 +228,18 @@ const AccountEditor = () => {
             });
     };
 
+    const closeAll = () => {
+        axios.post<{ symbol: string, result: string }[]>(
+            '/account/closeAll',
+            {
+                accountId: account.id,
+                // notTest: true,
+            }
+        )
+            .then(console.info)
+            .catch(console.error);
+    };
+
 
     return <div className={styles.root}>
 
@@ -268,13 +276,6 @@ const AccountEditor = () => {
             name="groupName"
         />
 
-
-        <label>停用</label>
-        <input className={styles.checkbox}
-            type="checkbox" checked={account.disabled}
-            onChange={onChange}
-            name="disabled"
-        />
 
         <label className={createClass('col-span-2')}>
             投資額設定 - 加總: {quantitySum} USDT
@@ -327,9 +328,21 @@ const AccountEditor = () => {
         </div>
 
 
-        <button className={createClass(styles.button, 'mt-12')}
-            onClick={save}
-        >儲存</button>
+        <div className={createClass('col-span-2', 'mt-6')}>
+            <label>停用</label>
+            <input className={createClass(styles.checkbox, 'translate-y-0')}
+                type="checkbox" checked={account.disabled}
+                onChange={onChange}
+                name="disabled"
+            />
+        </div>
+
+        <button className={createClass(buttonStyle)}
+            onClick={save}>儲存</button>
+        <button className={createClass(redButtonStyle)}
+            onClick={closeAll}>平倉</button>
+
+
         <pre className={styles.error} >{error || account.error}</pre>
 
         {id !== newAccountId && <>

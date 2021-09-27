@@ -52,12 +52,26 @@ export const selectStyle = createClass(
     'font-semibold', 'text-blue-500',
 );
 
-export const buttonStyle = createClass(
-    'block', 'w-full', 'text-center',
+const baseButtonStyle = createClass(
+    'block', 'w-full',
+    'text-center', 'font-semibold',
     'py-2', 'px-4',
+    border,
+    'hover:text-white', 'hover:border-transparent',
+);
+
+export const buttonStyle = createClass(
+    baseButtonStyle,
+    'border-blue-500',
     'hover:bg-blue-500',
-    'font-semibold', 'text-blue-500', 'hover:text-white',
-    border, 'border-blue-500', 'hover:border-transparent',
+    'text-blue-500',
+);
+
+export const redButtonStyle = createClass(
+    baseButtonStyle,
+    'border-red-500',
+    'hover:bg-red-500',
+    'text-red-500',
 );
 
 export const inputStyle = createClass(

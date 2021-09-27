@@ -16,6 +16,7 @@ const signalBaseKeys = Object.keys(SignalBase);
 
 export type TradingParams = {
     symbol: string,
+    side: string,
     quantity: number,
     [key: string]: string | number,
 };
@@ -37,7 +38,7 @@ export const decodeSignal = async (signal: Signal) => {
 
     signal.userId = tokenData.userId;
     signal.email = tokenData.email;
-    signal.token = '---' + signal.token.substr(-8, 8);;
+    signal.token = '---' + signal.token!.substr(-8, 8);;
     signal['tokenExp'] = tokenData.exp;
 
     return signal;

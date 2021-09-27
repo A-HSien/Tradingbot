@@ -24,9 +24,8 @@ const futureNewOrder: Action = async (actionKey, account, originalSignal) => {
     const prev = account.balances?.positions?.find(pos => pos.symbol === signal.symbol)?.positionAmt;
     if (prev) {
         const targetIsBuy = (signal.side as string).toUpperCase() === 'BUY';
-        const stopQuantity = Number(prev) * -1; // 平倉
         const targetQuantity = Number(signal.quantity) * (targetIsBuy ? 1 : -1);
-        const toTrade = stopQuantity + targetQuantity
+        const toTrade = targetQuantity - Number(prev);
         signal.site = toTrade > 0 ? 'BUY' : 'SELL';
         signal.quantity = Math.abs(toTrade);
     }

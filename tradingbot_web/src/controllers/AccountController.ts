@@ -6,10 +6,13 @@ import _ from 'lodash';
 import { queryAccountIncome } from '../common/binanceApi/AccountIncome';
 import AccountSetup from '../common/binanceApi/AccountSetup';
 import { checkAndQueryAccount, queryAccountBalance } from '../common/binanceApi/AccountSnapshot';
+import { generalSignedPostAction } from '../common/binanceApi/Actions';
+import { updateExchangeInfo } from '../common/binanceApi/ExchangeInfo';
 import { encrypt } from '../common/GoogleKms';
 import { Account, validateOwnership } from '../domains/Account';
 import { ActionRecord } from '../domains/Action';
 import { AppUser } from '../domains/AppUser';
+import { Signal, TradingParams } from '../domains/Signal';
 import { PerformanceLog } from '../Interceptors';
 import AccountRepo, { fetchAccountsByUser, getAuthorizedAccount } from '../repositories/AccountRepo';
 import ActionRecordRepo from '../repositories/ActionRecordRepo';
@@ -202,5 +205,42 @@ export class AccountController {
   };
 
 
+
+  @post('/account/closeAll')
+  async closeAll(
+    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
+    @requestBody() payload: {
+      accountId: string,
+      notTest: boolean | undefined,
+    },
+
+  ) {
+    let [account] = await Promise.all([
+      getAuthorizedAccount(payload.accountId, currentUserProfile),
+      updateExchangeInfo(),
+    ]);
+    account = await queryAccountBalance(account);
+    if (!Array.isArray(account.balances?.positions)) return;
+
+    const action = payload.notTest ? 'FOrder' : 'FOrderTest';
+    const tasks = account.balances!.positions.map(async pos => {
+      const amt = Number(pos.positionAmt);
+      const params: TradingParams = {
+        action,
+        userId: currentUserProfile.id,
+        accountId: payload.accountId,
+        symbol: pos.symbol,
+        side: amt < 0 ? 'BUY' : 'SELL',
+        quantity: Math.abs(amt),
+      };
+      return generalSignedPostAction(
+        action,
+        account,
+        params as Signal
+      );
+    });
+    const logs = await Promise.all(tasks);
+    await ActionRecordRepo.insertMany(logs);
+  };
 
 };

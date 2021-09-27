@@ -17,5 +17,5 @@ export type ActionRecord = {
 export type Action = (
     actionKey: ActionKey,
     account: Account,
-    signal: Signal
+    signal: Signal,
 ) => Promise<ActionRecord>
