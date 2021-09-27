@@ -243,6 +243,9 @@ export class AccountController {
     });
     const logs = await Promise.all(tasks);
     await ActionRecordRepo.insertMany(logs);
+    const updated = await queryAccountBalance(account);
+    if (payload.notTest) updated.disabled = true;
+    await AccountRepo.updateOne({ '_id': updated.id }, updated).exec();
   };
 
 };

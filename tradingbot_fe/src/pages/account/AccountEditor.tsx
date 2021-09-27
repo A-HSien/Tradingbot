@@ -2,6 +2,7 @@ import axios from "axios";
 import _ from "lodash";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
+import { formatJson } from "src/common/utities";
 import { accountStore } from "src/stores/AccountStore";
 import { layoutStore } from "src/stores/LayoutStore";
 import baseStyles, { buttonStyle, codeBlockStyle, createClass, inputStyle, redButtonStyle, selectStyle } from "src/styles";
@@ -233,11 +234,16 @@ const AccountEditor = () => {
             '/account/closeAll',
             {
                 accountId: account.id,
-                // notTest: true,
+                notTest: true,
             }
         )
-            .then(console.info)
-            .catch(console.error);
+            .then(() => {
+                window.location.reload();
+            })
+            .catch(err => {
+                console.error(err);
+                setError(formatJson(err));
+            });
     };
 
 
@@ -340,7 +346,7 @@ const AccountEditor = () => {
         <button className={createClass(buttonStyle)}
             onClick={save}>儲存</button>
         <button className={createClass(redButtonStyle)}
-            onClick={closeAll}>平倉</button>
+            onClick={closeAll}>全部平倉</button>
 
 
         <pre className={styles.error} >{error || account.error}</pre>
