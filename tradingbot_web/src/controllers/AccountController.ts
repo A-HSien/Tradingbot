@@ -232,6 +232,8 @@ export class AccountController {
         symbol: pos.symbol,
         side: amt < 0 ? 'BUY' : 'SELL',
         quantity: Math.abs(amt),
+        type: 'MARKET',
+        reduceOnly: 'true',
       };
       return generalSignedPostAction(
         action,
